@@ -53,6 +53,7 @@ aaron.event.on('GAME_START', this.onGameStart, this);
 
 - [核心模块](./modules/core/) - 核心功能模块
 - [管理器模块](./modules/managers/) - 各类管理器
+- [依赖注入](./modules/di/) - 依赖注入系统
 - [UI 框架](./modules/ui/) - UI 系统文档
 - [资源管理](./modules/resources/) - 资源管理系统
 - [工具函数](./modules/utils/) - 工具函数库
