@@ -4,6 +4,10 @@
 
   /* Add your custom configuration here. */
   "compilerOptions": {
-    "strict": false
+    "strict": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["ES2015", "ES2016", "ES2017", "DOM"],
+    "types": []
   }
 }
