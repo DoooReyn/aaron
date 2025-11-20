@@ -40,13 +40,13 @@ export interface IServiceDescriptor {
  */
 export class Container {
     /** 服务注册表 */
-    private services: Map<string, IServiceDescriptor> = new Map();
+    private _services: Map<string, IServiceDescriptor> = new Map();
 
     /** 单例实例缓存 */
-    private singletons: Map<string, any> = new Map();
+    private _singletons: Map<string, any> = new Map();
 
     /** 正在解析的服务（用于循环依赖检测） */
-    private resolving: Set<string> = new Set();
+    private _resolving: Set<string> = new Set();
 
     /**
      * 注册服务
@@ -57,7 +57,7 @@ export class Container {
         lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
         dependencies: string[] = []
     ): void {
-        if (this.services.has(token)) {
+        if (this._services.has(token)) {
             throw new Error(`服务 '${token}' 已经注册`);
         }
 
@@ -68,7 +68,7 @@ export class Container {
             dependencies
         };
 
-        this.services.set(token, descriptor);
+        this._services.set(token, descriptor);
         console.log(`✅ 注册服务 ${token}，依赖: [${dependencies.join(', ')}]`);
     }
 
@@ -83,7 +83,7 @@ export class Container {
      * 注册服务实例
      */
     registerInstance<T>(token: string, instance: T): void {
-        if (this.services.has(token)) {
+        if (this._services.has(token)) {
             throw new Error(`服务 '${token}' 已经注册`);
         }
 
@@ -95,8 +95,8 @@ export class Container {
             instance
         };
 
-        this.services.set(token, descriptor);
-        this.singletons.set(token, instance);
+        this._services.set(token, descriptor);
+        this._singletons.set(token, instance);
         console.log(`✅ 注册服务实例 ${token}`);
     }
 
@@ -108,7 +108,7 @@ export class Container {
         factory: (container: Container) => T,
         lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT
     ): void {
-        if (this.services.has(token)) {
+        if (this._services.has(token)) {
             throw new Error(`服务 '${token}' 已经注册`);
         }
 
@@ -120,7 +120,7 @@ export class Container {
             factory
         };
 
-        this.services.set(token, descriptor);
+        this._services.set(token, descriptor);
         console.log(`✅ 注册工厂服务 ${token}`);
     }
 
@@ -146,16 +146,16 @@ export class Container {
      * 检查服务是否已注册
      */
     isRegistered(token: string): boolean {
-        return this.services.has(token);
+        return this._services.has(token);
     }
 
     /**
      * 移除服务
      */
     remove(token: string): boolean {
-        const removed = this.services.delete(token);
+        const removed = this._services.delete(token);
         if (removed) {
-            this.singletons.delete(token);
+            this._singletons.delete(token);
         }
         return removed;
     }
@@ -164,16 +164,16 @@ export class Container {
      * 清除所有服务
      */
     clear(): void {
-        this.services.clear();
-        this.singletons.clear();
-        this.resolving.clear();
+        this._services.clear();
+        this._singletons.clear();
+        this._resolving.clear();
     }
 
     /**
      * 获取已注册服务列表
      */
     getRegisteredServices(): string[] {
-        return Array.from(this.services.keys());
+        return Array.from(this._services.keys());
     }
 
     /**
@@ -184,15 +184,15 @@ export class Container {
         singletonInstances: number;
         services: Array<{ token: string; lifetime: string; dependencies: string[] }>;
     } {
-        const services = Array.from(this.services.values()).map(s => ({
+        const services = Array.from(this._services.values()).map(s => ({
             token: s.token,
             lifetime: s.lifetime,
             dependencies: s.dependencies
         }));
 
         return {
-            registeredServices: this.services.size,
-            singletonInstances: this.singletons.size,
+            registeredServices: this._services.size,
+            singletonInstances: this._singletons.size,
             services
         };
     }
@@ -202,24 +202,24 @@ export class Container {
      */
     private resolveInternal<T>(token: string): T {
         // 检查循环依赖
-        if (this.resolving.has(token)) {
-            const stack = Array.from(this.resolving).join(' -> ');
+        if (this._resolving.has(token)) {
+            const stack = Array.from(this._resolving).join(' -> ');
             throw new Error(`检测到循环依赖: ${stack} -> ${token}`);
         }
 
         // 查找服务描述符
-        const descriptor = this.services.get(token);
+        const descriptor = this._services.get(token);
         if (!descriptor) {
             throw new Error(`服务 '${token}' 未注册`);
         }
 
         // 检查单例缓存
-        if (descriptor.lifetime === ServiceLifetime.SINGLETON && this.singletons.has(token)) {
-            return this.singletons.get(token);
+        if (descriptor.lifetime === ServiceLifetime.SINGLETON && this._singletons.has(token)) {
+            return this._singletons.get(token);
         }
 
         // 标记正在解析
-        this.resolving.add(token);
+        this._resolving.add(token);
 
         try {
             // 创建实例
@@ -227,12 +227,12 @@ export class Container {
 
             // 缓存单例
             if (descriptor.lifetime === ServiceLifetime.SINGLETON) {
-                this.singletons.set(token, instance);
+                this._singletons.set(token, instance);
             }
 
             return instance;
         } finally {
-            this.resolving.delete(token);
+            this._resolving.delete(token);
         }
     }
 

@@ -25,30 +25,30 @@ export interface IServiceRegistration {
  */
 export class DIManager {
     /** 容器实例 */
-    private container: Container;
+    private _container: Container;
 
     /** 全局单例实例 */
-    private static instance: DIManager;
+    private static $Instance: DIManager;
 
     constructor() {
-        this.container = new Container();
+        this._container = new Container();
     }
 
     /**
      * 获取单例实例
      */
-    static getInstance(): DIManager {
-        if (!DIManager.instance) {
-            DIManager.instance = new DIManager();
+    static GetInstance(): DIManager {
+        if (!DIManager.$Instance) {
+            DIManager.$Instance = new DIManager();
         }
-        return DIManager.instance;
+        return DIManager.$Instance;
     }
 
     /**
      * 重置单例实例
      */
-    static resetInstance(): void {
-        DIManager.instance = new DIManager();
+    static ResetInstance(): void {
+        DIManager.$Instance = new DIManager();
     }
 
     /**
@@ -61,9 +61,9 @@ export class DIManager {
             const { token, implementation, lifetime = ServiceLifetime.SINGLETON, dependencies = [] } = reg;
 
             if (lifetime === ServiceLifetime.SINGLETON) {
-                this.container.registerSingleton(token, implementation, dependencies);
+                this._container.registerSingleton(token, implementation, dependencies);
             } else {
-                this.container.register(token, implementation, lifetime, dependencies);
+                this._container.register(token, implementation, lifetime, dependencies);
             }
         }
     }
@@ -78,9 +78,9 @@ export class DIManager {
         lifetime: ServiceLifetime = ServiceLifetime.SINGLETON
     ): void {
         if (lifetime === ServiceLifetime.SINGLETON) {
-            this.container.registerSingleton(token, implementation, dependencies);
+            this._container.registerSingleton(token, implementation, dependencies);
         } else {
-            this.container.register(token, implementation, lifetime, dependencies);
+            this._container.register(token, implementation, lifetime, dependencies);
         }
     }
 
@@ -88,7 +88,7 @@ export class DIManager {
      * 注册服务实例
      */
     registerInstance<T>(token: string, instance: T): void {
-        this.container.registerInstance(token, instance);
+        this._container.registerInstance(token, instance);
     }
 
     /**
@@ -99,49 +99,49 @@ export class DIManager {
         factory: (container: Container) => T,
         lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT
     ): void {
-        this.container.registerFactory(token, factory, lifetime);
+        this._container.registerFactory(token, factory, lifetime);
     }
 
     /**
      * 解析服务
      */
     resolve<T>(token: string): T {
-        return this.container.resolve<T>(token);
+        return this._container.resolve<T>(token);
     }
 
     /**
      * 尝试解析服务
      */
     tryResolve<T>(token: string): T | null {
-        return this.container.tryResolve<T>(token);
+        return this._container.tryResolve<T>(token);
     }
 
     /**
      * 检查服务是否已注册
      */
     isRegistered(token: string): boolean {
-        return this.container.isRegistered(token);
+        return this._container.isRegistered(token);
     }
 
     /**
      * 移除服务
      */
     remove(token: string): boolean {
-        return this.container.remove(token);
+        return this._container.remove(token);
     }
 
     /**
      * 清除所有服务
      */
     clear(): void {
-        this.container.clear();
+        this._container.clear();
     }
 
     /**
      * 获取容器实例
      */
     getContainer(): Container {
-        return this.container;
+        return this._container;
     }
 
     /**
@@ -152,7 +152,7 @@ export class DIManager {
         singletonInstances: number;
         services: Array<{ token: string; lifetime: string; dependencies: string[] }>;
     } {
-        return this.container.getStats();
+        return this._container.getStats();
     }
 
     /**
@@ -186,6 +186,6 @@ export class DIManager {
 }
 
 /**
- * 全局简化 DI 管理器实例
+ * 全局 DI 管理器实例
  */
-export const diManager = DIManager.getInstance();
+export const DI_MANAGER = DIManager.GetInstance();

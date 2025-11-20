@@ -18,11 +18,11 @@ import {
  * 数据库连接服务实现
  */
 export class DatabaseConnection implements IDatabaseConnection {
-    private connectionId: string;
+    private _connectionId: string;
 
     constructor() {
-        this.connectionId = `db_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        console.log(`✅ 数据库连接已建立: ${this.connectionId}`);
+        this._connectionId = `db_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log(`✅ 数据库连接已建立: ${this._connectionId}`);
     }
 
     query(sql: string): any[] {
@@ -31,7 +31,7 @@ export class DatabaseConnection implements IDatabaseConnection {
     }
 
     getConnectionId(): string {
-        return this.connectionId;
+        return this._connectionId;
     }
 }
 
@@ -39,7 +39,7 @@ export class DatabaseConnection implements IDatabaseConnection {
  * 配置服务实现
  */
 export class ConfigService implements IConfigService {
-    private config: Record<string, any> = {
+    private _config: Record<string, any> = {
         app: {
             name: 'Aaron Framework',
             version: '1.0.0',
@@ -48,11 +48,11 @@ export class ConfigService implements IConfigService {
     };
 
     get(key: string): any {
-        return this.config[key];
+        return this._config[key];
     }
 
     set(key: string, value: any): void {
-        this.config[key] = value;
+        this._config[key] = value;
     }
 }
 
@@ -61,17 +61,17 @@ export class ConfigService implements IConfigService {
  */
 export class UserService implements IUserService {
     constructor(
-        private db: IDatabaseConnection,
-        private config: IConfigService
+        private _db: IDatabaseConnection,
+        private _config: IConfigService
     ) {
         console.log('✅ UserService 已初始化');
     }
 
     getUserById(id: number): IUser {
-        const config = this.config.get('app');
+        const config = this._config.get('app');
         console.log(`👤 获取用户 ${id}，应用: ${config.name}`);
 
-        const results = this.db.query(`SELECT * FROM users WHERE id = ${id}`);
+        const results = this._db.query(`SELECT * FROM users WHERE id = ${id}`);
         return { id, name: `User ${id}`, ...results[0] };
     }
 }
@@ -80,33 +80,33 @@ export class UserService implements IUserService {
  * 日志服务实现
  */
 export class LoggerService implements ILoggerService {
-    private db: IDatabaseConnection;
-    private config: IConfigService;
+    private _db: IDatabaseConnection;
+    private _config: IConfigService;
 
-    private logs: string[] = [];
+    private _logs: string[] = [];
 
     // 手动设置依赖的方法（使用接口类型）
     setDependencies(db: IDatabaseConnection, config: IConfigService): void {
-        this.db = db;
-        this.config = config;
+        this._db = db;
+        this._config = config;
         console.log('✅ LoggerService 依赖已设置');
     }
 
     log(message: string): void {
         const timestamp = new Date().toISOString();
         const logEntry = `[${timestamp}] ${message}`;
-        this.logs.push(logEntry);
+        this._logs.push(logEntry);
         console.log(`📝 ${logEntry}`);
 
         // 使用注入的服务
-        const config = this.config.get('app');
+        const config = this._config.get('app');
         if (config.debug) {
-            console.log(`🐛 调试模式：记录到数据库 ${this.db.getConnectionId()}`);
+            console.log(`🐛 调试模式：记录到数据库 ${this._db.getConnectionId()}`);
         }
     }
 
     getLogs(): string[] {
-        return this.logs;
+        return this._logs;
     }
 }
 
@@ -115,20 +115,20 @@ export class LoggerService implements ILoggerService {
  */
 export class AuthService implements IAuthService {
     constructor(
-        private userService: IUserService,
-        private logger: ILoggerService
+        private _userService: IUserService,
+        private _logger: ILoggerService
     ) {
         console.log('✅ AuthService 已初始化');
     }
 
     login(username: string, password: string): boolean {
-        this.logger.log(`用户登录尝试: ${username}`);
+        this._logger.log(`用户登录尝试: ${username}`);
 
         // 模拟认证逻辑
-        const user = this.userService.getUserById(1);
+        const user = this._userService.getUserById(1);
         const success = username === 'admin' && password === 'password';
 
-        this.logger.log(`用户 ${username} 登录${success ? '成功' : '失败'}`);
+        this._logger.log(`用户 ${username} 登录${success ? '成功' : '失败'}`);
         return success;
     }
 }
@@ -141,7 +141,7 @@ export class AuthService implements IAuthService {
 export function testSimpleDI(): void {
     console.log('\n🧪 开始测试基于接口的依赖注入功能...\n');
 
-    const diManager = DIManager.getInstance();
+    const diManager = DIManager.GetInstance();
 
     // 1. 批量注册服务并配置依赖关系（使用接口标识符）
     console.log('📝 注册服务并配置依赖关系（基于接口）...');
