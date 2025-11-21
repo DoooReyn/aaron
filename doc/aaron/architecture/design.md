@@ -18,99 +18,156 @@ Aaron 是一个基于 Cocos Creator 3.8 开发的通用 2D 游戏框架，采用
 - **引擎**: Cocos Creator 3.8.x
 - **语言**: TypeScript (Strict Mode)
 - **平台**: Web, Android, iOS, 微信小游戏
-- **架构模式**: MVC + 依赖注入
+- **架构模式**: MVC + 依赖倒置原则
 - **UI架构**: 栈管理 + 层级分离
 
 ## 目录结构
+
+### 基于依赖倒置原则的分层架构
 
 ```
 assets/
 ├── scripts/
 │   ├── aaron/                          # Aaron 核心框架
-│   │   ├── index.ts                    # 框架统一导出入口
-│   │   ├── core/                       # 核心基础模块
-│   │   │   ├── application.ts              # 游戏应用主入口（单例）
-│   │   │   ├── object-pool.ts           # 对象池管理
-│   │   │   ├── event-manager.ts         # 事件管理器
-│   │   │   └── logger.ts               # 日志系统
-│   │   ├── base/                       # 基础组件和类
-│   │   │   ├── base-component.ts        # 组件基类
-│   │   │   ├── base-view.ts             # 视图基类
-│   │   │   ├── base-panel.ts            # 面板基类
-│   │   │   ├── base-model.ts            # 数据模型基类
-│   │   │   └── singleton.ts            # 单例基类
-│   │   ├── manager/                    # 管理器模块
-│   │   │   ├── ui-manager.ts            # UI 管理器
-│   │   │   ├── resource-manager.ts      # 资源管理器
-│   │   │   ├── audio-manager.ts         # 音频管理器
-│   │   │   ├── network-manager.ts       # 网络管理器
-│   │   │   ├── scene-manager.ts         # 场景管理器
-│   │   │   ├── data-manager.ts          # 数据管理器
-│   │   │   ├── timer-manager.ts         # 计时器管理器
-│   │   │   └── localization-manager.ts   # 本地化管理器
-│   │   ├── ui/                         # UI 框架模块
-│   │   │   ├── ui-layer.ts              # UI 层级管理
-│   │   │   ├── ui-stack.ts              # UI 栈管理
-│   │   │   ├── ui-view.ts               # UI 视图组件
-│   │   │   ├── ui-animation.ts          # UI 动画系统
-│   │   │   └── components/             # UI 组件库
-│   │   │       ├── button.ts           # 增强按钮
-│   │   │       ├── list-view.ts         # 列表视图
-│   │   │       ├── scroll-view.ts       # 滚动视图
-│   │   │       └── progress-bar.ts      # 进度条
-│   │   ├── res/                        # 资源管理模块
-│   │   │   ├── res-loader.ts            # 资源加载器
-│   │   │   ├── res-cache.ts             # 资源缓存
-│   │   │   ├── res-ref.ts               # 资源引用计数
-│   │   │   └── bundle-manager.ts        # Bundle 管理
-│   │   ├── utils/                      # 工具函数库
-│   │   │   ├── math-utils.ts            # 数学工具
-│   │   │   ├── time-utils.ts            # 时间工具
-│   │   │   ├── string-utils.ts          # 字符串工具
-│   │   │   ├── array-utils.ts           # 数组工具
-│   │   │   ├── object-utils.ts          # 对象工具
-│   │   │   ├── node-utils.ts            # 节点工具
-│   │   │   ├── pool-utils.ts            # 对象池工具
-│   │   │   └── validator-utils.ts       # 验证工具
-│   │   ├── config/                     # 配置管理
-│   │   │   ├── game-config.ts           # 游戏配置
-│   │   │   ├── ui-config.ts             # UI 配置
-│   │   │   ├── network-config.ts        # 网络配置
-│   │   │   ├── res-config.ts            # 资源配置
-│   │   │   └── platform-config.ts       # 平台配置
-│   │   ├── constant/                   # 常量定义
-│   │   │   ├── event-const.ts           # 事件常量
-│   │   │   ├── ui-layer-const.ts         # UI 层级常量
-│   │   │   ├── res-path-const.ts         # 资源路径常量
-│   │   │   └── game-const.ts            # 游戏常量
-│   │   ├── enum/                       # 枚举定义
-│   │   │   ├── ui-enum.ts               # UI 枚举
-│   │   │   ├── game-state-enum.ts        # 游戏状态枚举
-│   │   │   ├── network-enum.ts          # 网络枚举
-│   │   │   └── res-enum.ts              # 资源枚举
-│   │   ├── interface/                  # 接口定义
-│   │   │   ├── i-manager.ts             # 管理器接口
-│   │   │   ├── i-view.ts                # 视图接口
-│   │   │   ├── i-model.ts               # 模型接口
-│   │   │   ├── i-network.ts             # 网络接口
-│   │   │   └── i-config.ts              # 配置接口
-│   │   ├── decorator/                  # 装饰器模块
-│   │   │   ├── auto-bind.ts             # 自动绑定装饰器
-│   │   │   ├── dependency-inject.ts     # 依赖注入装饰器
-│   │   │   └── resource.ts             # 资源装饰器
-│   │   └── types/                      # 类型定义
-│   │       ├── global-types.ts          # 全局类型
-│   │       ├── ui-types.ts              # UI 类型
-│   │       └── network-types.ts         # 网络类型
-│   └── game/                           # 游戏业务逻辑
-│       ├── app/                        # 应用层
-│       ├── scene/                      # 场景模块
-│       ├── view/                       # 视图层
-│       ├── model/                      # 数据模型层
-│       ├── controller/                 # 控制器层
-│       ├── data/                       # 数据层
-│       ├── service/                    # 服务层
-│       └── config/                     # 游戏配置
+│   │   ├── interfaces/                 # 🏁 接口定义层（最抽象层）
+│   │   │   ├── index.ts               # 统一导出接口
+│   │   │   ├── services/              # 服务接口
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── ILoggerService.ts
+│   │   │   │   ├── IResourceManager.ts
+│   │   │   │   ├── IUIManager.ts
+│   │   │   │   ├── IAudioManager.ts
+│   │   │   │   ├── INetworkManager.ts
+│   │   │   │   └── ISceneManager.ts
+│   │   │   ├── managers/              # 管理器接口
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── IResourceManager.ts
+│   │   │   │   ├── IUIManager.ts
+│   │   │   │   └── ...
+│   │   │   ├── components/            # 组件接口
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── IView.ts
+│   │   │   │   ├── IPanel.ts
+│   │   │   │   └── IModel.ts
+│   │   │   └── types/                 # 基础类型定义
+│   │   │       ├── index.ts
+│   │   │       ├── common.ts
+│   │   │       └── events.ts
+│   │   │
+│   │   ├── implementations/            # 🏗️ 实现层（依赖接口层）
+│   │   │   ├── index.ts              # 统一导出实现
+│   │   │   ├── services/             # 服务实现
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── LoggerService.ts
+│   │   │   │   ├── ResourceManager.ts
+│   │   │   │   └── ...
+│   │   │   ├── managers/             # 管理器实现
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── ResourceManager.ts
+│   │   │   │   ├── UIManager.ts
+│   │   │   │   └── ...
+│   │   │   └── components/           # 组件实现
+│   │   │       ├── index.ts
+│   │   │       ├── BaseView.ts
+│   │   │       ├── BasePanel.ts
+│   │   │       └── ...
+│   │   │
+│   │   ├── core/                     # 🎯 核心业务逻辑层（只依赖接口）
+│   │   │   ├── index.ts             # 核心模块导出
+│   │   │   ├── Application.ts       # 应用主入口
+│   │   │   ├── ServiceLocator.ts    # 简化的服务定位器
+│   │   │   ├── object-pool.ts       # 对象池管理
+│   │   │   └── event-manager.ts     # 事件管理器
+│   │   │
+│   │   ├── ui/                       # UI 框架模块（依赖接口）
+│   │   │   ├── index.ts
+│   │   │   ├── ui-layer.ts          # UI 层级管理
+│   │   │   ├── ui-stack.ts          # UI 栈管理
+│   │   │   ├── ui-view.ts           # UI 视图组件
+│   │   │   ├── ui-animation.ts      # UI 动画系统
+│   │   │   └── components/          # UI 组件库
+│   │   │       ├── button.ts        # 增强按钮
+│   │   │       ├── list-view.ts      # 列表视图
+│   │   │       ├── scroll-view.ts    # 滚动视图
+│   │   │       └── progress-bar.ts   # 进度条
+│   │   │
+│   │   ├── res/                      # 资源管理模块（依赖接口）
+│   │   │   ├── index.ts
+│   │   │   ├── res-loader.ts         # 资源加载器
+│   │   │   ├── res-cache.ts          # 资源缓存
+│   │   │   ├── res-ref.ts            # 资源引用计数
+│   │   │   └── bundle-manager.ts     # Bundle 管理
+│   │   │
+│   │   ├── utils/                    # 🛠️ 工具层（无依赖，被所有层使用）
+│   │   │   ├── index.ts
+│   │   │   ├── math-utils.ts         # 数学工具
+│   │   │   ├── time-utils.ts         # 时间工具
+│   │   │   ├── string-utils.ts       # 字符串工具
+│   │   │   ├── array-utils.ts        # 数组工具
+│   │   │   ├── object-utils.ts       # 对象工具
+│   │   │   ├── node-utils.ts         # 节点工具
+│   │   │   ├── pool-utils.ts         # 对象池工具
+│   │   │   └── validator-utils.ts    # 验证工具
+│   │   │
+│   │   ├── config/                   # 配置管理
+│   │   │   ├── index.ts
+│   │   │   ├── game-config.ts        # 游戏配置
+│   │   │   ├── ui-config.ts          # UI 配置
+│   │   │   ├── network-config.ts     # 网络配置
+│   │   │   ├── res-config.ts         # 资源配置
+│   │   │   └── platform-config.ts    # 平台配置
+│   │   │
+│   │   ├── constant/                 # 常量定义
+│   │   │   ├── index.ts
+│   │   │   ├── event-const.ts        # 事件常量
+│   │   │   ├── ui-layer-const.ts      # UI 层级常量
+│   │   │   ├── res-path-const.ts      # 资源路径常量
+│   │   │   └── game-const.ts         # 游戏常量
+│   │   │
+│   │   ├── enum/                     # 枚举定义
+│   │   │   ├── index.ts
+│   │   │   ├── ui-enum.ts            # UI 枚举
+│   │   │   ├── game-state-enum.ts     # 游戏状态枚举
+│   │   │   ├── network-enum.ts       # 网络枚举
+│   │   │   └── res-enum.ts           # 资源枚举
+│   │   │
+│   │   └── types/                    # 类型定义
+│   │       ├── index.ts
+│   │       ├── global-types.ts       # 全局类型
+│   │       ├── ui-types.ts           # UI 类型
+│   │       └── network-types.ts      # 网络类型
+│   │
+│   └── game/                         # 游戏业务逻辑（依赖框架接口）
+│       ├── index.ts
+│       ├── app/                      # 应用层
+│       ├── scene/                    # 场景模块
+│       ├── view/                     # 视图层
+│       ├── model/                    # 数据模型层
+│       ├── controller/               # 控制器层
+│       ├── data/                     # 数据层
+│       ├── service/                  # 服务层
+│       └── config/                   # 游戏配置
+```
+
+### 架构层次说明
+
+1. **接口层 (interfaces/)** - 定义所有抽象接口，最抽象层
+2. **实现层 (implementations/)** - 具体实现，依赖接口层
+3. **核心层 (core/)** - 核心业务逻辑，只依赖接口层
+4. **工具层 (utils/)** - 工具函数，无外部依赖
+5. **模块层 (ui/, res/)** - 功能模块，依赖接口层
+
+### 依赖关系图
+
+```
+🎯 核心层 (core/)
+    ↓ 依赖
+🏁 接口层 (interfaces/)
+    ↑ 被实现
+🏗️ 实现层 (implementations/)
+
+🛠️ 工具层 (utils/) ← 被所有层使用
+📦 模块层 (ui/, res/) ← 依赖接口层
 ```
 
 ## 核心模块说明
@@ -194,24 +251,33 @@ assets/
 
 ## 设计模式应用
 
-### 1. 单例模式
-- application: 游戏应用主入口（单例），管理器使用依赖注入方式挂载到该实例，由该类提供接口，确保获取到全局唯一的管理器实例
+### 1. 依赖倒置原则 (DIP)
+- **核心原则**: 高层模块不依赖低层模块，都依赖于抽象
+- **接口分离**: 接口定义与具体实现物理分离
+- **抽象稳定**: 接口层保持稳定，实现层可以自由变化
 
-### 2. 工厂模式
-- res-loader: 资源加载的工厂
-- ui-manager: UI 创建的工厂
+### 2. 单例模式
+- Application: 游戏应用主入口，提供全局访问点
+- ServiceLocator: 简化的服务定位器，管理服务实例
 
-### 3. 观察者模式
-- event-manager: 事件的发布和订阅
-- base-model: 数据变化的观察和通知
+### 3. 工厂模式
+- ServiceLocator: 使用工厂函数创建服务实例
+- 资源加载器: 根据类型创建不同的加载策略
+- UI 管理器: 根据配置创建不同类型的 UI 组件
 
-### 4. 策略模式
-- 不同平台的适配策略
-- 不同资源类型的加载策略
+### 4. 观察者模式
+- EventManager: 事件的发布和订阅
+- 数据模型: 数据变化的观察和通知机制
 
-### 5. 依赖注入
-- 通过装饰器实现依赖注入
-- 降低模块间的耦合度
+### 5. 策略模式
+- 平台适配: 不同平台的实现策略
+- 资源加载: 不同资源类型的加载策略
+- UI 动画: 不同的动画实现策略
+
+### 6. 服务定位器模式
+- **简化替代**: 替代复杂的依赖注入容器
+- **手动装配**: 在应用启动时手动注册和装配依赖
+- **类型安全**: 基于 TypeScript 接口的安全访问
 
 ## 性能优化策略
 
@@ -233,47 +299,189 @@ assets/
 
 ## 使用示例
 
-### UI 管理示例
+### 1. 接口定义示例
 
 ```typescript
-// 打开一个 UI 界面
-const view = await aaron.ui.open('MainView', { data: 'test' });
+// interfaces/services/IResourceManager.ts
+export interface IResourceManager {
+    load<T>(path: string): Promise<T>;
+    loadBatch(paths: string[]): Promise<any[]>;
+    release(path: string): void;
+}
 
-// 关闭界面
-aaron.ui.close('MainView');
-
-// 获取界面实例
-const viewInstance = aaron.ui.getView('MainView');
+// interfaces/services/ILoggerService.ts
+export interface ILoggerService {
+    info(message: string, ...args: any[]): void;
+    warn(message: string, ...args: any[]): void;
+    error(message: string, ...args: any[]): void;
+}
 ```
 
-### 资源加载示例
+### 2. 实现类示例
 
 ```typescript
-// 加载单个资源
-const texture = await aaron.res.load('textures/player');
+// implementations/services/ResourceManager.ts
+export class ResourceManager implements IResourceManager {
+    constructor(private _logger: ILoggerService) {}
 
-// 批量加载资源
-const resources = await aaron.res.loadBatch([
-  'textures/player',
-  'audio/background',
-  'prefabs/enemy'
+    async load<T>(path: string): Promise<T> {
+        this._logger.info(`Loading resource: ${path}`);
+        // 具体实现...
+    }
+
+    async loadBatch(paths: string[]): Promise<any[]> {
+        this._logger.info(`Loading batch resources: ${paths.join(', ')}`);
+        // 具体实现...
+    }
+
+    release(path: string): void {
+        this._logger.info(`Releasing resource: ${path}`);
+        // 具体实现...
+    }
+}
+```
+
+### 3. 服务装配示例
+
+```typescript
+// core/Application.ts
+export class Application {
+    private static _instance: Application;
+    private _serviceLocator: IServiceLocator;
+
+    private constructor() {
+        this._serviceLocator = new ServiceLocator();
+        this.registerServices();
+    }
+
+    static GetInstance(): Application {
+        if (!Application._instance) {
+            Application._instance = new Application();
+        }
+        return Application._instance;
+    }
+
+    private registerServices(): void {
+        // 注册日志服务
+        this._serviceLocator.register<ILoggerService>(
+            'ILoggerService',
+            () => new LoggerService()
+        );
+
+        // 注册资源管理器（依赖日志服务）
+        this._serviceLocator.register<IResourceManager>(
+            'IResourceManager',
+            () => new ResourceManager(
+                this._serviceLocator.get<ILoggerService>('ILoggerService')
+            )
+        );
+    }
+
+    getService<T>(token: string): T {
+        return this._serviceLocator.get<T>(token);
+    }
+}
+```
+
+### 4. 使用服务示例
+
+```typescript
+// 在游戏业务代码中使用
+const app = Application.GetInstance();
+const resourceManager = app.getService<IResourceManager>('IResourceManager');
+const logger = app.getService<ILoggerService>('ILoggerService');
+
+// 加载资源
+const texture = await resourceManager.load<Texture>('textures/player');
+
+// 批量加载
+const resources = await resourceManager.loadBatch([
+    'textures/player',
+    'audio/background',
+    'prefabs/enemy'
 ]);
 
-// 释放资源
-aaron.res.release('textures/player');
+// 记录日志
+logger.info('Game started successfully');
 ```
 
-### 事件系统示例
+### 5. UI 管理示例
 
 ```typescript
+// interfaces/managers/IUIManager.ts
+export interface IUIManager {
+    open<T>(viewName: string, data?: any): Promise<T>;
+    close(viewName: string): void;
+    getView<T>(viewName: string): T | null;
+}
+
+// 在业务代码中使用
+const uiManager = app.getService<IUIManager>('IUIManager');
+
+// 打开 UI 界面
+const view = await uiManager.open('MainView', { data: 'test' });
+
+// 关闭界面
+uiManager.close('MainView');
+
+// 获取界面实例
+const viewInstance = uiManager.getView('MainView');
+```
+
+### 6. 事件系统示例
+
+```typescript
+// interfaces/services/IEventService.ts
+export interface IEventService {
+    on(event: string, handler: Function, context?: any): void;
+    off(event: string, handler: Function, context?: any): void;
+    emit(event: string, data?: any): void;
+}
+
+// 在业务代码中使用
+const eventService = app.getService<IEventService>('IEventService');
+
 // 监听事件
-aaron.event.on('PLAYER_DIE', this.onPlayerDie, this);
+eventService.on('PLAYER_DIE', this.onPlayerDie, this);
 
 // 触发事件
-aaron.event.emit('PLAYER_DIE', { score: 100 });
+eventService.emit('PLAYER_DIE', { score: 100 });
 
 // 取消监听
-aaron.event.off('PLAYER_DIE', this.onPlayerDie, this);
+eventService.off('PLAYER_DIE', this.onPlayerDie, this);
+```
+
+### 7. 测试友好示例
+
+```typescript
+// 单元测试中可以轻松模拟依赖
+describe('GameLogic', () => {
+    let gameLogic: GameLogic;
+    let mockResourceManager: IResourceManager;
+    let mockLogger: ILoggerService;
+
+    beforeEach(() => {
+        mockResourceManager = {
+            load: jest.fn(),
+            loadBatch: jest.fn(),
+            release: jest.fn()
+        };
+
+        mockLogger = {
+            info: jest.fn(),
+            warn: jest.fn(),
+            error: jest.fn()
+        };
+
+        gameLogic = new GameLogic(mockResourceManager, mockLogger);
+    });
+
+    it('should load resources correctly', async () => {
+        mockResourceManager.load.mockResolvedValue({});
+        await gameLogic.loadGameAssets();
+        expect(mockResourceManager.load).toHaveBeenCalledWith('textures/player');
+    });
+});
 ```
 
 ## 扩展性设计
@@ -290,12 +498,81 @@ aaron.event.off('PLAYER_DIE', this.onPlayerDie, this);
 - 通过配置文件控制框架行为
 - 支持运行时配置修改
 
+## 架构对比分析
+
+### 依赖注入 vs 依赖倒置对比
+
+| 方面 | 旧架构（依赖注入） | 新架构（依赖倒置） |
+|------|------------------|-------------------|
+| **复杂度** | 高（容器、生命周期、循环依赖检测） | 低（简单的服务注册表） |
+| **性能** | 中等（反射、解析开销） | 高（直接工厂调用） |
+| **可维护性** | 中等（配置复杂、调试困难） | 高（清晰的层次结构、易调试） |
+| **可测试性** | 高（依赖注入） | 高（接口分离，易Mock） |
+| **学习曲线** | 陡峭（DI概念、装饰器） | 平缓（简单接口、工厂函数） |
+| **内存占用** | 较高（容器元数据、反射数据） | 较低（简单Map存储） |
+| **错误排查** | 复杂（依赖链、循环依赖） | 简单（直接的调用栈） |
+| **代码生成** | 可能影响（装饰器元数据） | 无影响 |
+
+### 新架构的核心优势
+
+1. **简化复杂性**
+   - 移除复杂的依赖注入容器
+   - 无需循环依赖检测机制
+   - 简化的服务定位器模式
+
+2. **提高性能**
+   - 直接的工厂函数调用
+   - 无反射和元数据开销
+   - 更少的内存占用
+
+3. **增强可维护性**
+   - 清晰的物理分层结构
+   - 接口与实现完全分离
+   - 更容易理解和调试
+
+4. **保持灵活性**
+   - 仍然支持依赖替换
+   - 易于单元测试
+   - 支持运行时服务注册
+
+5. **遵循SOLID原则**
+   - 单一职责：每个服务职责明确
+   - 开闭原则：通过接口扩展功能
+   - 里氏替换：实现可以替换接口
+   - 接口隔离：小而专注的接口
+   - 依赖倒置：依赖抽象而非具体实现
+
+### 迁移建议
+
+1. **渐进式迁移**
+   - 保留现有接口定义
+   - 逐步替换实现类
+   - 最后移除DI容器代码
+
+2. **优先级排序**
+   - 先迁移核心服务（日志、配置）
+   - 再迁移业务管理器
+   - 最后迁移UI和资源管理
+
+3. **测试保证**
+   - 为每个迁移的模块编写测试
+   - 确保功能不退化
+   - 性能基准测试
+
 ## 总结
 
-Aaron 框架通过清晰的模块划分、完善的设计模式应用、以及性能优化策略，为 Cocos Creator 3.8 游戏开发提供了一个坚实的基础架构。框架的设计理念是"实用至上"，避免过度封装，同时确保代码的可读性和智能提示支持，让开发者能够快速上手并高效开发。
+Aaron 框架通过从复杂的依赖注入系统转向简洁的依赖倒置架构，实现了：
+
+- **降低复杂性**：移除了过度设计的DI容器，采用简单的服务定位器模式
+- **提高性能**：避免了反射和运行时解析的开销，使用直接的工厂调用
+- **增强可维护性**：清晰的物理分层和接口分离，使代码更容易理解和维护
+- **保持灵活性**：通过接口优先的设计，仍然支持依赖替换和单元测试
+
+新的架构设计更加符合"实用至上"的设计理念，避免了过度工程化，同时保持了类型安全、模块化和可扩展性的优势。这为 Cocos Creator 3.8 游戏开发提供了一个更加简洁、高效、易维护的基础架构。
 
 ---
 
-*文档版本: 1.0.0*  
-*作者: DoooReyn*  
-*更新日期: 2025-11-20*
+*文档版本: 1.1.0*
+*作者: DoooReyn*
+*更新日期: 2025-11-21*
+*架构重构: 从依赖注入转向依赖倒置原则*
