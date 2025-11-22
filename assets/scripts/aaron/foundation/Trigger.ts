@@ -1,4 +1,4 @@
-import { Aaron } from '../core';
+import { aaron } from '../core';
 import { ObjectEntry } from './ObjectEntry';
 
 /**
@@ -61,12 +61,12 @@ export class Trigger extends ObjectEntry {
    */
   public run() {
     if (this.isValid) {
-      const [, err] = Aaron.Shared.catcher.sync(this._handle!, this._ctx!, this._args);
+      const [, err] = aaron.catcher.sync(this._handle!, this._ctx!, this._args);
       if (err) {
-        Aaron.Shared.logger.e('触发器: 运行时错误', err);
+        aaron.logger.e('触发器: 运行时错误', err);
       }
       if (this._once) {
-        Aaron.Shared.objectPool.recycle(this);
+        aaron.objectPool.recycle(this);
       }
     }
   }
@@ -77,12 +77,12 @@ export class Trigger extends ObjectEntry {
    */
   public runWith(...args: any[]) {
     if (this.isValid) {
-      const [, err] = Aaron.Shared.catcher.sync(this._handle!, this._ctx!, args.concat(this._args));
+      const [, err] = aaron.catcher.sync(this._handle!, this._ctx!, args.concat(this._args));
       if (err) {
-        Aaron.Shared.logger.e('触发器: 运行时错误', err);
+        aaron.logger.e('触发器: 运行时错误', err);
       }
       if (this._once) {
-        Aaron.Shared.objectPool.recycle(this);
+        aaron.objectPool.recycle(this);
       }
     }
   }
@@ -99,7 +99,7 @@ export class Triggers {
    * 清空触发器
    */
   public clear() {
-    const objectPool = Aaron.Shared.objectPool;
+    const objectPool = aaron.objectPool;
     this.__container.forEach((trigger) => objectPool.recycle(trigger));
     this.__container.length = 0;
   }
@@ -112,7 +112,7 @@ export class Triggers {
    * @param args 回调入参
    */
   public add(fn: Function, context: any, once: boolean = false, ...args: any[]) {
-    const trigger = Aaron.Shared.objectPool.acquire(Trigger, fn, context, once, args);
+    const trigger = aaron.objectPool.acquire(Trigger, fn, context, once, args);
     if (trigger) this.__container.push(trigger);
   }
 
@@ -126,7 +126,7 @@ export class Triggers {
     if (at > -1) {
       const trigger = this.__container[at];
       this.__container.splice(at, 1);
-      Aaron.Shared.objectPool.recycle(trigger);
+      aaron.objectPool.recycle(trigger);
     }
   }
 
@@ -139,7 +139,7 @@ export class Triggers {
     if (at > -1) {
       const trigger = this.__container[at];
       this.__container.splice(at, 1);
-      Aaron.Shared.objectPool.recycle(trigger);
+      aaron.objectPool.recycle(trigger);
     }
   }
 

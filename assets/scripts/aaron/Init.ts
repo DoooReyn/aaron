@@ -1,4 +1,4 @@
-import { Aaron } from './core';
+import { aaron } from './core';
 import { SERVICES } from './macro';
 import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
 import {
@@ -26,23 +26,24 @@ export const FRAMEWORK_INFO = {
   architecture: 'Dependency Inversion Principle',
 } as const;
 
+/** 启动参数 */
+export interface ILaunchOptions {
+  env: 'dev' | 'debug' | 'beta' | 'prod';
+  logLevel: LogLevel;
+  [k: string]: any;
+}
+
 /**
  * 框架初始化函数
  * 基于新的依赖倒置架构
  * @param config 初始化配置
  */
-export async function init(config?: { logLevel?: LogLevel }): Promise<void> {
+export async function init(config: ILaunchOptions = {
+  env: 'dev',
+  logLevel: LogLevel.INFO,
+}): Promise<void> {
   console.log(`🚀 初始化 ${FRAMEWORK_INFO.name} v${VERSION}`);
   console.log(`📋 架构模式: ${FRAMEWORK_INFO.architecture}`);
-
-  // 构建配置
-  config ??= {};
-  config.logLevel ??= LogLevel.INFO;
-
-  // 1. 获取框架入口单例
-  const aaron = Aaron.Shared;
-
-  // 2. 注册内置服务
 
   // 注册递增ID生成器服务
   const ascendingId = new AscendingId();
@@ -53,7 +54,7 @@ export async function init(config?: { logLevel?: LogLevel }): Promise<void> {
   aaron.registerServiceInstance<ILogger>(SERVICES.LOGGER, logger);
   config?.logLevel && logger.setLevel(config.logLevel);
 
-  // 注册全局对象服务（必须在使用前注册）
+  // 注册全局对象服务
   const globalAdapter = new GlobalAdapter();
   aaron.registerServiceInstance<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, globalAdapter);
   globalAdapter.set('aaron', aaron);

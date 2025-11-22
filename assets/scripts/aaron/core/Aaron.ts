@@ -87,3 +87,5 @@ export class Aaron {
     return this.serviceOf<INodePoolContainer>(SERVICES.NODE_POOL);
   }
 }
+
+export const aaron = Aaron.Shared;
