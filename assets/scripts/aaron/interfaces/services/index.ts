@@ -1,3 +1,4 @@
+export * from './IAscendingId';
 export * from './IArgParser';
 export * from './ILogger';
 export * from './IGlobalAdapter';

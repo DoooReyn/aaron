@@ -2,6 +2,7 @@
  * 内置服务
  */
 export const SERVICES = {
+  ASCENDING_ID: 'AscendingId',
   GLOBAL_ADAPTER: 'GlobalAdapter',
   LOGGER: 'Logger',
   ARG_PARSER: 'ArgParser',

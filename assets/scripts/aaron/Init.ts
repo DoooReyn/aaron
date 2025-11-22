@@ -1,7 +1,7 @@
-import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
 import { Aaron } from './core';
 import { SERVICES } from './macro';
-import { Logger, GlobalAdapter, ArgParser, Catcher, Platform, EventBus } from './implementations';
+import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
+import { Logger, GlobalAdapter, ArgParser, Catcher, Platform, EventBus, AscendingId } from './implementations';
 
 /** 版本信息 */
 export const VERSION = '1.1.0' as const;
@@ -33,6 +33,10 @@ export async function init(config?: { logLevel?: LogLevel }): Promise<void> {
   const aaron = Aaron.Shared;
 
   // 2. 注册内置服务
+
+  // 注册递增ID生成器服务
+  const ascendingId = new AscendingId();
+  aaron.registerServiceInstance(SERVICES.ASCENDING_ID, ascendingId);
 
   // 注册日志服务
   const logger = new Logger('Aaron');
