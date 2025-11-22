@@ -1,7 +1,7 @@
 import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
 import { Aaron } from './core';
 import { SERVICES } from './macro';
-import { Logger, GlobalAdapter, ArgParser, Catcher, Platform } from './implementations';
+import { Logger, GlobalAdapter, ArgParser, Catcher, Platform, EventBus } from './implementations';
 
 /** 版本信息 */
 export const VERSION = '1.1.0' as const;
@@ -56,6 +56,10 @@ export async function init(config?: { logLevel?: LogLevel }): Promise<void> {
   // 注册平台鉴定服务
   const platform = new Platform();
   aaron.registerServiceInstance<IPlatform>(SERVICES.PLATFORM, platform);
+
+  // 注册事件总线服务
+  const eventBus = new EventBus();
+  aaron.registerServiceInstance(SERVICES.EVENT_BUS, eventBus);
 
   logger.i('✅ Aaron Framework 初始化完成');
   logger.i(`🚀 版本: ${VERSION}`);

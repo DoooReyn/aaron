@@ -6,5 +6,6 @@ export const SERVICES = {
   LOGGER: 'Logger',
   ARG_PARSER: 'ArgParser',
   PLATFORM: 'Platform',
-  CATCHER: 'Catcher'
+  CATCHER: 'Catcher',
+  EVENT_BUS: 'EventBus'
 };
