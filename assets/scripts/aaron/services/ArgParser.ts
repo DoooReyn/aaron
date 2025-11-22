@@ -1,5 +1,5 @@
 import { Service } from '../core';
-import { IArgParser, type IGlobalAdapter } from '../interfaces';
+import { IArgParser, ILaunchOptions, LogLevel, type IGlobalAdapter } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Dict } from '../types';
 
@@ -8,7 +8,10 @@ import { Dict } from '../types';
  */
 export class ArgParser extends Service implements IArgParser {
   /** 参数 */
-  public args: Dict = {};
+  public args: ILaunchOptions = {
+    logLevel: LogLevel.INFO,
+    env: 'dev',
+  };
 
   parse(args: Dict) {
     const globalAdapter = this.resolve<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER);
@@ -27,5 +30,21 @@ export class ArgParser extends Service implements IArgParser {
     if (args !== undefined) {
       this.args = { ...this.args, ...args };
     }
+  }
+
+  isEnv(env: ILaunchOptions['env']) {
+    return this.args.env === env;
+  }
+
+  get isDev() {
+    return this.isEnv('dev');
+  }
+
+  get isDebug() {
+    return this.isEnv('debug');
+  }
+
+  get isProd() {
+    return this.isEnv('prod');
   }
 }

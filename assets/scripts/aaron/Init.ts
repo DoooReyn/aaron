@@ -1,6 +1,6 @@
 import { aaron } from './core';
 import { SERVICES } from './macro';
-import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
+import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform, ILaunchOptions } from './interfaces';
 import {
   Logger,
   GlobalAdapter,
@@ -12,6 +12,7 @@ import {
   ObjectPoolContainer,
   NodePoolContainer,
 } from './services';
+import { StoreContainer } from './services/StoreContainer';
 
 /** 版本信息 */
 export const VERSION = '1.1.0' as const;
@@ -26,22 +27,17 @@ export const FRAMEWORK_INFO = {
   architecture: 'Dependency Inversion Principle',
 } as const;
 
-/** 启动参数 */
-export interface ILaunchOptions {
-  env: 'dev' | 'debug' | 'beta' | 'prod';
-  logLevel: LogLevel;
-  [k: string]: any;
-}
-
 /**
  * 框架初始化函数
  * 基于新的依赖倒置架构
  * @param config 初始化配置
  */
-export async function init(config: ILaunchOptions = {
-  env: 'dev',
-  logLevel: LogLevel.INFO,
-}): Promise<void> {
+export async function init(
+  config: ILaunchOptions = {
+    env: 'dev',
+    logLevel: LogLevel.INFO,
+  }
+): Promise<void> {
   console.log(`🚀 初始化 ${FRAMEWORK_INFO.name} v${VERSION}`);
   console.log(`📋 架构模式: ${FRAMEWORK_INFO.architecture}`);
 
@@ -83,6 +79,10 @@ export async function init(config: ILaunchOptions = {
   // 注册节点池容器服务
   const nodePool = new NodePoolContainer();
   aaron.registerServiceInstance(SERVICES.NODE_POOL, nodePool);
+
+  // 注册本地存储容器服务
+  const store = new StoreContainer();
+  aaron.registerServiceInstance(SERVICES.STORE, store);
 
   logger.i('✅ Aaron Framework 初始化完成');
   logger.i(`🚀 版本: ${VERSION}`);

@@ -11,6 +11,7 @@ import {
   INodePoolContainer,
   IObjectPoolContainer,
   IPlatform,
+  IStoreContainer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { ServiceContainer } from './ServiceContainer';
@@ -85,6 +86,11 @@ export class Aaron {
   /** 节点池容器服务 */
   get nodePool() {
     return this.serviceOf<INodePoolContainer>(SERVICES.NODE_POOL);
+  }
+
+  /** 本地存储容器服务 */
+  get store() {
+    return this.serviceOf<IStoreContainer>(SERVICES.STORE);
   }
 }
 

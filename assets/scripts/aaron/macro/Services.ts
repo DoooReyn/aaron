@@ -11,4 +11,5 @@ export const SERVICES = {
   EVENT_BUS: 'EventBus',
   OBJECT_POOL: 'ObjectPool',
   NODE_POOL: 'NodePool',
+  STORE: 'StoreContainer'
 };

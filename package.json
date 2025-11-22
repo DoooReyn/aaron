@@ -3,5 +3,10 @@
   "uuid": "962001d4-4ac1-4a63-b6f9-f1ca551ec18c",
   "creator": {
     "version": "3.8.7"
+  },
+  "dependencies": {
+    "js-base64": "^3.7.8",
+    "pako": "^2.1.0",
+    "zipson": "^0.2.12"
   }
 }

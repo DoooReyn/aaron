@@ -3,3 +3,4 @@ export * from './Trigger';
 export * from './ObjectEntry';
 export * from './ObjectPool';
 export * from './NodePool';
+export * from './StoreEntry';
