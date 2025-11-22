@@ -3,3 +3,4 @@
  */
 export * as literal from './Literal';
 export * as list from './List';
+export * as time from './Time';

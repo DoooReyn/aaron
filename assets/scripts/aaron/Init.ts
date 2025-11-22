@@ -1,7 +1,17 @@
 import { Aaron } from './core';
 import { SERVICES } from './macro';
 import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform } from './interfaces';
-import { Logger, GlobalAdapter, ArgParser, Catcher, Platform, EventBus, AscendingId } from './implementations';
+import {
+  Logger,
+  GlobalAdapter,
+  ArgParser,
+  Catcher,
+  Platform,
+  EventBus,
+  AscendingId,
+  ObjectPoolContainer,
+  NodePoolContainer,
+} from './services';
 
 /** 版本信息 */
 export const VERSION = '1.1.0' as const;
@@ -64,6 +74,14 @@ export async function init(config?: { logLevel?: LogLevel }): Promise<void> {
   // 注册事件总线服务
   const eventBus = new EventBus();
   aaron.registerServiceInstance(SERVICES.EVENT_BUS, eventBus);
+
+  // 注册对象池容器服务
+  const ObjectPool = new ObjectPoolContainer();
+  aaron.registerServiceInstance(SERVICES.OBJECT_POOL, ObjectPool);
+
+  // 注册节点池容器服务
+  const nodePool = new NodePoolContainer();
+  aaron.registerServiceInstance(SERVICES.NODE_POOL, nodePool);
 
   logger.i('✅ Aaron Framework 初始化完成');
   logger.i(`🚀 版本: ${VERSION}`);

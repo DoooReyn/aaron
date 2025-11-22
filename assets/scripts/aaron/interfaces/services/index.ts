@@ -5,3 +5,4 @@ export * from './IGlobalAdapter';
 export * from './IPlatform';
 export * from './ICatcher';
 export * from './IEventBus';
+export * from './pool';

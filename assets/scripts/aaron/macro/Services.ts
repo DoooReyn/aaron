@@ -8,5 +8,7 @@ export const SERVICES = {
   ARG_PARSER: 'ArgParser',
   PLATFORM: 'Platform',
   CATCHER: 'Catcher',
-  EVENT_BUS: 'EventBus'
+  EVENT_BUS: 'EventBus',
+  OBJECT_POOL: 'ObjectPool',
+  NODE_POOL: 'NodePool',
 };

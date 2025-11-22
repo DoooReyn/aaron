@@ -3,7 +3,15 @@
  *
  * 基于依赖倒置原则的应用程序核心，负责服务装配和管理
  */
-import { IArgParser, ICatcher, IGlobalAdapter, ILogger, IPlatform } from '../interfaces';
+import {
+  IArgParser,
+  ICatcher,
+  IGlobalAdapter,
+  ILogger,
+  INodePoolContainer,
+  IObjectPoolContainer,
+  IPlatform,
+} from '../interfaces';
 import { SERVICES } from '../macro';
 import { ServiceContainer } from './ServiceContainer';
 
@@ -67,5 +75,15 @@ export class Aaron {
   /** 异常捕获服务 */
   get catcher() {
     return this.serviceOf<ICatcher>(SERVICES.CATCHER);
+  }
+
+  /** 对象池容器服务 */
+  get objectPool() {
+    return this.serviceOf<IObjectPoolContainer>(SERVICES.OBJECT_POOL);
+  }
+
+  /** 节点池容器服务 */
+  get nodePool() {
+    return this.serviceOf<INodePoolContainer>(SERVICES.NODE_POOL);
   }
 }
