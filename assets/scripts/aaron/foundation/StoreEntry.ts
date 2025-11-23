@@ -54,7 +54,7 @@ export class StoreEntry<T extends Dict> {
    * 数据编码
    * @returns 编码后的数据
    */
-  private _encode() {
+  private encode() {
     return this._modem.encode(this._raw);
   }
 
@@ -63,7 +63,7 @@ export class StoreEntry<T extends Dict> {
    * @param content 内容
    * @returns 解码后的数据
    */
-  private _decode(content: string) {
+  private decode(content: string) {
     return this._modem.decode(content);
   }
 
@@ -73,7 +73,7 @@ export class StoreEntry<T extends Dict> {
 
     const content = sys.localStorage.getItem(this.token);
     if (content) {
-      this._raw = this._decode(content) as T;
+      this._raw = this.decode(content) as T;
     } else {
       this._raw = dict.deepCopy(this.template) as T;
       this.save();
@@ -101,6 +101,6 @@ export class StoreEntry<T extends Dict> {
 
   /** 保存数据 */
   save() {
-    sys.localStorage.setItem(this.token, this._encode());
+    sys.localStorage.setItem(this.token, this.encode());
   }
 }
