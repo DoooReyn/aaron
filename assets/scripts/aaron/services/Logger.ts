@@ -6,21 +6,10 @@ import { literal } from '../utils';
  * 日志服务
  */
 export class Logger extends Service implements ILogger {
+  /** 日志标识 */
+  private readonly _tag: string = 'Aaron';
   /** 当前日志等级 */
   private _level: LogLevel = LogLevel.INFO;
-  /** 日志标识 */
-  private _tag: string = 'Aaron';
-
-  /**
-   * 构造函数
-   * @param tag 日志标识
-   */
-  constructor(tag?: string) {
-    super();
-    if (tag) {
-      this._tag = tag;
-    }
-  }
 
   d(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {

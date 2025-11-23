@@ -1,3 +1,5 @@
+import { Constructor } from "../types";
+
 /**
  * 服务容器接口
  */
@@ -7,18 +9,18 @@ export interface IServiceContainer {
    * @param token 服务标识符
    * @param factory 服务工厂方法
    */
-  registerFactory<T>(token: string, factory: () => T): void;
+  registerFactory<T extends IService>(token: string, factory: Constructor<T>): void;
   /**
    * 注册服务实例对象
    * @param token 服务标识符
    * @param instance 服务实例对象
    */
-  registerInstance<T>(token: string, instance: T): void;
+  registerInstance<T extends IService>(token: string, instance: T): void;
   /**
    * 获取服务实例
    * @param token
    */
-  get<T>(token: string): T;
+  get<T extends IService>(token: string): T;
   /**
    * 服务是否已注册
    * @param token 服务标识符
@@ -53,11 +55,11 @@ export class ServiceContainer implements IServiceContainer {
   }
 
   /** 工厂方法容器 */
-  private _factories: Map<string, () => any> = new Map();
+  private _factories: Map<string, Constructor<IService>> = new Map();
   /** 实例方法容器 */
-  private _instances: Map<string, any> = new Map();
+  private _instances: Map<string, IService> = new Map();
 
-  registerFactory<T>(token: string, factory: () => T): void {
+  registerFactory<T extends IService>(token: string, factory: Constructor<T>): void {
     if (this._factories.has(token)) {
       console.warn(`⚠ 服务 '${token}' 已存在，将被覆盖`);
     }
@@ -65,7 +67,7 @@ export class ServiceContainer implements IServiceContainer {
     console.log(`✅ 注册服务工厂: ${token}`);
   }
 
-  registerInstance<T>(token: string, instance: T): void {
+  registerInstance<T extends IService>(token: string, instance: T): void {
     if (this._instances.has(token)) {
       console.warn(`⚠ 服务实例 '${token}' 已存在，将被覆盖`);
     }
@@ -73,10 +75,10 @@ export class ServiceContainer implements IServiceContainer {
     console.log(`✅ 注册服务实例: ${token}`);
   }
 
-  get<T>(token: string): T {
+  get<T extends IService>(token: string): T {
     // 首先检查是否有预注册的实例
     if (this._instances.has(token)) {
-      return this._instances.get(token);
+      return this._instances.get(token) as T;
     }
 
     // 检查是否有工厂函数
@@ -86,7 +88,8 @@ export class ServiceContainer implements IServiceContainer {
     }
 
     // 创建实例
-    const instance = factory();
+    const instance = new factory();
+    this._instances.set(token, instance);
     console.log(`🔧 创建服务实例: ${token}`);
     return instance as T;
   }
@@ -119,14 +122,14 @@ export interface IService {
    * 解析服务
    * @param token 服务标识符
    */
-  resolve<T>(token: string): T | undefined;
+  resolve<T extends IService>(token: string): T | undefined;
 }
 
 /**
  * 服务基类
  */
 export class Service {
-  resolve<T>(token: string): T | undefined {
-    return ServiceContainer.Shared.get<T>(token);
+  resolve<T extends IService>(token: string): T | undefined {
+    return ServiceContainer.Shared.get<T>(token) as T | undefined;
   }
 }

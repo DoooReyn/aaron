@@ -41,50 +41,42 @@ export async function init(config: ILaunchOptions): Promise<void> {
   console.log(`📋 架构模式: ${FRAMEWORK_INFO.architecture}`);
 
   // 注册递增ID生成器服务
-  aaron.registerServiceFactory(SERVICES.ASCENDING_ID, () => new AscendingId());
+  aaron.registerServiceFactory(SERVICES.ASCENDING_ID, AscendingId);
 
   // 注册日志服务
-  const logger = new Logger('Aaron');
-  aaron.registerServiceInstance<ILogger>(SERVICES.LOGGER, logger);
-  config?.logLevel && logger.setLevel(config.logLevel);
+  aaron.registerServiceFactory<ILogger>(SERVICES.LOGGER, Logger);
+  config?.logLevel && aaron.logger.setLevel(config.logLevel);
 
   // 注册全局对象服务
-  const globalAdapter = new GlobalAdapter();
-  aaron.registerServiceInstance<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, globalAdapter);
-  globalAdapter.set('aaron', aaron);
+  aaron.registerServiceFactory<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, GlobalAdapter);
+  aaron.globalAdapter.set('aaron', aaron);
 
   // 注册异常捕获服务
   const catcher = new Catcher();
   aaron.registerServiceInstance<ICatcher>(SERVICES.CATCHER, catcher);
 
   // 注册参数解析服务
-  const argParser = new ArgParser();
-  aaron.registerServiceInstance<IArgParser>(SERVICES.ARG_PARSER, argParser);
-  argParser.parse(config);
+  aaron.registerServiceFactory<IArgParser>(SERVICES.ARG_PARSER, ArgParser);
+  aaron.argParser.parse(config);
 
   // 注册平台鉴定服务
-  const platform = new Platform();
-  aaron.registerServiceInstance<IPlatform>(SERVICES.PLATFORM, platform);
+  aaron.registerServiceFactory<IPlatform>(SERVICES.PLATFORM, Platform);
 
   // 注册事件总线服务
-  const eventBus = new EventBus();
-  aaron.registerServiceInstance(SERVICES.EVENT_BUS, eventBus);
+  aaron.registerServiceFactory(SERVICES.EVENT_BUS, EventBus);
 
   // 注册对象池容器服务
-  const ObjectPool = new ObjectPoolContainer();
-  aaron.registerServiceInstance(SERVICES.OBJECT_POOL, ObjectPool);
+  aaron.registerServiceFactory(SERVICES.OBJECT_POOL, ObjectPoolContainer);
 
   // 注册节点池容器服务
-  const nodePool = new NodePoolContainer();
-  aaron.registerServiceInstance(SERVICES.NODE_POOL, nodePool);
+  aaron.registerServiceFactory(SERVICES.NODE_POOL, NodePoolContainer);
 
   // 注册本地存储容器服务
-  const store = new StoreContainer();
-  aaron.registerServiceInstance(SERVICES.STORE, store);
+  aaron.registerServiceFactory(SERVICES.STORE, StoreContainer);
 
-  logger.i('✅ Aaron Framework 初始化完成');
-  logger.i(`🚀 版本: ${VERSION}`);
-  logger.i(`📋 架构: ${FRAMEWORK_INFO.architecture}`);
+  aaron.logger.i('✅ Aaron Framework 初始化完成');
+  aaron.logger.i(`🚀 版本: ${VERSION}`);
+  aaron.logger.i(`📋 架构: ${FRAMEWORK_INFO.architecture}`);
 
   return Promise.resolve();
 }

@@ -15,7 +15,8 @@ import {
   IStoreContainer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
-import { Service, ServiceContainer } from './ServiceContainer';
+import { Constructor } from '../types';
+import { IService, Service, ServiceContainer } from './ServiceContainer';
 
 /**
  * Aaron 框架
@@ -49,7 +50,7 @@ export class Aaron {
    * @param token 服务标识符
    * @param factory 服务工厂方法
    */
-  registerServiceFactory<T>(token: string, factory: () => T): void {
+  registerServiceFactory<T extends IService>(token: string, factory: Constructor<T>): void {
     const container = ServiceContainer.Shared;
     const isRegistered = container.has(token);
     container.registerFactory(token, factory);
@@ -63,7 +64,7 @@ export class Aaron {
    * @param token 服务标识符
    * @param instance 服务实例对象
    */
-  registerServiceInstance<T>(token: string, instance: T): void {
+  registerServiceInstance<T extends IService>(token: string, instance: T): void {
     ServiceContainer.Shared.registerInstance(token, instance);
   }
 
