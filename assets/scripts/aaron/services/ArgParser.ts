@@ -1,6 +1,6 @@
 import { Service } from '../core';
 import { IArgParser, ILaunchOptions, type IGlobalAdapter } from '../interfaces';
-import { DefaultLaunchOptions, SERVICES } from '../macro';
+import { DEFAULT_LAUNCH_OPTIONS, SERVICES } from '../macro';
 import { Dict } from '../types';
 
 /**
@@ -8,7 +8,7 @@ import { Dict } from '../types';
  */
 export class ArgParser extends Service implements IArgParser {
   /** 参数 */
-  public args: ILaunchOptions = { ...DefaultLaunchOptions };
+  public args: ILaunchOptions = { ...DEFAULT_LAUNCH_OPTIONS };
 
   parse(args: Dict) {
     const globalAdapter = this.resolve<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER);

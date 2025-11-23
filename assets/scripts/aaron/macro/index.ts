@@ -6,4 +6,6 @@
  */
 
 export * from './LaunchOptions';
+export * from './Preset';
+export * from './Events';
 export * from './Services';

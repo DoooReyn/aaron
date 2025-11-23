@@ -58,7 +58,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Canvas",
+    "_name": "root",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -113,7 +113,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Camera",
+    "_name": "camera-2d",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -170,7 +170,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 360,
+    "_orthoHeight": 449.70266040688574,
     "_near": 0,
     "_far": 2000,
     "_color": {

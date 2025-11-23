@@ -17,6 +17,7 @@ import {
   NodePoolContainer,
 } from './services';
 import { StoreContainer } from './services/StoreContainer';
+import { AppLauncer } from './services/AppLauncher';
 
 /** 版本信息 */
 export const VERSION = '1.1.0' as const;
@@ -45,7 +46,7 @@ export async function init(config: ILaunchOptions): Promise<void> {
 
   // 注册日志服务
   aaron.registerServiceFactory<ILogger>(SERVICES.LOGGER, Logger);
-  config?.logLevel && aaron.logger.setLevel(config.logLevel);
+  aaron.logger.setLevel(config.logLevel);
 
   // 注册全局对象服务
   aaron.registerServiceFactory<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, GlobalAdapter);
@@ -73,6 +74,11 @@ export async function init(config: ILaunchOptions): Promise<void> {
 
   // 注册本地存储容器服务
   aaron.registerServiceFactory(SERVICES.STORE, StoreContainer);
+
+
+  // 最后注册应用启动器服务
+  aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncer());
+  await aaron.appLauncher.initialize();
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');
   aaron.logger.i(`🚀 版本: ${VERSION}`);

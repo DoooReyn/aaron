@@ -5,6 +5,7 @@
  * - 出于服务其他层的目的，utils 需严格遵守开闭原则，因此规定 utils 只能引用 interfaces，types，或第三方库。
  */
 export * as literal from './Literal';
+export * as digit from './Digit';
 export * as list from './List';
 export * as time from './Time';
 export * as dict from './Dict';

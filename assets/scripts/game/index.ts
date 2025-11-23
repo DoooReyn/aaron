@@ -1,24 +1,27 @@
 import { aaron, ILaunchOptions, init, LogLevel } from '../aaron';
-import { DEBUG, BUILD } from 'cc/env';
+import { DEV, BUILD } from 'cc/env';
 
 /** 根据环境切换配置 */
 const optionsMapping: Record<'dev' | 'debug' | 'prod', ILaunchOptions> = {
   dev: {
+    appName: 'Midnight Stroll',
     logLevel: LogLevel.DEBUG,
     env: 'dev',
   },
   debug: {
+    appName: 'Midnight Stroll',
     logLevel: LogLevel.INFO,
     env: 'debug',
   },
   prod: {
+    appName: 'Midnight Stroll',
     logLevel: LogLevel.WARN,
     env: 'prod',
   },
 };
 
 /** 当前环境 */
-const env = BUILD ? 'prod' : DEBUG ? 'debug' : 'dev';
+const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
 
 // 异步初始化框架
 init(optionsMapping[env])

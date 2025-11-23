@@ -7,3 +7,4 @@ export * from './ICatcher';
 export * from './IEventBus';
 export * from './pool';
 export * from './IStoreContainer';
+export * from './IAppLauncher';
