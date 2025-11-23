@@ -107,6 +107,7 @@ export class AppLauncer extends Service implements IAppLauncher {
     screen.off(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.EXIT);
     this.scene = this.root = this.stage = this.camera2D = null;
+    this.onScreenSizeChangedMock = null;
   }
 
   /** 内存警告 */
