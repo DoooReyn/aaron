@@ -4,7 +4,7 @@ import { IService } from '../../core';
 /**
  * 应用启动器服务接口
  */
-export interface IAppnLauncher extends IService {
+export interface IAppLauncher extends IService {
   /** 场景 */
   scene: Scene;
   /** 舞台（画布） */

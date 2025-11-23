@@ -5,7 +5,7 @@
  * - 开发者可以根据需要替换内置服务。
  */
 import {
-  IAppnLauncher,
+  IAppLauncher,
   IArgParser,
   ICatcher,
   IGlobalAdapter,
@@ -111,7 +111,7 @@ export class Aaron {
 
   /** 应用启动器服务 */
   get appLauncher() {
-    return this.serviceOf<IAppnLauncher>(SERVICES.APP_LAUNCHER)
+    return this.serviceOf<IAppLauncher>(SERVICES.APP_LAUNCHER)
   }
 }
 

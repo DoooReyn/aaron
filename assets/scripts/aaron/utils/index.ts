@@ -13,3 +13,4 @@ export * as json from './Json';
 export * as zson from './Zipson';
 export * as lzstring from './LZstring';
 export * as might from './Might';
+export * as misc from './Misc';

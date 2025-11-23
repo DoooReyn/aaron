@@ -1,13 +1,13 @@
-import { director, Director, Camera, Canvas, Scene, Node, game, Game, screen, EventTouch } from 'cc';
+import { director, Director, Camera, Canvas, Scene, Node, game, Game, screen, EventTouch, view } from 'cc';
 import { Service } from '../core';
-import { IAppnLauncher, IEventBus, ILogger } from '../interfaces';
+import { IAppLauncher, IEventBus, ILogger } from '../interfaces';
 import { EVENTS, PRESET, SERVICES } from '../macro';
-import { digit, time } from '../utils';
+import { digit, misc, time } from '../utils';
 
 /**
  * 应用启动器服务
  */
-export class AppLauncer extends Service implements IAppnLauncher {
+export class AppLauncer extends Service implements IAppLauncher {
   scene: Scene;
   stage: Canvas;
   root: Node;
@@ -50,13 +50,16 @@ export class AppLauncer extends Service implements IAppnLauncher {
             reject('2D相机节点下必须挂载 Camera');
           }
 
+          // 代理窗口尺寸变换事件
+          this.onScreenSizeChangedMock = misc.throttle(this.onScreenSizeChanged, this).bind(this);
+
           // 注册基础事件
           game.on(Game.EVENT_SHOW, this.onEnterFG, this);
           game.on(Game.EVENT_HIDE, this.onEnterBG, this);
           game.on(Game.EVENT_CLOSE, this.onEnded, this);
           game.on(Game.EVENT_LOW_MEMORY, this.onLowMemory, this);
-          screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChanged, this);
-          screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChanged, this);
+          screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChangedMock, this);
+          screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
           this.root.on(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
 
@@ -75,9 +78,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
     return this._timeEnterFG - this._timeEnterBG;
   }
 
-  /**
-   * 回到前台
-   */
+  /** 回到前台  */
   private onEnterFG(): void {
     console.log('onEnterFG', this);
     this._timeEnterFG = time.now();
@@ -86,9 +87,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_FOREGROUND);
   }
 
-  /**
-   * 进入后台
-   */
+  /** 进入后台  */
   private onEnterBG(): void {
     console.log('onEnterBG', this);
     this._timeEnterBG = time.now();
@@ -96,41 +95,37 @@ export class AppLauncer extends Service implements IAppnLauncher {
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_BACKGROUND);
   }
 
-  /**
-   * 关闭应用
-   */
+  /** 关闭应用 */
   private onEnded(): void {
     this.root.off(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
     game.off(Game.EVENT_SHOW, this.onEnterFG, this);
     game.off(Game.EVENT_HIDE, this.onEnterBG, this);
     game.off(Game.EVENT_CLOSE, this.onEnded, this);
     game.off(Game.EVENT_LOW_MEMORY, this.onLowMemory, this);
-    screen.off(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChanged, this);
-    screen.off(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChanged, this);
+    screen.off(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChangedMock, this);
+    screen.off(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChangedMock, this);
     screen.off(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.EXIT);
     this.scene = this.root = this.stage = this.camera2D = null;
   }
 
-  /**
-   * 内存警告
-   */
+  /** 内存警告 */
   private onLowMemory(): void {
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 内存不足');
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.LOW_MEMORY);
   }
 
-  /**
-   * 窗口尺寸变化
-   */
-  private onScreenSizeChanged(width: number, height: number): void {
-    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕尺寸改变', width, height);
-    this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_SIZE_CHANGED, width, height);
+  /** 窗口尺寸变化 */
+  private onScreenSizeChanged(): void {
+    const size = view.getVisibleSize();
+    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕尺寸改变', size.toString());
+    this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_SIZE_CHANGED, size);
   }
 
-  /**
-   * 屏幕朝向变化
-   */
+  /** 窗口尺寸变化代理 */
+  private onScreenSizeChangedMock: () => void;
+
+  /** 屏幕朝向变化 */
   private onScreenOrientationChanged(orientation: number): void {
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕方向改变', orientation);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, orientation);
