@@ -1,5 +1,5 @@
 import { aaron, ILaunchOptions, init, LogLevel } from '../aaron';
-import { DEV, BUILD } from 'cc/env';
+import { EDITOR, DEV, BUILD } from 'cc/env';
 
 /** 根据环境切换配置 */
 const optionsMapping: Record<'dev' | 'debug' | 'prod', ILaunchOptions> = {
@@ -22,12 +22,13 @@ const optionsMapping: Record<'dev' | 'debug' | 'prod', ILaunchOptions> = {
 
 /** 当前环境 */
 const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
-
-// 异步初始化框架
-init(optionsMapping[env])
-  .then(function () {
-    aaron.logger.i('✅ 游戏框架初始化完成');
-  })
-  .catch(function (err) {
-    aaron.logger.e('❌ 游戏框架初始化失败:', err);
-  });
+if (!EDITOR) {
+  // 异步初始化框架
+  init(optionsMapping[env])
+    .then(function () {
+      aaron.logger.i('✅ 游戏框架初始化完成');
+    })
+    .catch(function (err) {
+      aaron.logger.e('❌ 游戏框架初始化失败:', err);
+    });
+}

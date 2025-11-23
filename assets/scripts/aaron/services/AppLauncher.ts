@@ -51,14 +51,14 @@ export class AppLauncer extends Service implements IAppnLauncher {
           }
 
           // 注册基础事件
-          game.on(Game.EVENT_SHOW, this._onEnterFG, this);
-          game.on(Game.EVENT_HIDE, this._onEnterBG, this);
-          game.on(Game.EVENT_CLOSE, this._onEnded, this);
-          game.on(Game.EVENT_LOW_MEMORY, this._onLowMemory, this);
-          screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this._onScreenSizeChanged, this);
-          screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this._onScreenSizeChanged, this);
-          screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this._onScreenOrientationChanged, this);
-          this.root.on(Node.EventType.TOUCH_END, this._doScreenTapped, this, true);
+          game.on(Game.EVENT_SHOW, this.onEnterFG, this);
+          game.on(Game.EVENT_HIDE, this.onEnterBG, this);
+          game.on(Game.EVENT_CLOSE, this.onEnded, this);
+          game.on(Game.EVENT_LOW_MEMORY, this.onLowMemory, this);
+          screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChanged, this);
+          screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChanged, this);
+          screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
+          this.root.on(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
 
           resolve();
         },
@@ -78,7 +78,8 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 回到前台
    */
-  private _onEnterFG(): void {
+  private onEnterFG(): void {
+    console.log('onEnterFG', this);
     this._timeEnterFG = time.now();
     const diff = digit.keepBits((this._timeEnterFG - this._timeEnterBG) / 1000, 2);
     this.resolve<ILogger>(SERVICES.LOGGER).df('应用: 回到前台，耗时: {0} 秒', diff);
@@ -88,7 +89,8 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 进入后台
    */
-  private _onEnterBG(): void {
+  private onEnterBG(): void {
+    console.log('onEnterBG', this);
     this._timeEnterBG = time.now();
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 进入后台');
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_BACKGROUND);
@@ -97,15 +99,15 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 关闭应用
    */
-  private _onEnded(): void {
-    this.root.off(Node.EventType.TOUCH_END, this._doScreenTapped, this, true);
-    game.off(Game.EVENT_SHOW, this._onEnterFG, this);
-    game.off(Game.EVENT_HIDE, this._onEnterBG, this);
-    game.off(Game.EVENT_CLOSE, this._onEnded, this);
-    game.off(Game.EVENT_LOW_MEMORY, this._onLowMemory, this);
-    screen.off(EVENTS.APP.SCREEN_SIZE_CHANGED, this._onScreenSizeChanged, this);
-    screen.off(EVENTS.APP.SCREEN_FULL_CHANGED, this._onScreenSizeChanged, this);
-    screen.off(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this._onScreenOrientationChanged, this);
+  private onEnded(): void {
+    this.root.off(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
+    game.off(Game.EVENT_SHOW, this.onEnterFG, this);
+    game.off(Game.EVENT_HIDE, this.onEnterBG, this);
+    game.off(Game.EVENT_CLOSE, this.onEnded, this);
+    game.off(Game.EVENT_LOW_MEMORY, this.onLowMemory, this);
+    screen.off(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChanged, this);
+    screen.off(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChanged, this);
+    screen.off(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.EXIT);
     this.scene = this.root = this.stage = this.camera2D = null;
   }
@@ -113,7 +115,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 内存警告
    */
-  private _onLowMemory(): void {
+  private onLowMemory(): void {
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 内存不足');
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.LOW_MEMORY);
   }
@@ -121,7 +123,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 窗口尺寸变化
    */
-  protected _onScreenSizeChanged(width: number, height: number): void {
+  private onScreenSizeChanged(width: number, height: number): void {
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕尺寸改变', width, height);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_SIZE_CHANGED, width, height);
   }
@@ -129,7 +131,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
   /**
    * 屏幕朝向变化
    */
-  protected _onScreenOrientationChanged(orientation: number): void {
+  private onScreenOrientationChanged(orientation: number): void {
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕方向改变', orientation);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, orientation);
   }
@@ -138,7 +140,7 @@ export class AppLauncer extends Service implements IAppnLauncher {
    * 屏幕被点击
    * @param touch
    */
-  protected _doScreenTapped(touch: EventTouch): void {
+  private onScreenTapped(touch: EventTouch): void {
     if (this.root._uiProps.uiTransformComp.hitTest(touch.getLocation())) {
       this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕点击', touch);
       this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_TAPPED, touch);
