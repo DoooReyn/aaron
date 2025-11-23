@@ -80,7 +80,6 @@ export class AppLauncer extends Service implements IAppLauncher {
 
   /** 回到前台  */
   private onEnterFG(): void {
-    console.log('onEnterFG', this);
     this._timeEnterFG = time.now();
     const diff = digit.keepBits((this._timeEnterFG - this._timeEnterBG) / 1000, 2);
     this.resolve<ILogger>(SERVICES.LOGGER).df('应用: 回到前台，耗时: {0} 秒', diff);
@@ -89,7 +88,6 @@ export class AppLauncer extends Service implements IAppLauncher {
 
   /** 进入后台  */
   private onEnterBG(): void {
-    console.log('onEnterBG', this);
     this._timeEnterBG = time.now();
     this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 进入后台');
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_BACKGROUND);
