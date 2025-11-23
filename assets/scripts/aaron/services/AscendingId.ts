@@ -5,17 +5,17 @@ import { Service } from '../core';
  */
 export class AscendingId extends Service {
   /** 递增ID容器 */
-  private __container: Map<string, number> = new Map();
+  private _container: Map<string, number> = new Map();
 
   create(tag: string, initial: number = 0) {
     if (!this.has(tag)) {
-      this.__container.set(tag, initial);
+      this._container.set(tag, initial);
     }
-    return this.__container.get(tag)!;
+    return this._container.get(tag)!;
   }
 
   has(tag: string) {
-    return this.__container.has(tag);
+    return this._container.has(tag);
   }
 
   current(tag: string) {
@@ -25,11 +25,11 @@ export class AscendingId extends Service {
   next(tag: string) {
     const current = this.current(tag);
     const next = current + 1;
-    this.__container.set(tag, next);
+    this._container.set(tag, next);
     return next;
   }
 
   reset(tag: string, initial: number = 0) {
-    this.__container.set(tag, initial);
+    this._container.set(tag, initial);
   }
 }

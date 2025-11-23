@@ -1,6 +1,6 @@
 import { Service } from '../core';
-import { IArgParser, ILaunchOptions, LogLevel, type IGlobalAdapter } from '../interfaces';
-import { SERVICES } from '../macro';
+import { IArgParser, ILaunchOptions, type IGlobalAdapter } from '../interfaces';
+import { DefaultLaunchOptions, SERVICES } from '../macro';
 import { Dict } from '../types';
 
 /**
@@ -8,10 +8,7 @@ import { Dict } from '../types';
  */
 export class ArgParser extends Service implements IArgParser {
   /** 参数 */
-  public args: ILaunchOptions = {
-    logLevel: LogLevel.INFO,
-    env: 'dev',
-  };
+  public args: ILaunchOptions = { ...DefaultLaunchOptions };
 
   parse(args: Dict) {
     const globalAdapter = this.resolve<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER);

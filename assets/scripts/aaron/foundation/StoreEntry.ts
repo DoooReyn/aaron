@@ -1,15 +1,38 @@
 import { sys } from 'cc';
-import { aaron } from '../core';
-import { Dict } from '../types';
 import { Triggers } from './Trigger';
-import { dict, json, lzstring, zson } from '../utils';
+import { Dict } from '../types';
+import { dict } from '../utils';
+
+/**
+ * 本地存储条目调制解调器
+ */
+export interface IStoreModem {
+  /**
+   * 包装存储条目标识
+   * @param token 存储条目标识
+   * @returns 包装完成的存储条目标识
+   */
+  makeKey(token: string): string;
+  /**
+   * 压制存储条目数据
+   * @param data 存储条目数据（对象）
+   * @returns 压制完成的存储条目数据（字符串）
+   */
+  encode<T extends Dict>(data: T): string;
+  /**
+   * 解析存储条目数据
+   * @param data 存储条目数据（字符串）
+   * @returns 解析完成的存储条目数据（对象）
+   */
+  decode<T extends Dict>(data: string): T | undefined;
+}
 
 /**
  * 本地存储条目
  */
 export class StoreEntry<T extends Dict> {
   /** 原始数据 */
-  private __raw: T;
+  private _raw: T;
 
   /** 代理数据 */
   public data: T;
@@ -22,7 +45,7 @@ export class StoreEntry<T extends Dict> {
    * @param token 存储条目标识
    * @param template 数据模板
    */
-  constructor(public readonly token: string, public readonly template: T) {
+  constructor(public readonly token: string, public readonly template: T, private readonly _modem: IStoreModem) {
     this.onDataChanged = new Triggers();
     this.load();
   }
@@ -31,12 +54,8 @@ export class StoreEntry<T extends Dict> {
    * 数据编码
    * @returns 编码后的数据
    */
-  private __encode() {
-    if (aaron.argParser.isProd) {
-      return lzstring.encode(zson.encode(this.__raw));
-    } else {
-      return json.encode(this.__raw);
-    }
+  private _encode() {
+    return this._modem.encode(this._raw);
   }
 
   /**
@@ -44,12 +63,8 @@ export class StoreEntry<T extends Dict> {
    * @param content 内容
    * @returns 解码后的数据
    */
-  private __decode(content: string) {
-    if (aaron.argParser.isProd) {
-      return zson.decode(lzstring.decode(content)) as T;
-    } else {
-      return json.decode(content) as T;
-    }
+  private _decode(content: string) {
+    return this._modem.decode(content);
   }
 
   /** 加载数据 */
@@ -58,14 +73,14 @@ export class StoreEntry<T extends Dict> {
 
     const content = sys.localStorage.getItem(this.token);
     if (content) {
-      this.__raw = this.__decode(content) as T;
+      this._raw = this._decode(content) as T;
     } else {
-      this.__raw = dict.deepCopy(this.template) as T;
+      this._raw = dict.deepCopy(this.template) as T;
       this.save();
     }
 
     const self = this;
-    this.data = new Proxy(this.__raw, {
+    this.data = new Proxy(this._raw, {
       set(target, prop, value) {
         // 自动保存
         self.onDataChanged.runWith(prop, target[prop], value);
@@ -81,16 +96,11 @@ export class StoreEntry<T extends Dict> {
 
   /** 存储条目唯一标识 */
   get key() {
-    if (aaron.argParser.isDev && aaron.platform.browser) {
-      const user = aaron.argParser.args.user ?? 'guest';
-      return aaron.argParser.args.appName + '-' + user + '-' + this.token;
-    } else {
-      return aaron.argParser.args.appName + '-' + this.token;
-    }
+    return this._modem.makeKey(this.token);
   }
 
   /** 保存数据 */
   save() {
-    sys.localStorage.setItem(this.token, this.__encode());
+    sys.localStorage.setItem(this.token, this._encode());
   }
 }

@@ -1,7 +1,8 @@
 /**
  * Aaron 框架
- *
- * 基于依赖倒置原则的应用程序核心，负责服务装配和管理
+ * @description Aaron 框架基于依赖倒置原则，为应用程序提供服务装配和管理。
+ * - Aaron 对外提供内置服务的访问。
+ * - 开发者可以根据需要替换内置服务。
  */
 import {
   IArgParser,
@@ -14,7 +15,7 @@ import {
   IStoreContainer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
-import { ServiceContainer } from './ServiceContainer';
+import { Service, ServiceContainer } from './ServiceContainer';
 
 /**
  * Aaron 框架
@@ -27,11 +28,19 @@ export class Aaron {
   }
 
   /**
+   * 服务注册回调
+   * @description 只有首次注册会触发
+   * 
+   * 开发者可以实现此方法以监控或替换服务。
+   */
+  public onServiceRegistered: (token: string) => void;
+
+  /**
    * 获取服务
    * @param token 服务标识符
    * @returns 服务实例
    */
-  serviceOf<T>(token: string): T {
+  serviceOf<T extends Service>(token: string): T {
     return ServiceContainer.Shared.get<T>(token);
   }
 
@@ -41,7 +50,12 @@ export class Aaron {
    * @param factory 服务工厂方法
    */
   registerServiceFactory<T>(token: string, factory: () => T): void {
-    ServiceContainer.Shared.registerFactory(token, factory);
+    const container = ServiceContainer.Shared;
+    const isRegistered = container.has(token);
+    container.registerFactory(token, factory);
+    if (!isRegistered) {
+      this.onServiceRegistered?.(token);
+    }
   }
 
   /**
@@ -94,4 +108,5 @@ export class Aaron {
   }
 }
 
+/** Aaron 唯一单例 */
 export const aaron = Aaron.Shared;

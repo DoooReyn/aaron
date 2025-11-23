@@ -1,11 +1,13 @@
 import { IService } from '../../core';
-import { StoreEntry } from '../../foundation';
+import { IStoreModem, StoreEntry } from '../../foundation';
 import { Dict } from '../../types';
 
 /**
  * 本地存储容器服务接口
  */
 export interface IStoreContainer extends IService {
+  /** 存储条目调制解调器 */
+  readonly modem: IStoreModem;
   /**
    * 注册数据模板
    * @param alias 别名

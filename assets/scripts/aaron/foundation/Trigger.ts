@@ -1,4 +1,5 @@
 import { aaron } from '../core';
+import { might } from '../utils';
 import { ObjectEntry } from './ObjectEntry';
 
 /**
@@ -61,7 +62,7 @@ export class Trigger extends ObjectEntry {
    */
   public run() {
     if (this.isValid) {
-      const [, err] = aaron.catcher.sync(this._handle!, this._ctx!, this._args);
+      const [, err] = might.runSync(this._handle!, this._ctx!, this._args);
       if (err) {
         aaron.logger.e('触发器: 运行时错误', err);
       }
@@ -77,7 +78,7 @@ export class Trigger extends ObjectEntry {
    */
   public runWith(...args: any[]) {
     if (this.isValid) {
-      const [, err] = aaron.catcher.sync(this._handle!, this._ctx!, args.concat(this._args));
+      const [, err] = might.runSync(this._handle!, this._ctx!, args.concat(this._args));
       if (err) {
         aaron.logger.e('触发器: 运行时错误', err);
       }
@@ -93,15 +94,15 @@ export class Trigger extends ObjectEntry {
  */
 export class Triggers {
   /** 触发器列表 */
-  private __container: Trigger[] = [];
+  private _container: Trigger[] = [];
 
   /**
    * 清空触发器
    */
   public clear() {
     const objectPool = aaron.objectPool;
-    this.__container.forEach((trigger) => objectPool.recycle(trigger));
-    this.__container.length = 0;
+    this._container.forEach((trigger) => objectPool.recycle(trigger));
+    this._container.length = 0;
   }
 
   /**
@@ -113,7 +114,7 @@ export class Triggers {
    */
   public add(fn: Function, context: any, once: boolean = false, ...args: any[]) {
     const trigger = aaron.objectPool.acquire(Trigger, fn, context, once, args);
-    if (trigger) this.__container.push(trigger);
+    if (trigger) this._container.push(trigger);
   }
 
   /**
@@ -122,10 +123,10 @@ export class Triggers {
    * @param context 回调上下文
    */
   public delWith(fn: Function, context: any) {
-    const at = this.__container.findIndex((tr) => tr.equalsWith(fn, context));
+    const at = this._container.findIndex((tr) => tr.equalsWith(fn, context));
     if (at > -1) {
-      const trigger = this.__container[at];
-      this.__container.splice(at, 1);
+      const trigger = this._container[at];
+      this._container.splice(at, 1);
       aaron.objectPool.recycle(trigger);
     }
   }
@@ -135,10 +136,10 @@ export class Triggers {
    * @param trigger 触发器
    */
   public del(trigger: Trigger) {
-    const at = this.__container.findIndex((tr) => tr.equals(trigger));
+    const at = this._container.findIndex((tr) => tr.equals(trigger));
     if (at > -1) {
-      const trigger = this.__container[at];
-      this.__container.splice(at, 1);
+      const trigger = this._container[at];
+      this._container.splice(at, 1);
       aaron.objectPool.recycle(trigger);
     }
   }
@@ -147,11 +148,11 @@ export class Triggers {
    * 运行触发器
    */
   public run() {
-    for (let i = this.__container.length - 1; i >= 0; i--) {
-      const trigger = this.__container[i];
+    for (let i = this._container.length - 1; i >= 0; i--) {
+      const trigger = this._container[i];
       trigger.run();
       if (trigger.destroyed) {
-        this.__container.splice(i, 1);
+        this._container.splice(i, 1);
       }
     }
   }
@@ -161,11 +162,11 @@ export class Triggers {
    * @param args 额外入参（插入到原始入参之前）
    */
   public runWith(...args: any[]) {
-    for (let i = this.__container.length - 1; i >= 0; i--) {
-      const trigger = this.__container[i];
+    for (let i = this._container.length - 1; i >= 0; i--) {
+      const trigger = this._container[i];
       trigger.runWith(...args);
       if (trigger.destroyed) {
-        this.__container.splice(i, 1);
+        this._container.splice(i, 1);
       }
     }
   }

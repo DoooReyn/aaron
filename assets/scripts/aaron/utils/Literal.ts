@@ -1,5 +1,3 @@
-export {};
-
 /**
  * 格式化
  * @param template 模板

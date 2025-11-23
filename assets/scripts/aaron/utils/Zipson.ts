@@ -1,5 +1,5 @@
 import { parse, stringify } from 'zipson';
-import { aaron } from '../core';
+import { runSync } from './Might';
 
 /** 压制 object -> string */
 function encode(data: object): string {
@@ -7,12 +7,8 @@ function encode(data: object): string {
 }
 
 /** 解析 string -> object */
-function decode(data: string): object {
-  const [ret, err] = aaron.catcher.sync(() => parse(data));
-  if (err) {
-    aaron.logger.e('zipson 解析失败:', data);
-  }
-  return ret;
+function decode(data: string): object | undefined {
+  return runSync<object>(parse, undefined, data)[0];
 }
 
 export { encode, decode };

@@ -1,4 +1,9 @@
-// foundation 不能直接引用 services 
+/**
+ * foundation
+ * @description foundation 与 utils 类似，都为框架提供了一系列基础能力的封装。
+ * - 与 utils 不同的是，foundation 的能力体现为具体的类。
+ * - 出于服务其他层的目的，foundation 需严格遵守开闭原则，因此规定 foundation 只能引用 interfaces，types，或自身。
+ */
 export * from './Trigger';
 export * from './ObjectEntry';
 export * from './ObjectPool';

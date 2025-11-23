@@ -1,12 +1,8 @@
-import { aaron } from '../core';
+import { runSync } from './Might';
 
 /** 解析 string -> object */
 function decode<T extends Object>(data: string) {
-  const [ret, err] = aaron.catcher.sync<T | null>(() => JSON.parse(data));
-  if (err) {
-    aaron.logger.e('JSON 解析失败', err);
-  }
-  return ret;
+  return runSync<T | null>(() => JSON.parse(data))[0];
 }
 
 /** 压制 object -> string */

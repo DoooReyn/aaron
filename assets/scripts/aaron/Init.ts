@@ -1,6 +1,10 @@
+/**
+ * Init
+ * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
+ */
 import { aaron } from './core';
 import { SERVICES } from './macro';
-import { IGlobalAdapter, ILogger, LogLevel, IArgParser, ICatcher, IPlatform, ILaunchOptions } from './interfaces';
+import { IGlobalAdapter, ILogger, IArgParser, ICatcher, IPlatform, ILaunchOptions } from './interfaces';
 import {
   Logger,
   GlobalAdapter,
@@ -32,18 +36,12 @@ export const FRAMEWORK_INFO = {
  * 基于新的依赖倒置架构
  * @param config 初始化配置
  */
-export async function init(
-  config: ILaunchOptions = {
-    env: 'dev',
-    logLevel: LogLevel.INFO,
-  }
-): Promise<void> {
+export async function init(config: ILaunchOptions): Promise<void> {
   console.log(`🚀 初始化 ${FRAMEWORK_INFO.name} v${VERSION}`);
   console.log(`📋 架构模式: ${FRAMEWORK_INFO.architecture}`);
 
   // 注册递增ID生成器服务
-  const ascendingId = new AscendingId();
-  aaron.registerServiceInstance(SERVICES.ASCENDING_ID, ascendingId);
+  aaron.registerServiceFactory(SERVICES.ASCENDING_ID, () => new AscendingId());
 
   // 注册日志服务
   const logger = new Logger('Aaron');
