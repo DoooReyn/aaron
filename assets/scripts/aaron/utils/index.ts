@@ -23,4 +23,5 @@ export * as native from './Native';
 export * as random from './Random';
 export * as re from './RegExp';
 export * as time from './Time';
+export * as zlib from './Zlib';
 export * as zson from './Zipson';
