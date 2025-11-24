@@ -21,5 +21,6 @@ export * as misc from './Misc';
 export * as mock from './Mock';
 export * as native from './Native';
 export * as random from './Random';
+export * as re from './RegExp';
 export * as time from './Time';
 export * as zson from './Zipson';
