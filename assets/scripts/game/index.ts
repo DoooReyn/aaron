@@ -1,5 +1,6 @@
 import { aaron, ILaunchOptions, init, LogLevel } from '../aaron';
 import { EDITOR, DEV, BUILD } from 'cc/env';
+import * as fk from '../aaron';
 
 /** 根据环境切换配置 */
 const optionsMapping: Record<'dev' | 'debug' | 'prod', ILaunchOptions> = {
@@ -27,6 +28,7 @@ if (!EDITOR) {
   init(optionsMapping[env])
     .then(function () {
       aaron.logger.i('✅ 游戏框架初始化完成');
+      aaron.globalAdapter.set('fk', fk);
     })
     .catch(function (err) {
       aaron.logger.e('❌ 游戏框架初始化失败:', err);
