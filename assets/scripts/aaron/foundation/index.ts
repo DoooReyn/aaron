@@ -6,6 +6,9 @@
  */
 export * from './collections/LinkedList';
 export * from './collections/CircularLinkedList';
+export * from './extends/CenterLayout';
+export * from './extends/SafeArea';
+export * from './extends/Node';
 export * from './AutoAtlas';
 export * from './DeepProxy';
 export * from './Group';
