@@ -1,4 +1,11 @@
-const ctx: object = {};
+import { misc, sys, Texture2D } from 'cc';
+import { runSync } from './Might';
+
+/** 内置上下文 */
+const CTX: object = {};
+
+/** 纹理过滤模式 */
+const { LINEAR, NEAREST } = Texture2D.Filter;
 
 /** 空转方法 */
 function idle(...args: any[]) {}
@@ -14,7 +21,7 @@ function idle(...args: any[]) {}
  * @param context 执行上下文
  * @param delay 延迟时间
  */
-function debounce(fn: Function, context: object = ctx, delay: number = 300) {
+function debounce(fn: Function, context: object = CTX, delay: number = 300) {
   let timer: number | null = null;
   return function (...args: any[]) {
     if (timer) clearTimeout(timer);
@@ -36,7 +43,7 @@ function debounce(fn: Function, context: object = ctx, delay: number = 300) {
  * @param context 执行上下文
  * @param delay 延迟时间
  */
-function throttle(fn: Function, context: object = ctx, delay: number = 300) {
+function throttle(fn: Function, context: object = CTX, delay: number = 300) {
   let valid: boolean = true;
   let timer: number = 0;
   return function (...args: any[]) {
@@ -51,4 +58,45 @@ function throttle(fn: Function, context: object = ctx, delay: number = 300) {
   };
 }
 
-export { debounce, throttle };
+/** 禁止调试 */
+function ban() {
+  if (sys.isBrowser) {
+    document.oncontextmenu = function () {
+      return false;
+    };
+    document.onkeydown = document.onkeyup = function (e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        return false;
+      }
+    };
+    (() => {
+      const a = ['c', 'o', 'n', 's', 't', 'r', 'u', 'c', 't', 'o', 'r'].join('');
+      const b = ['d', 'e', 'b', 'b', 'u', 'g', 'g', 'e', 'r'].join('');
+      const c = ['c', 'a', 'l', 'l'].join('');
+      const exec = () => setInterval(() => (<any>exec)[a](b)[c](), 50);
+      exec();
+    })();
+  }
+}
+
+/**
+ * 下一帧运行方法
+ * @param exec 方法
+ */
+function nextTick(exec: () => void) {
+  misc.callInNextTick(function () {
+    runSync(exec);
+  });
+}
+
+/**
+ * 对贴图开启/关闭抗锯齿
+ * @param tex 贴图
+ * @param enabled 是否启用抗锯齿
+ */
+function setAntiAliasing(tex: Texture2D, enabled: boolean): void {
+  let filter = enabled ? LINEAR : NEAREST;
+  tex && tex.setFilters(filter, filter);
+}
+
+export { idle, debounce, throttle, ban, nextTick, setAntiAliasing };
