@@ -18,6 +18,7 @@ export * as lzstring from './LZstring';
 export * as md5 from './Md5';
 export * as might from './Might';
 export * as misc from './Misc';
+export * as mock from './Mock';
 export * as native from './Native';
 export * as random from './Random';
 export * as time from './Time';
