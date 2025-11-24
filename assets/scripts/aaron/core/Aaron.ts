@@ -7,6 +7,7 @@
 import {
   IAppLauncher,
   IArgParser,
+  IAscendingId,
   ICatcher,
   IGlobalAdapter,
   ILogger,
@@ -67,6 +68,11 @@ export class Aaron {
    */
   registerServiceInstance<T extends IService>(token: string, instance: T): void {
     ServiceContainer.Shared.registerInstance(token, instance);
+  }
+
+  /** 递增ID生成服务 */
+  get ascendingId() {
+    return this.serviceOf<IAscendingId>(SERVICES.ASCENDING_ID);
   }
 
   /** 日志服务 */
