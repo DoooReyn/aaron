@@ -13,5 +13,6 @@ export * from './NodePool';
 export * from './ObjectEntry';
 export * from './ObjectPool';
 export * from './Selector';
+export * from './StateMachine';
 export * from './StoreEntry';
 export * from './Trigger';
