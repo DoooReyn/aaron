@@ -1,6 +1,6 @@
 import { Service } from '../core';
-import { IStoreModem, StoreEntry } from '../foundation';
-import { IArgParser, IPlatform, IStoreContainer } from '../interfaces';
+import { StoreEntry } from '../foundation';
+import { IArgParser, IPlatform, IStoreContainer, IStoreModem } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Dict } from '../types';
 import { lzstring, zson, json } from '../utils';

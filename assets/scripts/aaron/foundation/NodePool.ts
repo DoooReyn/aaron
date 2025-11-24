@@ -1,6 +1,6 @@
-import { Prefab, instantiate } from "cc";
-import { INodePool, IRecyclableNode, IRecyclableOptions } from "../interfaces";
-import { time } from "../utils";
+import { Prefab, instantiate } from 'cc';
+import { INodePool, IRecyclableNode, IRecyclableOptions } from '../interfaces';
+import { time } from '../utils';
 
 /**
  * 节点池

@@ -1,6 +1,30 @@
 import { IService } from '../../core';
-import { IStoreModem, StoreEntry } from '../../foundation';
+import { StoreEntry } from '../../foundation';
 import { Dict } from '../../types';
+
+/**
+ * 本地存储条目调制解调器
+ */
+export interface IStoreModem {
+  /**
+   * 包装存储条目标识
+   * @param token 存储条目标识
+   * @returns 包装完成的存储条目标识
+   */
+  makeKey(token: string): string;
+  /**
+   * 压制存储条目数据
+   * @param data 存储条目数据（对象）
+   * @returns 压制完成的存储条目数据（字符串）
+   */
+  encode<T extends Dict>(data: T): string;
+  /**
+   * 解析存储条目数据
+   * @param data 存储条目数据（字符串）
+   * @returns 解析完成的存储条目数据（对象）
+   */
+  decode<T extends Dict>(data: string): T | undefined;
+}
 
 /**
  * 本地存储容器服务接口

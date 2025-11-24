@@ -1,6 +1,6 @@
-import { Constructor } from "cc";
-import { IObjectPool, IRecyclableOptions } from "../interfaces";
-import { ObjectEntry } from "./ObjectEntry";
+import { Constructor } from 'cc';
+import { IObjectPool, IRecyclableOptions } from '../interfaces';
+import { ObjectEntry } from './ObjectEntry';
 
 /**
  * 对象池
