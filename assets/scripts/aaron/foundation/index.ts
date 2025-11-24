@@ -10,3 +10,5 @@ export * from './ObjectEntry';
 export * from './ObjectPool';
 export * from './StoreEntry';
 export * from './Trigger';
+export * from './collections/LinkedList';
+export * from './collections/CircularLinkedList';
