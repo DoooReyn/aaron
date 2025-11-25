@@ -14,6 +14,8 @@ import {
   INodePoolContainer,
   IObjectPoolContainer,
   IPlatform,
+  IProfiler,
+  IRichTextAtlas,
   IStoreContainer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
@@ -33,7 +35,7 @@ export class Aaron {
   /**
    * 服务注册回调
    * @description 只有首次注册会触发
-   * 
+   *
    * 开发者可以实现此方法以监控或替换服务。
    */
   public onServiceRegistered: (token: string) => void;
@@ -117,7 +119,17 @@ export class Aaron {
 
   /** 应用启动器服务 */
   get appLauncher() {
-    return this.serviceOf<IAppLauncher>(SERVICES.APP_LAUNCHER)
+    return this.serviceOf<IAppLauncher>(SERVICES.APP_LAUNCHER);
+  }
+
+  /** 富文本图集服务 */
+  get richTextAtlas() {
+    return this.serviceOf<IRichTextAtlas>(SERVICES.RICHTEXT_ATLAS);
+  }
+
+  /** 性能分析器服务 */
+  get profiler() {
+    return this.serviceOf<IProfiler>(SERVICES.PROFILER);
   }
 }
 

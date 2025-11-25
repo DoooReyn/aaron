@@ -1,6 +1,6 @@
 import { IService } from "../../core";
 import { Dict } from "../../types";
-import { ILaunchOptions } from "../LaunchOptions";
+import { ILaunchOptions } from "../ILaunchOptions";
 
 /**
  * 参数解析器服务接口

@@ -11,16 +11,16 @@ export class CircularLinkedList<T> extends LinkedList<T> {
   public append(value: T): void {
     const newNode = new ListNode(value);
 
-    if (!this._head) {
-      this._head = newNode;
-      this._tail = newNode;
+    if (!this.$head) {
+      this.$head = newNode;
+      this.$tail = newNode;
       newNode.next = newNode; // 环形指向自己
     } else {
-      this._tail!.next = newNode;
-      newNode.next = this._head; // 新节点指向头节点形成环
-      this._tail = newNode;
+      this.$tail!.next = newNode;
+      newNode.next = this.$head; // 新节点指向头节点形成环
+      this.$tail = newNode;
     }
-    this._size++;
+    this.$size++;
   }
 
   /**
@@ -29,24 +29,24 @@ export class CircularLinkedList<T> extends LinkedList<T> {
   public prepend(value: T): void {
     const newNode = new ListNode(value);
 
-    if (!this._head) {
-      this._head = newNode;
-      this._tail = newNode;
+    if (!this.$head) {
+      this.$head = newNode;
+      this.$tail = newNode;
       newNode.next = newNode; // 环形指向自己
     } else {
-      newNode.next = this._head;
-      this._tail!.next = newNode; // 尾节点指向新头节点
-      this._head = newNode;
+      newNode.next = this.$head;
+      this.$tail!.next = newNode; // 尾节点指向新头节点
+      this.$head = newNode;
     }
-    this._size++;
+    this.$size++;
   }
 
   /**
    * 清空链表（解除环形引用）
    */
   public clear(): void {
-    if (this._tail) {
-      this._tail.next = null; // 解除环形引用
+    if (this.$tail) {
+      this.$tail.next = null; // 解除环形引用
     }
     super.clear();
   }
@@ -55,10 +55,10 @@ export class CircularLinkedList<T> extends LinkedList<T> {
    * 检测链表是否成环
    */
   public isCircular(): boolean {
-    if (!this._head) return false;
+    if (!this.$head) return false;
 
-    let slow = this._head;
-    let fast = this._head;
+    let slow = this.$head;
+    let fast = this.$head;
 
     while (fast && fast.next) {
       slow = slow.next!;
@@ -76,12 +76,12 @@ export class CircularLinkedList<T> extends LinkedList<T> {
    */
   public toArray(): T[] {
     const result: T[] = [];
-    if (!this._head) return result;
+    if (!this.$head) return result;
 
-    let current = this._head;
+    let current = this.$head;
     let count = 0;
 
-    while (current && count < this._size) {
+    while (current && count < this.$size) {
       result.push(current.value);
       current = current.next!;
       count++;

@@ -14,7 +14,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
   registerByConstructor(template: Constructor<IRecyclableNode>, options: IRecyclableOptions): void {
     const token = options.token;
     if (this._container.has(token)) {
-      throw new Error(`节点池: 注册失败，节点池已存在 ${token}`);
+      throw new Error(`❌ 节点池: 注册失败，节点池已存在 ${token}`);
     }
 
     const pool = new NodePool(new template(), options);
@@ -24,7 +24,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
   registerByInstance(template: Node | Prefab, options: IRecyclableOptions): void {
     const token = options.token;
     if (this._container.has(token)) {
-      throw new Error(`节点池: 注册失败，节点池已存在 ${token}`);
+      throw new Error(`❌ 节点池: 注册失败，节点池已存在 ${token}`);
     }
 
     if (template instanceof Node) {
@@ -36,7 +36,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
         const pool = new NodePool(node as IRecyclableNode, options);
         this._container.set(token, pool);
       } else {
-        throw new Error(`节点池: 注册失败，节点实例不符合条件 ${token}`);
+        throw new Error(`❌ 节点池: 注册失败，节点实例不符合条件 ${token}`);
       }
     } else {
       const pool = new NodePool(template, options);
@@ -56,7 +56,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
 
   templateOf(token: string): Prefab | IRecyclableNode | undefined {
     if (!this._container.has(token)) {
-      throw new Error(`节点池: 查询失败，节点池不存在 ${token}`);
+      throw new Error(`❌ 节点池: 查询失败，节点池不存在 ${token}`);
     }
 
     const pool = this._container.get(token)!;
@@ -65,7 +65,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
 
   acquire<N extends IRecyclableNode>(token: string): N | undefined {
     if (!this._container.has(token)) {
-      throw new Error(`节点池: 查询失败，节点池不存在 ${token}`);
+      throw new Error(`❌ 节点池: 查询失败，节点池不存在 ${token}`);
     }
 
     const pool = this._container.get(token)!;
@@ -75,7 +75,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
   recycle(inst: IRecyclableNode): void {
     if (inst && inst.isValid && inst.token !== undefined && inst.recycledAt === 0) {
       if (!this._container.has(inst.token)) {
-        throw new Error(`节点池: 查询失败，节点池不存在 ${inst.token}`);
+        throw new Error(`❌ 节点池: 查询失败，节点池不存在 ${inst.token}`);
       }
       this._container.get(inst.token)!.recycle(inst);
     }

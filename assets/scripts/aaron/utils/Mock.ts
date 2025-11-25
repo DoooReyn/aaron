@@ -39,16 +39,16 @@ export function TimeConsuming(tag: string) {
           if (result instanceof Promise) {
             return result.then((data) => {
               const end = performance.now();
-              console.log(`[${tag}] 异步耗时: ${(end - start).toFixed(3)}ms`);
+              console.log(`⏲ [${tag}] 异步耗时: ${(end - start).toFixed(3)}ms`);
               return data;
             });
           } else {
             const end = performance.now();
-            console.log(`[${tag}] 同步耗时: ${(end - start).toFixed(3)}ms`);
+            console.log(`⏲ [${tag}] 同步耗时: ${(end - start).toFixed(3)}ms`);
             return result;
           }
         } catch (error) {
-          console.error(`[${tag}] 发现错误:`, error);
+          console.error(`⏲ [${tag}] 发现错误:`, error);
           throw error;
         }
       };

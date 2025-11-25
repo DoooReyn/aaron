@@ -12,5 +12,7 @@ export const SERVICES = {
   OBJECT_POOL: 'ObjectPool',
   NODE_POOL: 'NodePool',
   STORE: 'StoreContainer',
-  APP_LAUNCHER: 'ApplicationLauncer'
+  APP_LAUNCHER: 'AppLauncher',
+  RICHTEXT_ATLAS: 'RichTextAtlas',
+  PROFILER: 'Profiler',
 };

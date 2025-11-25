@@ -3,7 +3,7 @@
  * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
  */
 import { aaron } from './core';
-import { SERVICES } from './macro';
+import { FRAMEWORK, SERVICES, VERSION } from './macro';
 import { IGlobalAdapter, ILogger, IArgParser, ICatcher, IPlatform, ILaunchOptions } from './interfaces';
 import {
   Logger,
@@ -15,22 +15,11 @@ import {
   AscendingId,
   ObjectPoolContainer,
   NodePoolContainer,
+  Profiler,
+  RichTextAtlas,
+  AppLauncher,
+  StoreContainer,
 } from './services';
-import { StoreContainer } from './services/StoreContainer';
-import { AppLauncer } from './services/AppLauncher';
-
-/** 版本信息 */
-export const VERSION = '1.1.0' as const;
-
-/** 框架信息 */
-export const FRAMEWORK_INFO = {
-  name: 'Aaron Framework',
-  version: VERSION,
-  description: '基于 Cocos Creator 3.8 的轻量级 2D 游戏框架（依赖倒置架构）',
-  author: 'Aaron Team',
-  homepage: 'https://github.com/aaron-framework/aaron',
-  architecture: 'Dependency Inversion Principle',
-} as const;
 
 /**
  * 框架初始化函数
@@ -38,8 +27,8 @@ export const FRAMEWORK_INFO = {
  * @param config 初始化配置
  */
 export async function init(config: ILaunchOptions): Promise<void> {
-  console.log(`🚀 初始化 ${FRAMEWORK_INFO.name} v${VERSION}`);
-  console.log(`📋 架构模式: ${FRAMEWORK_INFO.architecture}`);
+  console.log(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
+  console.log(`📋 架构模式: ${FRAMEWORK.architecture}`);
 
   // 注册递增ID生成器服务
   aaron.registerServiceFactory(SERVICES.ASCENDING_ID, AscendingId);
@@ -75,14 +64,20 @@ export async function init(config: ILaunchOptions): Promise<void> {
   // 注册本地存储容器服务
   aaron.registerServiceFactory(SERVICES.STORE, StoreContainer);
 
-
+  // 注册性能监视器服务
+  aaron.registerServiceFactory(SERVICES.PROFILER, Profiler);
+  
+  // 注册富文本图集服务
+  aaron.registerServiceFactory(SERVICES.RICHTEXT_ATLAS, RichTextAtlas);
+  
   // 最后注册应用启动器服务
-  aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncer());
+  aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
   await aaron.appLauncher.initialize();
+  aaron.richTextAtlas.initialize();
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');
   aaron.logger.i(`🚀 版本: ${VERSION}`);
-  aaron.logger.i(`📋 架构: ${FRAMEWORK_INFO.architecture}`);
+  aaron.logger.i(`📋 架构: ${FRAMEWORK.architecture}`);
 
   return Promise.resolve();
 }

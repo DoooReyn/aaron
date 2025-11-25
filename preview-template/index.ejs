@@ -1,0 +1,455 @@
+<html>
+  <head>
+    <link rel="icon" href="./favicon.ico" />
+    <meta charset="utf-8" />
+    <title><%=title%></title>
+    <meta
+      name="viewport"
+      content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="full-screen" content="yes" />
+    <meta name="screen-orientation" content="portrait" />
+    <meta name="x5-fullscreen" content="true" />
+    <meta name="360-fullscreen" content="true" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <link rel="stylesheet" type="text/css" href="./index.css" />
+  </head>
+
+  <body style="overflow: hidden">
+    <%- include(cocosToolBar, {config: config}) %>
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel" style="display: none">
+      <div id="debugHeader" class="debug-header">
+        <span>统计面板</span>
+        <div class="debug-controls">
+          <button id="debugMinimize" class="debug-btn">-</button>
+        </div>
+      </div>
+      <div id="debugContent" class="debug-content">
+        <!-- Child elements will be added here dynamically -->
+      </div>
+      <div id="debugResize" class="debug-resize"></div>
+    </div>
+    <!-- Content area -->
+    <div id="content" class="content" style="overflow: hidden">
+      <div class="contentWrap">
+        <div id="GameDiv" class="wrapper">
+          <div id="Cocos3dGameContainer">
+            <canvas id="GameCanvas" tabindex="-1" style="background-color: ''"></canvas>
+          </div>
+          <div id="splash">
+            <div class="progress-bar stripes"><span></span></div>
+          </div>
+          <div id="bulletin">
+            <div id="sceneIsEmpty" class="inner"><%=tip_sceneIsEmpty%></div>
+          </div>
+          <div class="error" id="error">
+            <div class="title">Error <i>(Please open the console to see detailed errors)</i></div>
+            <div class="error-main"></div>
+            <div class="error-stack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <%- include(cocosTemplate, {}) %> -->
+
+    <style>
+      .debug-panel {
+        position: fixed;
+        top: 50px;
+        right: 20px;
+        width: 300px;
+        min-width: 200px;
+        max-width: 80vw;
+        height: 400px;
+        min-height: 150px;
+        max-height: 80vh;
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid #555;
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        color: #fff;
+        overflow: hidden;
+      }
+
+      .debug-header {
+        background: #333;
+        padding: 8px 12px;
+        cursor: move;
+        border-bottom: 1px solid #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+      }
+
+      .debug-controls {
+        display: flex;
+        gap: 4px;
+      }
+
+      .debug-btn {
+        background: transparent;
+        border: 1px solid #666;
+        color: #fff;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .debug-btn:hover {
+        background: #555;
+      }
+
+      .debug-content {
+        padding: 8px;
+        height: calc(100% - 40px);
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .debug-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        padding: 2px 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        border: 1px solid transparent;
+        gap: 8px;
+      }
+
+      .debug-item:hover {
+        border-color: #666;
+      }
+
+      .debug-item-title {
+        font-weight: bold;
+        color: #4caf50;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+
+      .debug-item-value {
+        color: #fff;
+        word-wrap: break-word;
+        font-size: 11px;
+        line-height: 1.3;
+        text-align: right;
+        flex: 1;
+      }
+
+      .debug-resize {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 15px;
+        height: 15px;
+        cursor: nw-resize;
+        background: linear-gradient(-45deg, transparent 40%, #666 40%, #666 60%, transparent 60%);
+      }
+
+      .debug-panel.minimized .debug-content,
+      .debug-panel.minimized .debug-resize {
+        display: none;
+      }
+
+      .debug-panel.minimized {
+        height: auto;
+        min-height: 0;
+        width: auto;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .debug-panel.minimized .debug-header {
+        padding: 0;
+        background: transparent;
+        border: none;
+      }
+
+      .debug-panel.minimized .debug-header span {
+        display: none;
+      }
+
+      .debug-panel.minimized .debug-controls {
+        margin: 0;
+      }
+
+      .debug-panel.minimized .debug-btn {
+        border: none;
+        background: rgba(0, 0, 0, 0.6);
+        width: 32px;
+        height: 32px;
+        border-radius: 16px;
+      }
+    </style>
+
+    <script>
+      try {
+        // 在启动加载之前先初始化显示错误遮罩的相关代码，才能更好的提示后续启动过程中可能出现的错误
+        // 3.6.0 之前的预览模板只有 error-main
+        const errorMain = document.querySelector("#error .error-main");
+        const errorStack = document.querySelector("#error .error-stack");
+        const errorWrap = document.querySelector("#error");
+        function transToErrorInfo(error) {
+          const errorInfo = {
+            message: "",
+            stack: "",
+          };
+          if (error instanceof ErrorEvent) {
+            errorInfo.message = error.error.message;
+            errorInfo.stack = error.error.stack;
+          } else if (error instanceof PromiseRejectionEvent) {
+            errorInfo.message = error.reason;
+          } else if (error instanceof Event && error.target && error.target.src) {
+            errorInfo.message = `Get ${error.target.src} failed!`;
+          } else {
+            errorInfo.message = error.message;
+            errorInfo.stack = error.stack;
+          }
+          return errorInfo;
+        }
+        function showError(errorInfo, message) {
+          // if (!errorWrap) {
+          //     return;
+          // }
+          // message = message || '[Browser Preview]' + errorInfo.message + (errorInfo.stack ? '/n' + errorInfo.stack : '');
+          // if (errorStack) {
+          //     errorMain.innerText = errorInfo.message;
+          //     errorInfo.stack && (errorStack.innerText = errorInfo.stack);
+          // }
+          // else {
+          //     // 兼容 3.6.0 之前的预览模板
+          //     errorMain.innerText = message;
+          // }
+          // errorWrap.style.display = 'block';
+          return {
+            errorInfo,
+            message,
+          };
+        }
+        window.__errorTools = {
+          transToErrorInfo,
+          showError,
+        };
+        function installDiagnosisRoutine() {
+          const errorHandle = function (error) {
+            if (error.message && error.message.includes("debug-evaluate")) {
+              return;
+            }
+            console.error(error);
+            __errorTools.showError(__errorTools.transToErrorInfo(error));
+            // 注意，在返回 true 的时候，异常才不会继续向上抛出error;
+            return true;
+          };
+          // 全局捕获错误
+          window.addEventListener("error", errorHandle, true);
+          window.addEventListener(
+            "unhandledrejection",
+            (error) => {
+              console.error(error);
+              __errorTools.showError(__errorTools.transToErrorInfo(error));
+            },
+            true
+          );
+        }
+        installDiagnosisRoutine();
+      } catch (error) {
+        console.error(error);
+      }
+    </script>
+
+    <script>
+      // Debug Panel Implementation
+      class DebugPanel {
+        constructor() {
+          this.panel = document.getElementById("debugPanel");
+          this.header = document.getElementById("debugHeader");
+          this.content = document.getElementById("debugContent");
+          this.resizeHandle = document.getElementById("debugResize");
+          this.minimizeBtn = document.getElementById("debugMinimize");
+
+          this.items = new Map();
+          this.isDragging = false;
+          this.isResizing = false;
+          this.isMinimized = false;
+          this.dragOffset = { x: 0, y: 0 };
+
+          this.initEventListeners();
+        }
+
+        initEventListeners() {
+          // Dragging functionality
+          this.header.addEventListener("mousedown", (e) => {
+            if (e.target.classList.contains("debug-btn")) return;
+            this.isDragging = true;
+            const rect = this.panel.getBoundingClientRect();
+            this.dragOffset.x = e.clientX - rect.left;
+            this.dragOffset.y = e.clientY - rect.top;
+            document.addEventListener("mousemove", this.handleDrag.bind(this));
+            document.addEventListener("mouseup", this.stopDrag.bind(this));
+            e.preventDefault();
+          });
+
+          // Resizing functionality
+          this.resizeHandle.addEventListener("mousedown", (e) => {
+            this.isResizing = true;
+            document.addEventListener("mousemove", this.handleResize.bind(this));
+            document.addEventListener("mouseup", this.stopResize.bind(this));
+            e.preventDefault();
+          });
+
+          // Control button
+          this.minimizeBtn.addEventListener("click", () => {
+            this.toggle();
+          });
+        }
+
+        handleDrag(e) {
+          if (!this.isDragging) return;
+          const x = e.clientX - this.dragOffset.x;
+          const y = e.clientY - this.dragOffset.y;
+
+          // Keep panel within viewport
+          const maxX = window.innerWidth - this.panel.offsetWidth;
+          const maxY = window.innerHeight - this.panel.offsetHeight;
+
+          this.panel.style.left = Math.max(0, Math.min(x, maxX)) + "px";
+          this.panel.style.top = Math.max(0, Math.min(y, maxY)) + "px";
+          this.panel.style.right = "auto";
+        }
+
+        stopDrag() {
+          this.isDragging = false;
+          document.removeEventListener("mousemove", this.handleDrag.bind(this));
+          document.removeEventListener("mouseup", this.stopDrag.bind(this));
+        }
+
+        handleResize(e) {
+          if (!this.isResizing) return;
+          const rect = this.panel.getBoundingClientRect();
+          const width = e.clientX - rect.left;
+          const height = e.clientY - rect.top;
+
+          // Apply constraints
+          const newWidth = Math.max(200, Math.min(width, window.innerWidth * 0.8));
+          const newHeight = Math.max(150, Math.min(height, window.innerHeight * 0.8));
+
+          this.panel.style.width = newWidth + "px";
+          this.panel.style.height = newHeight + "px";
+        }
+
+        stopResize() {
+          this.isResizing = false;
+          document.removeEventListener("mousemove", this.handleResize.bind(this));
+          document.removeEventListener("mouseup", this.stopResize.bind(this));
+        }
+
+        show() {
+          this.panel.style.display = "block";
+        }
+
+        hide() {
+          this.panel.style.display = "none";
+        }
+
+        toggle() {
+          this.isMinimized = !this.isMinimized;
+          if (this.isMinimized) {
+            this.panel.classList.add("minimized");
+            this.minimizeBtn.textContent = "📊";
+            this.minimizeBtn.style.fontSize = "14px";
+          } else {
+            this.panel.classList.remove("minimized");
+            this.minimizeBtn.textContent = "-";
+            this.minimizeBtn.style.fontSize = "12px";
+          }
+        }
+
+        addItem(key, title, getter) {
+          const itemElement = document.createElement("div");
+          itemElement.className = "debug-item";
+          itemElement.innerHTML = `
+                    <div class="debug-item-title">${title}</div>
+                    <div class="debug-item-value">${getter ? getter() : ""}</div>
+                `;
+
+          this.content.appendChild(itemElement);
+          this.items.set(key, {
+            element: itemElement,
+            title: title,
+            valueElement: itemElement.querySelector(".debug-item-value"),
+            getter: getter,
+          });
+
+          return itemElement;
+        }
+
+        update() {
+          this.items.forEach((item) => {
+            if (item.getter) {
+              const value = item.getter();
+              const displayValue = value ? value.toString().replace(/\n/g, "<br>") : "";
+              item.valueElement.innerHTML = displayValue;
+            }
+          });
+        }
+
+        removeItem(key) {
+          const item = this.items.get(key);
+          if (item) {
+            item.element.remove();
+            this.items.delete(key);
+          }
+        }
+
+        clear() {
+          this.content.innerHTML = "";
+          this.items.clear();
+        }
+      }
+
+      // Global debug panel instance
+      let debugPanel;
+
+      // Initialize debug panel when DOM is ready
+      document.addEventListener("DOMContentLoaded", function () {
+        debugPanel = new DebugPanel();
+
+        // Add some example items for demonstration
+        // You can remove these lines in production
+        debugPanel.addItem("timestamp", "当前时间", () => new Date().toLocaleTimeString());
+
+        // Show the panel by default (you can remove this line if you want it hidden initially)
+        debugPanel.show();
+
+        // Never show the error panel
+        __errorTools.showError = function () {};
+
+        // Example of updating values periodically
+        setInterval(() => {
+          debugPanel.update();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

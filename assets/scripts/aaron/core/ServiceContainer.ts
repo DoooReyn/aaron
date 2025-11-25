@@ -84,13 +84,13 @@ export class ServiceContainer implements IServiceContainer {
     // 检查是否有工厂函数
     const factory = this._factories.get(token);
     if (!factory) {
-      throw new Error(`服务 '${token}' 未注册`);
+      throw new Error(`❌ 服务 '${token}' 未注册`);
     }
 
     // 创建实例
     const instance = new factory();
     this._instances.set(token, instance);
-    console.log(`🔧 创建服务实例: ${token}`);
+    console.log(`☑️ 创建服务实例: ${token}`);
     return instance as T;
   }
 

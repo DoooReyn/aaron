@@ -16,7 +16,6 @@ export class Trigger extends ObjectEntry {
   private _args: any[] = [];
 
   onInitialize(handle: (...args: any[]) => unknown, context: any, once: boolean = false, args: any[]) {
-    super.onInitialize();
     this._handle = handle;
     this._ctx = context;
     this._once = once;
@@ -24,7 +23,6 @@ export class Trigger extends ObjectEntry {
   }
 
   onRecycled() {
-    super.onRecycled();
     this._handle = null;
     this._ctx = null;
     this._once = false;
@@ -64,7 +62,7 @@ export class Trigger extends ObjectEntry {
     if (this.isValid) {
       const [, err] = might.runSync(this._handle!, this._ctx!, this._args);
       if (err) {
-        aaron.logger.e('触发器: 运行时错误', err);
+        aaron.logger.e('❌ 触发器: 运行时错误', err);
       }
       if (this._once) {
         aaron.objectPool.recycle(this);
@@ -80,7 +78,7 @@ export class Trigger extends ObjectEntry {
     if (this.isValid) {
       const [, err] = might.runSync(this._handle!, this._ctx!, args.concat(this._args));
       if (err) {
-        aaron.logger.e('触发器: 运行时错误', err);
+        aaron.logger.e('❌ 触发器: 运行时错误', err);
       }
       if (this._once) {
         aaron.objectPool.recycle(this);

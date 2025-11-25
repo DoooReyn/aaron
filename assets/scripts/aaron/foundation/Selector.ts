@@ -46,13 +46,13 @@ export class Option<R> extends ObjectEntry {
     return this._raw === raw;
   }
 
-  protected _onStart(raw: any) {
+  onInitialize(raw: any) {
     this._raw = raw;
     this._status = false;
     this.onSelected.clear();
   }
 
-  protected _onEnded() {
+  onRecycled() {
     this._raw = null;
     this._status = false;
     this.onSelected.clear();

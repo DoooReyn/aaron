@@ -1,7 +1,7 @@
-import { gfx, warnID, ImageAsset, Rect, SpriteFrame, Texture2D } from 'cc';
-
 import { MaxRectsPacker } from 'maxrects-packer';
+import { gfx, warnID, ImageAsset, Rect, SpriteFrame, Texture2D } from 'cc';
 import { list } from '../utils';
+import { IAutoAtlasOptions } from '../interfaces';
 
 /**
  * 动态纹理
@@ -46,17 +46,6 @@ export class AutoTexture extends Texture2D {
     region.texExtent.height = image.height;
     gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
   }
-}
-
-/**
- * 自动图集配置
- */
-export interface IAutoAtlasOptions {
-  width: number;
-  height: number;
-  smart: boolean;
-  border: number;
-  padding: number;
 }
 
 /**

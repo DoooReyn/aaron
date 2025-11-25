@@ -7,7 +7,7 @@ import { digit, misc, time } from '../utils';
 /**
  * 应用启动器服务
  */
-export class AppLauncer extends Service implements IAppLauncher {
+export class AppLauncher extends Service implements IAppLauncher {
   scene: Scene;
   stage: Canvas;
   root: Node;

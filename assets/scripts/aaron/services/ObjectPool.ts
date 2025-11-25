@@ -14,7 +14,7 @@ export class ObjectPoolContainer extends Service implements IObjectPoolContainer
     const token = options.token;
 
     if (this._container.has(token)) {
-      throw new Error(`对象池条目 ${token} 已注册`);
+      throw new Error(`❌ 对象池条目 ${token} 已注册`);
     }
 
     this._container.set(token, [new ObjectPool(cls, options), cls]);
@@ -69,7 +69,7 @@ export class ObjectPoolContainer extends Service implements IObjectPoolContainer
   acquire<T extends IObjectEntry>(cls: Constructor<T>, ...args: any[]): T | undefined {
     const inst = this.poolOf(cls);
     if (inst === undefined) {
-      throw new Error(`对象池条目未注册`);
+      throw new Error(`❌ 对象池条目未注册`);
     }
     return inst.acquire(...args) as T;
   }
@@ -77,7 +77,7 @@ export class ObjectPoolContainer extends Service implements IObjectPoolContainer
   recycle<T extends IObjectEntry>(instance: T): void {
     if (instance && instance.token !== undefined && instance.recycle !== undefined) {
       if (!this._container.has(instance.token)) {
-        throw new Error(`对象池条目 ${instance.token} 未注册`);
+        throw new Error(`❌ 对象池条目 ${instance.token} 未注册`);
       }
       this._container.get(instance.token)![0].recycle(instance);
     }

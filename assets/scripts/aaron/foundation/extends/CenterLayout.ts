@@ -81,8 +81,8 @@ export class CenterLayout extends Layout {
       const childTrans = children[i];
       const child = childTrans.node;
       const scale = child.scale;
-      const childScaleX = this._getUsedScaleValue(scale.x);
-      const childScaleY = this._getUsedScaleValue(scale.y);
+      const childScaleX = this.getUsedScaleValue(scale.x);
+      const childScaleY = this.getUsedScaleValue(scale.y);
 
       // 调整子节点大小（如果需要）
       if (this._resizeMode === Layout.ResizeMode.CHILDREN) {
@@ -164,7 +164,7 @@ export class CenterLayout extends Layout {
       // 从右向左遍历子节点，调整位置以实现中心向两侧排列
       for (let i = children.length - 1; i >= 0; i--) {
         let child = children[i];
-        let childScaleX = this._getUsedScaleValue(child.node.scale.x);
+        let childScaleX = this.getUsedScaleValue(child.node.scale.x);
         var anchorX = child.getComponent(UITransform)!.anchorX;
         var childBoundingBoxWidth = child.getComponent(UITransform)!.width * childScaleX;
 
@@ -198,7 +198,7 @@ export class CenterLayout extends Layout {
    * @param value 原始缩放值
    * @returns 有效的缩放值（绝对值或1）
    */
-  protected _getUsedScaleValue(value: number) {
+  protected getUsedScaleValue(value: number) {
     return this.affectedByScale ? Math.abs(value) : 1;
   }
 }

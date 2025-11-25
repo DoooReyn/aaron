@@ -1,6 +1,6 @@
-import { Service } from "../core";
-import { IGlobalAdapter } from "../interfaces";
-import { Global } from "../types";
+import { aaron, Service } from '../core';
+import { IGlobalAdapter } from '../interfaces';
+import { Global } from '../types';
 
 /**
  * 全局对象适配服务
@@ -8,14 +8,20 @@ import { Global } from "../types";
 export class GlobalAdapter extends Service implements IGlobalAdapter {
   /** 全局对象 */
   // @ts-ignore
-  private _env: Global = globalThis ?? window ?? self ?? frames ?? GameGlobal ?? {};;
+  private _env: Global = globalThis ?? window ?? self ?? frames ?? GameGlobal ?? {};
 
   get<T>(key: string): T | undefined {
     return this._env[key] as T | undefined;
   }
 
   set<T>(key: string, value: T): void {
-    this._env[key] = value;
+    if (this.has(key)) {
+      aaron.logger.w(`⚠ 替换全局属性: ${key}，请注意影响`);
+      this._env[key] = value;
+    } else {
+      this._env[key] = value;
+      aaron.logger.d(`➕ 添加全局属性: ${key}`);
+    }
   }
 
   has(key: string): boolean {
@@ -24,5 +30,6 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   unset(key: string): void {
     delete this._env[key];
+    aaron.logger.d(`➖ 删除全局属性: ${key}`);
   }
 }

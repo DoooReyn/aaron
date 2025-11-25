@@ -5,7 +5,9 @@
  * - 出于服务其他层的目的，macro 需严格遵守开闭原则，因此规定 macro 只能引用 interfaces，types。
  */
 
+export * from './Color';
 export * from './Events';
+export * from './Framework';
 export * from './LaunchOptions';
 export * from './Preset';
 export * from './Services';

@@ -4,7 +4,7 @@ import { time } from '../utils';
 /**
  * 对象条目
  */
-export class ObjectEntry implements IObjectEntry {
+export abstract class ObjectEntry implements IObjectEntry {
   createdAt: number = 0;
   recycledAt: number = 0;
   token: string;
@@ -36,9 +36,9 @@ export class ObjectEntry implements IObjectEntry {
     return false;
   }
 
-  reset(): void { }
+  reset(): void {}
 
-  onInitialize(...args: any[]): void { }
+  abstract onInitialize(...args: any[]): void;
 
-  onRecycled(): void { }
+  abstract onRecycled(): void;
 }

@@ -57,4 +57,38 @@ function from(r: Color | string | number[] | number, g?: number, b?: number, a?:
   }
 }
 
-export { composite, from };
+/**
+ * 将通道值转换为十六进制
+ * @param c 通道值
+ * @returns 十六进制通道值
+ */
+function toChannelHEX(c: number) {
+  return c.toString(16).padStart(2, '0');
+}
+
+/**
+ * 将 CCColor 转换为3通道的十六进制色值
+ * @param c 色值
+ * @returns 3通道的十六进制色值
+ */
+function toHex3(c: Color): string {
+  const r = toChannelHEX(c.r);
+  const g = toChannelHEX(c.g);
+  const b = toChannelHEX(c.b);
+  return `#${r}${g}${b}`;
+}
+
+/**
+ * 将 CCColor 转换为4通道的十六进制色值
+ * @param c 色值
+ * @returns 4通道的十六进制色值
+ */
+function toHEX4(c: Color) {
+  const r = toChannelHEX(c.r);
+  const g = toChannelHEX(c.g);
+  const b = toChannelHEX(c.b);
+  const a = toChannelHEX(c.a);
+  return `#${r}${g}${b}${a}`;
+}
+
+export { composite, from, toHex3, toHEX4, toChannelHEX };
