@@ -136,7 +136,7 @@ export class RichText extends Atom {
       ui.setAnchorPoint(0, 0);
       n.setPosition(g.x, g.y);
       n.parent = this.node;
-      (n as Node & { __richStyle?: IRichTextStyle }).__richStyle = g.style;
+      (n as Node & { _richStyle?: IRichTextStyle })._richStyle = g.style;
       this._glyphNodes.push(n);
     }
 
@@ -204,7 +204,7 @@ export class RichText extends Atom {
         continue;
       }
 
-      const style = (n as Node & { __richStyle?: IRichTextStyle }).__richStyle;
+      const style = (n as Node & { _richStyle?: IRichTextStyle })._richStyle;
       if (style && style.linkId && ui.hitTest(pos)) {
         aaron.logger.i('🖱 点击链接: ' + style.linkId);
         this.onLinkClick.runWith(style.linkId);
