@@ -1,9 +1,9 @@
-import { aaron, ILaunchOptions, init, LogLevel } from '../aaron';
+import { aaron, IPartialLaunchOptions, init, LogLevel } from '../aaron';
 import { EDITOR, DEV, BUILD } from 'cc/env';
 import * as fk from '../aaron';
 
 /** 根据环境切换配置 */
-const optionsMapping: Record<'dev' | 'debug' | 'prod', ILaunchOptions> = {
+const optionsMapping: Record<'dev' | 'debug' | 'prod', IPartialLaunchOptions> = {
   dev: {
     appName: 'Midnight Stroll',
     logLevel: LogLevel.DEBUG,

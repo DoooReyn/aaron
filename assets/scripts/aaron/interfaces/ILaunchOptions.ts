@@ -14,3 +14,8 @@ export interface ILaunchOptions {
 
   [k: string]: any;
 }
+
+/**
+ * 可选的应用启动参数
+ */
+export type IPartialLaunchOptions = Partial<ILaunchOptions> & Pick<ILaunchOptions, 'appName'>;

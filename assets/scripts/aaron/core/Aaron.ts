@@ -20,6 +20,7 @@ import {
   IService,
   IEventBus,
   ILocalization,
+  ITimer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -143,6 +144,11 @@ export class Aaron {
   /** 本地化服务 */
   get localization() {
     return this.serviceOf<ILocalization>(SERVICES.LOCALIZATION);
+  }
+
+  /** 定时器服务 */
+  get timer() {
+    return this.serviceOf<ITimer>(SERVICES.TIMER);
   }
 }
 

@@ -1,11 +1,12 @@
 import { aaron } from '../core';
+import { ITrigger, ITriggers } from '../interfaces';
 import { might } from '../utils';
 import { ObjectEntry } from './ObjectEntry';
 
 /**
  * 触发器
  */
-export class Trigger extends ObjectEntry {
+export class Trigger extends ObjectEntry implements ITrigger {
   /** 回调方法 */
   private _handle: ((...args: any[]) => unknown) | null = null;
   /** 回调上下文 */
@@ -90,7 +91,7 @@ export class Trigger extends ObjectEntry {
 /**
  * 触发器容器
  */
-export class Triggers {
+export class Triggers implements ITriggers {
   /** 触发器列表 */
   private _container: Trigger[] = [];
 

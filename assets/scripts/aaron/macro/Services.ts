@@ -15,5 +15,6 @@ export const SERVICES = {
   APP_LAUNCHER: 'AppLauncher',
   RICHTEXT_ATLAS: 'RichTextAtlas',
   PROFILER: 'Profiler',
-  LOCALIZATION: 'Localization'
+  LOCALIZATION: 'Localization',
+  TIMER: 'Timer',
 };

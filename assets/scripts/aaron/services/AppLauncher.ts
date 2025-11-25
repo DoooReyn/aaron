@@ -1,5 +1,5 @@
 import { director, Director, Camera, Canvas, Scene, Node, game, Game, screen, EventTouch, view } from 'cc';
-import { Service } from '../core';
+import { aaron, Service } from '../core';
 import { IAppLauncher, IEventBus, ILogger } from '../interfaces';
 import { EVENTS, PRESET, SERVICES } from '../macro';
 import { digit, misc, time } from '../utils';
@@ -61,6 +61,7 @@ export class AppLauncher extends Service implements IAppLauncher {
           screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
+          director.on(Director.EVENT_AFTER_UPDATE, this.onTick, this);
           this.root.on(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
 
           resolve();
@@ -140,4 +141,8 @@ export class AppLauncher extends Service implements IAppLauncher {
       this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_TAPPED, touch);
     }
   }
+
+  private onTick() {
+    aaron.timer.update(game.deltaTime);
+  } 
 }

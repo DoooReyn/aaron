@@ -3,8 +3,24 @@
  * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
  */
 import { aaron } from './core';
-import { FRAMEWORK, SERVICES, VERSION } from './macro';
-import { IGlobalAdapter, ILogger, IArgParser, ICatcher, IPlatform, ILaunchOptions } from './interfaces';
+import { FRAMEWORK, OBJECT_POOL, SERVICES, VERSION } from './macro';
+import {
+  IGlobalAdapter,
+  ILogger,
+  IArgParser,
+  ICatcher,
+  IPlatform,
+  IPartialLaunchOptions,
+  IEventBus,
+  IObjectPoolContainer,
+  INodePoolContainer,
+  IStoreContainer,
+  ILocalization,
+  IProfiler,
+  IRichTextAtlas,
+  IAscendingId,
+  ITimer,
+} from './interfaces';
 import {
   Logger,
   GlobalAdapter,
@@ -20,60 +36,72 @@ import {
   AppLauncher,
   StoreContainer,
   Localization,
+  Timer,
 } from './services';
+import { Option, Trigger, Counter, Model } from './foundation';
 
 /**
  * 框架初始化函数
  * 基于新的依赖倒置架构
- * @param config 初始化配置
+ * @param args 启动参数
  */
-export async function init(config: ILaunchOptions): Promise<void> {
+export async function init(args: IPartialLaunchOptions): Promise<void> {
   console.log(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
   console.log(`📋 架构模式: ${FRAMEWORK.architecture}`);
 
   // 注册递增ID生成器服务
-  aaron.registerServiceFactory(SERVICES.ASCENDING_ID, AscendingId);
+  aaron.registerServiceFactory<IAscendingId>(SERVICES.ASCENDING_ID, AscendingId);
 
   // 注册日志服务
   aaron.registerServiceFactory<ILogger>(SERVICES.LOGGER, Logger);
-  aaron.logger.setLevel(config.logLevel);
+  aaron.logger.setLevel(args.logLevel);
 
   // 注册全局对象服务
   aaron.registerServiceFactory<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, GlobalAdapter);
   aaron.globalAdapter.set('aaron', aaron);
 
   // 注册异常捕获服务
-  const catcher = new Catcher();
-  aaron.registerServiceInstance<ICatcher>(SERVICES.CATCHER, catcher);
+  aaron.registerServiceInstance<ICatcher>(SERVICES.CATCHER, new Catcher());
 
   // 注册参数解析服务
   aaron.registerServiceFactory<IArgParser>(SERVICES.ARG_PARSER, ArgParser);
-  aaron.argParser.parse(config);
 
   // 注册平台鉴定服务
   aaron.registerServiceFactory<IPlatform>(SERVICES.PLATFORM, Platform);
 
   // 注册事件总线服务
-  aaron.registerServiceFactory(SERVICES.EVENT_BUS, EventBus);
+  aaron.registerServiceFactory<IEventBus>(SERVICES.EVENT_BUS, EventBus);
 
   // 注册对象池容器服务
-  aaron.registerServiceFactory(SERVICES.OBJECT_POOL, ObjectPoolContainer);
+  aaron.registerServiceFactory<IObjectPoolContainer>(SERVICES.OBJECT_POOL, ObjectPoolContainer);
 
   // 注册节点池容器服务
-  aaron.registerServiceFactory(SERVICES.NODE_POOL, NodePoolContainer);
+  aaron.registerServiceFactory<INodePoolContainer>(SERVICES.NODE_POOL, NodePoolContainer);
 
   // 注册本地存储容器服务
-  aaron.registerServiceFactory(SERVICES.STORE, StoreContainer);
+  aaron.registerServiceFactory<IStoreContainer>(SERVICES.STORE, StoreContainer);
 
   // 注册本地化服务
-  aaron.registerServiceFactory(SERVICES.LOCALIZATION, Localization);
+  aaron.registerServiceFactory<ILocalization>(SERVICES.LOCALIZATION, Localization);
 
   // 注册性能监视器服务
-  aaron.registerServiceFactory(SERVICES.PROFILER, Profiler);
-  
+  aaron.registerServiceFactory<IProfiler>(SERVICES.PROFILER, Profiler);
+
+  // 注册定时器服务
+  aaron.registerServiceFactory<ITimer>(SERVICES.TIMER, Timer);
+
   // 注册富文本图集服务
-  aaron.registerServiceFactory(SERVICES.RICHTEXT_ATLAS, RichTextAtlas);
-  
+  aaron.registerServiceFactory<IRichTextAtlas>(SERVICES.RICHTEXT_ATLAS, RichTextAtlas);
+
+  // 注册对象池可回收配置
+  aaron.objectPool.register(Model, OBJECT_POOL.MODEL);
+  aaron.objectPool.register(Option, OBJECT_POOL.OPTION);
+  aaron.objectPool.register(Trigger, OBJECT_POOL.TRIGGER);
+  aaron.objectPool.register(Counter, OBJECT_POOL.COUNTER);
+
+  // 解析启动参数
+  aaron.argParser.parse(args);
+
   // 最后注册应用启动器服务
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
 

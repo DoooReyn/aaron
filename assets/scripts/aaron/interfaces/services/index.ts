@@ -11,3 +11,4 @@ export * from './IPlatform';
 export * from './IProfiler';
 export * from './IRichTextAtlas';
 export * from './IStoreContainer';
+export * from './ITimer';

@@ -18,3 +18,4 @@ export * from './Platform';
 export * from './Profiler';
 export * from './RichTextAtlas';
 export * from './StoreContainer';
+export * from './Timer';

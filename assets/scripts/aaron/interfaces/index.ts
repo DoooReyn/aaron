@@ -11,3 +11,4 @@ export * from './ILaunchOptions';
 export * from './IModel';
 export * from './IStateMachine';
 export * from './IService';
+export * from './ITrigger';

@@ -10,6 +10,7 @@ export * from './extends/CenterLayout';
 export * from './extends/SafeArea';
 export * from './extends/Node';
 export * from './AutoAtlas';
+export * from './Counter';
 export * from './DeepProxy';
 export * from './Group';
 export * from './Model';
