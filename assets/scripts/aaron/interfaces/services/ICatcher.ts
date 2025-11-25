@@ -9,7 +9,7 @@ export type ErrorReporter = (info: Object) => void;
 export interface ICatcher extends IService {
   /**
    * 设置错误报告方法
-   * @param fn 报告方法
+   * @param handle 报告方法
    */
-  setErrorReporter(fn: ErrorReporter): void;
+  setErrorReporter(handle: ErrorReporter): void;
 }

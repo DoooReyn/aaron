@@ -16,11 +16,11 @@ export interface ITrigger extends IObjectEntry {
   equals(trigger: ITrigger): boolean;
   /**
    * 比较触发器是否一致
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @returns
    */
-  equalsWith(fn: Function, context: any): boolean;
+  equalsWith(handle: Function, context: any): boolean;
   /**
    * 运行触发器
    */
@@ -42,18 +42,18 @@ export interface ITriggers {
   clear(): void;
   /**
    * 添加触发器
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param once 是否一次性
    * @param args 回调入参
    */
-  add(fn: Function, context?: any, once?: boolean, ...args: any[]): void;
+  add(handle: Function, context?: any, once?: boolean, ...args: any[]): void;
   /**
    * 移除触发器
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    */
-  delWith(fn: Function, context?: any): void;
+  delWith(handle: Function, context?: any): void;
   /**
    * 移除触发器
    * @param trigger 触发器

@@ -59,65 +59,65 @@ export interface ITick {
   del(counter: ICounter | number): void;
   /**
    * 下一帧执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  nextTick(fn: Function, context: any, ...args: any[]): ICounter;
+  nextTick(handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * N 帧后执行
    * @param n 帧数
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  nextTicks(n: number, fn: Function, context: any, ...args: any[]): ICounter;
+  nextTicks(n: number, handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 延迟执行
    * @param interval 设定间隔
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  delay(interval: number, fn: Function, context: any, ...args: any[]): ICounter;
+  delay(interval: number, handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 计次执行
    * @param interval 设定间隔
    * @param total 设定计数
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  repeat(interval: number, total: number, fn: Function, context: any, ...args: any[]): ICounter;
+  repeat(interval: number, total: number, handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 重复执行
    * @param interval 设定间隔
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  loop(interval: number, fn: Function, context: any, ...args: any[]): ICounter;
+  loop(interval: number, handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 每帧执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  everyTick(fn: Function, context: any, ...args: any[]): ICounter;
+  everyTick(handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 以固定频率重复执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  fixedTick(interval: number, fn: Function, context: any, ...args: any[]): ICounter;
+  fixedTick(interval: number, handle: Function, context: any, ...args: any[]): ICounter;
   /**
    * 当前速率
    */

@@ -48,12 +48,12 @@ export class Trigger extends ObjectEntry implements ITrigger {
 
   /**
    * 比较触发器是否一致
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @returns
    */
-  public equalsWith(fn: Function, context: any) {
-    return this._handle === fn && this._ctx === context;
+  public equalsWith(handle: Function, context: any) {
+    return this._handle === handle && this._ctx === context;
   }
 
   /**
@@ -106,23 +106,23 @@ export class Triggers implements ITriggers {
 
   /**
    * 添加触发器
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param once 是否一次性
    * @param args 回调入参
    */
-  public add(fn: Function, context: any, once: boolean = false, ...args: any[]) {
-    const trigger = aaron.objectPool.acquire(Trigger, fn, context, once, args);
+  public add(handle: Function, context: any, once: boolean = false, ...args: any[]) {
+    const trigger = aaron.objectPool.acquire(Trigger, handle, context, once, args);
     if (trigger) this._container.push(trigger);
   }
 
   /**
    * 移除触发器
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    */
-  public delWith(fn: Function, context: any) {
-    const at = this._container.findIndex((tr) => tr.equalsWith(fn, context));
+  public delWith(handle: Function, context: any) {
+    const at = this._container.findIndex((tr) => tr.equalsWith(handle, context));
     if (at > -1) {
       const trigger = this._container[at];
       this._container.splice(at, 1);

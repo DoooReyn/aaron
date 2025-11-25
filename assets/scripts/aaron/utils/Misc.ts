@@ -17,16 +17,16 @@ function idle(...args: any[]) {}
  * - 应用场景：
  *      - 实时监听输入事件
  *      - 防止用户多次点击按钮
- * @param fn 执行函数
+ * @param handle 执行函数
  * @param context 执行上下文
  * @param delay 延迟时间
  */
-function debounce(fn: Function, context: object = CTX, delay: number = 300) {
+function debounce(handle: Function, context: object = CTX, delay: number = 300) {
   let timer: number | null = null;
   return function (...args: any[]) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(function () {
-      fn.apply(context, args);
+      handle.apply(context, args);
       timer = null;
     }, delay);
   };
@@ -39,11 +39,11 @@ function debounce(fn: Function, context: object = CTX, delay: number = 300) {
  * - 应用场景：
  *      - 监听鼠标移动事件
  *      - 监听滚动事件
- * @param fn 执行函数
+ * @param handle 执行函数
  * @param context 执行上下文
  * @param delay 延迟时间
  */
-function throttle(fn: Function, context: object = CTX, delay: number = 300) {
+function throttle(handle: Function, context: object = CTX, delay: number = 300) {
   let valid: boolean = true;
   let timer: number = 0;
   return function (...args: any[]) {
@@ -51,7 +51,7 @@ function throttle(fn: Function, context: object = CTX, delay: number = 300) {
     if (timer) clearTimeout(timer);
     valid = false;
     timer = setTimeout(function () {
-      fn.apply(context, args);
+      handle.apply(context, args);
       timer = 0;
       valid = true;
     }, delay);

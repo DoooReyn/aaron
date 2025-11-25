@@ -9,8 +9,8 @@ export class Catcher extends Service implements ICatcher {
   /** 错误报告方法 */
   private _reporter: ErrorReporter;
 
-  setErrorReporter(fn: ErrorReporter): void {
-    this._reporter = fn;
+  setErrorReporter(handle: ErrorReporter): void {
+    this._reporter = handle;
   }
 
   constructor() {
