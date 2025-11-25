@@ -9,6 +9,8 @@ export * from './collections/CircularLinkedList';
 export * from './extends/CenterLayout';
 export * from './extends/SafeArea';
 export * from './extends/Node';
+export * from './refer/ReferBase';
+export * from './refer/ResImage';
 export * from './AutoAtlas';
 export * from './Counter';
 export * from './DeepProxy';
