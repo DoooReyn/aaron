@@ -19,9 +19,9 @@ const { property, ccclass, menu } = _decorator;
 /**
  * 富文本组件（低 DC 版本）
  */
-@ccclass('RichTextAtom')
-@menu('Aaron/UI/RichTextAtom')
-export class RichTextAtom extends Atom {
+@ccclass('RichText')
+@menu('Aaron/UI/RichText')
+export class RichText extends Atom {
   @property({ multiline: true, tooltip: '文本内容' })
   public text: string = '';
 

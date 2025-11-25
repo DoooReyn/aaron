@@ -3,12 +3,13 @@ import { EDITOR } from 'cc/env';
 import { literal } from '../utils';
 import { aaron } from '../core';
 
-const { ccclass, property } = _decorator;
+const { ccclass, property, menu } = _decorator;
 
 /**
  * 本地化文本组件
  */
 @ccclass('LocaleText')
+@menu('Aaron/UI/LocaleText')
 export class LocaleText extends Label {
   /** 输入参数 */
   private _args: any[] = [];
