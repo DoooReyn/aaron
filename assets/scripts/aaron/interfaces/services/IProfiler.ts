@@ -1,5 +1,5 @@
 import { Texture2D } from 'cc';
-import { IService } from '../../core';
+import { IService } from '../IService';
 
 /**
  * 性能分析器接口

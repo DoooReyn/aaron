@@ -1,4 +1,4 @@
-import { IService } from '../../core';
+import { IService } from '../IService';
 
 /** 错误报告方法 */
 export type ErrorReporter = (info: Object) => void;

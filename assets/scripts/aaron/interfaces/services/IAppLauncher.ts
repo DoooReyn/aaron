@@ -1,5 +1,5 @@
 import { Scene, Canvas, Camera, Node } from 'cc';
-import { IService } from '../../core';
+import { IService } from '../IService';
 
 /**
  * 应用启动器服务接口

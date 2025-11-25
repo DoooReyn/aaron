@@ -1,13 +1,3 @@
-/**
- * MD5 哈希计算器内部状态
- */
-interface HasherState {
-  buffer: string;
-  buflen: number;
-  length: number;
-  state: number[];
-}
-
 /** MD5 初始状态常量 */
 const MD5_STATE_IDENTITY = new Int32Array([1732584193, -271733879, -1732584194, 271733878]);
 /** MD5 空缓冲区常量 */

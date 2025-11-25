@@ -1,4 +1,4 @@
-import { IService } from "../../core";
+import { IService } from '../IService';
 
 /**
  * 平台鉴定服务接口

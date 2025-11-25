@@ -1,10 +1,10 @@
-import { IService } from "../../core";
+import { IService } from '../IService';
 
 /**
  * 全局对象适配接口
  */
 export interface IGlobalAdapter extends IService {
-  /** 
+  /**
    * 获取全局对象
    * @param key 键
    * @returns 值

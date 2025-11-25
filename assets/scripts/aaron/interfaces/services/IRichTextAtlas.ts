@@ -1,5 +1,5 @@
 import { Color, Vec2, SpriteFrame, ImageAsset } from "cc";
-import { IService } from "../../core";
+import { IService } from '../IService';
 import { IAutoAtlas } from "../IAutoAtlas";
 
 /**

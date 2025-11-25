@@ -1,4 +1,4 @@
-import { IService } from '../../core';
+import { IService } from '../IService';
 import { StoreEntry } from '../../foundation';
 import { Dict } from '../../types';
 

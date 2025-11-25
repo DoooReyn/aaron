@@ -1,4 +1,4 @@
-import { IService } from "../../core";
+import { IService } from '../IService';
 
 /**
  * 日志服务接口

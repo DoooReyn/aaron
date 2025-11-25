@@ -1,6 +1,6 @@
 import { Prefab } from 'cc';
 import { IRecyclableNode, IRecyclableOptions } from './IRecyclable';
-import { IService } from '../../../core';
+import { IService } from '../../IService';
 import { Constructor } from '../../../types';
 
 /**

@@ -1,4 +1,4 @@
-import { IService } from "../../../core";
+import { IService } from "../../IService";
 import { Constructor } from "../../../types";
 import { IRecyclableObject, IRecyclableOptions } from "./IRecyclable";
 

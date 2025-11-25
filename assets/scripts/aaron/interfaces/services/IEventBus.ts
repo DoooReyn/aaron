@@ -1,4 +1,4 @@
-import { IService } from '../../core';
+import { IService } from '../IService';
 
 /**
  * 事件监听器接口

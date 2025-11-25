@@ -72,6 +72,8 @@ export async function init(config: ILaunchOptions): Promise<void> {
   
   // 最后注册应用启动器服务
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
+
+  // 按需初始化
   await aaron.appLauncher.initialize();
   aaron.richTextAtlas.initialize();
 

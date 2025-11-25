@@ -1,4 +1,4 @@
-import { IService } from "../../core";
+import { IService } from '../IService';
 
 /**
  * 递增ID生成器接口

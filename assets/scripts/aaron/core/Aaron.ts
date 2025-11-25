@@ -17,10 +17,11 @@ import {
   IProfiler,
   IRichTextAtlas,
   IStoreContainer,
+  IService,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
-import { IService, Service, ServiceContainer } from './ServiceContainer';
+import { Service, ServiceContainer } from './ServiceContainer';
 
 /**
  * Aaron 框架

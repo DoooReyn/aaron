@@ -6,4 +6,7 @@
  */
 export * from './services';
 export * from './IAutoAtlas';
+export * from './IDeepProxy';
 export * from './ILaunchOptions';
+export * from './IStateMachine';
+export * from './IService';
