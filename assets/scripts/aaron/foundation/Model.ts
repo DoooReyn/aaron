@@ -6,10 +6,10 @@ import { ObjectEntry } from './ObjectEntry';
 /** 数据模型 */
 export class Model<D extends Dto> extends ObjectEntry implements IModel<D> {
   /** 原始数据 */
-  protected _dto: D | null = null;
+  protected $dto: D | null = null;
 
   /** 数据深层代理 */
-  protected _proxy: DeepProxy<D> | null = null;
+  protected $proxy: DeepProxy<D> | null = null;
 
   /** （细粒度）属性订阅者 */
   private _compactSubscriptions: Map<string, Set<Subscription>> = new Map();
@@ -20,8 +20,8 @@ export class Model<D extends Dto> extends ObjectEntry implements IModel<D> {
   onInitialize(...args: any[]): void {}
 
   onRecycled(): void {
-    this._dto = null;
-    this._proxy = null;
+    this.$dto = null;
+    this.$proxy = null;
     this.unsubscribeAll();
   }
 
@@ -42,22 +42,22 @@ export class Model<D extends Dto> extends ObjectEntry implements IModel<D> {
   }
 
   get dto(): D | null {
-    return this._dto;
+    return this.$dto;
   }
 
   sync(dto: D) {
     const self = this;
-    this._proxy = new DeepProxy(dto, {
+    this.$proxy = new DeepProxy(dto, {
       set: (target: any, prop: string | symbol, value: any, receiver: any) => {
         const old = Reflect.get(target, prop, receiver);
-        const path = [...(self._proxy!.getPath(target) ?? []), String(prop)];
+        const path = [...(self.$proxy!.getPath(target) ?? []), String(prop)];
         if (old !== value) {
           self.notify(path, value);
         }
         return Reflect.set(target, prop, value, receiver);
       },
     });
-    this._dto = this._proxy.create();
+    this.$dto = this.$proxy.create();
   }
 
   subscribeCompact(property: string, onPropertyChanged: OnPropertyChanged, context: any) {

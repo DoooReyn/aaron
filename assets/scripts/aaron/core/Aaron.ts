@@ -22,6 +22,9 @@ import {
   ILocalization,
   ITimer,
   ISensitives,
+  IResCache,
+  IResLoader,
+  IAstc,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -155,6 +158,21 @@ export class Aaron {
   /** 敏感词过滤服务 */
   get sensitives() {
     return this.serviceOf<ISensitives>(SERVICES.SENSITIVES);
+  }
+  
+  /** 资源缓存容器服务 */
+  get resCache() {
+    return this.serviceOf<IResCache>(SERVICES.RES_CACHE);
+  }
+
+  /** 资源加载服务 */
+  get resLoader() {
+    return this.serviceOf<IResLoader>(SERVICES.RES_LOADER);
+  }
+
+  /** ASTC 解析服务 */
+  get astc() {
+    return this.serviceOf<IAstc>(SERVICES.ASTC);
   }
 }
 

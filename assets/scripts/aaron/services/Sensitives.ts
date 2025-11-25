@@ -88,9 +88,9 @@ function isWordEnd(point: IWordMap): boolean {
  */
 export class Sensitives extends Service implements ISensitives {
   /** 敏感词Trie树映射表 */
-  private __map: IWordMap = {};
+  private _map: IWordMap = {};
   /** 干扰字符映射表 */
-  private __noiseWordMap = generateNoiseWordMap(DEFAULT_NOISE_WORDS);
+  private _noiseWordMap = generateNoiseWordMap(DEFAULT_NOISE_WORDS);
 
   /**
    * 初始化敏感词过滤器
@@ -147,10 +147,10 @@ export class Sensitives extends Service implements ISensitives {
    * sensitives.__filterNoiseChar('这@是#测$试%'); // '这是测试'
    * ```
    */
-  private __filterNoiseChar(word: string): string {
+  private filterNoiseChar(word: string): string {
     let ignoredWord = '';
     for (let i = 0, len = word.length; i < len; i++) {
-      if (!this.__noiseWordMap[word.charCodeAt(i)]) {
+      if (!this._noiseWordMap[word.charCodeAt(i)]) {
         ignoredWord += word.charAt(i);
       }
     }
@@ -181,7 +181,7 @@ export class Sensitives extends Service implements ISensitives {
    * ```
    */
   public setNoiseWords(noiseWords: string): void {
-    this.__noiseWordMap = generateNoiseWordMap(noiseWords);
+    this._noiseWordMap = generateNoiseWordMap(noiseWords);
   }
 
   /**
@@ -202,7 +202,7 @@ export class Sensitives extends Service implements ISensitives {
    * ```
    */
   public clearWords(): void {
-    this.__map = {};
+    this._map = {};
   }
 
   /**
@@ -230,9 +230,9 @@ export class Sensitives extends Service implements ISensitives {
    */
   public addWords(wordList: string[]): void {
     for (let i = 0, len = wordList.length; i < len; i++) {
-      let point = this.__map;
+      let point = this._map;
       // 对于配置的敏感词也过滤掉特殊符号
-      const word = this.__filterNoiseChar(wordList[i]);
+      const word = this.filterNoiseChar(wordList[i]);
       for (let j = 0, wordLen = word.length; j < wordLen; j++) {
         const char = word.charAt(j).toLowerCase();
         const currentNode = (point[char] = (point[char] || {}) as IWordMap);
@@ -268,9 +268,9 @@ export class Sensitives extends Service implements ISensitives {
    * ```
    */
   public addWord(word: string): any {
-    let point = this.__map;
+    let point = this._map;
     // 对于配置的敏感词也过滤掉特殊符号
-    const wordNew = this.__filterNoiseChar(word);
+    const wordNew = this.filterNoiseChar(word);
     for (let j = 0, wordLen = wordNew.length; j < wordLen; j++) {
       const char = wordNew.charAt(j).toLowerCase();
       const currentNode = (point[char] = (point[char] || {}) as IWordMap);
@@ -314,24 +314,24 @@ export class Sensitives extends Service implements ISensitives {
    */
   public match(content: string): string[] {
     const result = new Set<string>();
-    let point = this.__map;
+    let point = this._map;
     const len = content.length;
     for (let left = 0; left < len; left++) {
       const code = content.charCodeAt(left);
-      if (this.__noiseWordMap[code]) continue;
+      if (this._noiseWordMap[code]) continue;
 
       for (let right = left; right < len; right++) {
         const code = content.charCodeAt(right);
-        if (this.__noiseWordMap[code]) continue;
+        if (this._noiseWordMap[code]) continue;
 
         const char = content.charAt(right);
         point = point[char.toLowerCase()] as IWordMap;
 
         if (!point) {
-          point = this.__map;
+          point = this._map;
           break;
         } else if (isWordEnd(point)) {
-          const matchedWord = this.__filterNoiseChar(content.substring(left, right + 1));
+          const matchedWord = this.filterNoiseChar(content.substring(left, right + 1));
           result.add(matchedWord);
         }
       }
@@ -373,21 +373,21 @@ export class Sensitives extends Service implements ISensitives {
    * ```
    */
   public verify(content: string): boolean {
-    let point = this.__map;
+    let point = this._map;
     const len = content.length;
     for (let left = 0; left < len; left++) {
       const code = content.charCodeAt(left);
-      if (this.__noiseWordMap[code]) continue;
+      if (this._noiseWordMap[code]) continue;
 
       for (let right = left; right < len; right++) {
         const code = content.charCodeAt(right);
-        if (this.__noiseWordMap[code]) continue;
+        if (this._noiseWordMap[code]) continue;
 
         const char = content.charAt(right);
         point = point[char.toLowerCase()] as IWordMap;
 
         if (!point) {
-          point = this.__map;
+          point = this._map;
           break;
         } else if (isWordEnd(point)) {
           return true;
@@ -440,12 +440,12 @@ export class Sensitives extends Service implements ISensitives {
   public filter(content: string, filterChar: string = '*'): string {
     let filteredContent = '';
     let toReplaceCharLength = 0; // 接下来的多少个字符需要被替换
-    let point = this.__map;
+    let point = this._map;
     const len = content.length;
 
     for (let left = 0; left < len; left++) {
       const code = content.charCodeAt(left);
-      if (this.__noiseWordMap[code]) {
+      if (this._noiseWordMap[code]) {
         filteredContent += content.charAt(left);
         toReplaceCharLength = Math.max(toReplaceCharLength - 1, 0);
         continue;
@@ -454,7 +454,7 @@ export class Sensitives extends Service implements ISensitives {
       let isMatched = false;
       for (let right = left; right <= len; right++) {
         const code = content.charCodeAt(right);
-        if (this.__noiseWordMap[code]) continue;
+        if (this._noiseWordMap[code]) continue;
 
         const char = content.charAt(right);
         point = point[char.toLowerCase()] as IWordMap;
@@ -470,7 +470,7 @@ export class Sensitives extends Service implements ISensitives {
             filteredContent += toReplaceCharLength > 0 ? filterChar : content.charAt(left);
             toReplaceCharLength = Math.max(toReplaceCharLength - 1, 0);
           }
-          point = this.__map;
+          point = this._map;
           break;
         }
       }

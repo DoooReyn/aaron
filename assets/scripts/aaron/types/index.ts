@@ -1,3 +1,5 @@
+import { __private } from 'cc';
+
 /** 字典类型 */
 export type Dict = Record<string | symbol, any>;
 
@@ -18,3 +20,6 @@ export type Pairs<K, V> = Pair<K, V>[];
 
 /** （可指定长度的）元组 */
 export type Tuple<T, L = number> = T[] & { length: L };
+
+/** 纹理原始信息 */
+export type IMemoryImageSource = __private._cocos_asset_assets_image_asset__IMemoryImageSource;

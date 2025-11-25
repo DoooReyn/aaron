@@ -7,6 +7,7 @@
 export * from './AppLauncher';
 export * from './ArgParser';
 export * from './AscendingId';
+export * from './ASTC';
 export * from './Catcher';
 export * from './EventBus';
 export * from './GlobalAdapter';
@@ -16,6 +17,8 @@ export * from './NodePool';
 export * from './ObjectPool';
 export * from './Platform';
 export * from './Profiler';
+export * from './ResCache';
+export * from './ResLoader';
 export * from './RichTextAtlas';
 export * from './Sensitives';
 export * from './StoreContainer';

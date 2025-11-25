@@ -21,6 +21,9 @@ import {
   IAscendingId,
   ITimer,
   ISensitives,
+  IResCache,
+  IResLoader,
+  IAstc,
 } from './interfaces';
 import {
   Logger,
@@ -39,6 +42,9 @@ import {
   Localization,
   Timer,
   Sensitives,
+  ResCache,
+  ResLoader,
+  Astc,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -98,6 +104,15 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   // 注册富文本图集服务
   aaron.registerServiceFactory<IRichTextAtlas>(SERVICES.RICHTEXT_ATLAS, RichTextAtlas);
 
+  // 注册 ASTC 解析服务
+  aaron.registerServiceFactory<IAstc>(SERVICES.ASTC, Astc);
+
+  // 注册资源缓存容器服务
+  aaron.registerServiceFactory<IResCache>(SERVICES.RES_CACHE, ResCache);
+
+  // 注册资源加载服务
+  aaron.registerServiceFactory<IResLoader>(SERVICES.RES_LOADER, ResLoader);
+
   // 注册对象池可回收配置
   aaron.objectPool.register(Model, OBJECT_POOL.MODEL);
   aaron.objectPool.register(Option, OBJECT_POOL.OPTION);
@@ -112,7 +127,10 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 按需初始化
   await aaron.appLauncher.initialize();
-  aaron.localization.initialize({});
+  aaron.astc.initialize();
+  aaron.localization.initialize(
+    args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {}
+  );
   aaron.richTextAtlas.initialize();
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');

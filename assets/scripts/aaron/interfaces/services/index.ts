@@ -1,6 +1,7 @@
 export * from './pool';
 export * from './IAscendingId';
 export * from './IAppLauncher';
+export * from './IASTC';
 export * from './IArgParser';
 export * from './ICatcher';
 export * from './IEventBus';
@@ -9,6 +10,8 @@ export * from './ILocalization';
 export * from './ILogger';
 export * from './IPlatform';
 export * from './IProfiler';
+export * from './IResCache';
+export * from './IResLoader';
 export * from './IRichTextAtlas';
 export * from './ISensitives';
 export * from './IStoreContainer';
