@@ -76,39 +76,39 @@ export class Tick implements ITick {
 
   /**
    * 下一帧执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public nextTick(fn: Function, context: any, ...args: any[]) {
-    return this.delay(0, fn, context, ...args);
+  public nextTick(handle: Function, context: any, ...args: any[]) {
+    return this.delay(0, handle, context, ...args);
   }
 
   /**
    * N 帧后执行
-   * @param n 帧数
-   * @param fn 回调方法
+   * @param frames 帧数
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public nextTicks(n: number, fn: Function, context: any, ...args: any[]) {
-    const t = n <= 0 ? 0 : n * (1 / 60);
-    return this.delay(t, fn, context, ...args);
+  public nextTicks(frames: number, handle: Function, context: any, ...args: any[]) {
+    const time = Math.max(0, frames) * (1 / 60);
+    return this.delay(time, handle, context, ...args);
   }
 
   /**
    * 延迟执行
    * @param interval 设定间隔
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public delay(interval: number, fn: Function, context: any, ...args: any[]) {
+  public delay(interval: number, handle: Function, context: any, ...args: any[]) {
     const counter = this.add(interval);
-    counter.onDone.add(fn, context, true, ...args);
+    counter.onDone.add(handle, context, true, ...args);
     return counter;
   }
 
@@ -116,54 +116,54 @@ export class Tick implements ITick {
    * 计次执行
    * @param interval 设定间隔
    * @param total 设定计数
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public repeat(interval: number, total: number, fn: Function, context: any, ...args: any[]) {
+  public repeat(interval: number, total: number, handle: Function, context: any, ...args: any[]) {
     const counter = this.add(interval, total);
-    counter.onCount.add(fn, context, false, ...args);
+    counter.onCount.add(handle, context, false, ...args);
     return counter;
   }
 
   /**
    * 重复执行
    * @param interval 设定间隔
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public loop(interval: number, fn: Function, context: any, ...args: any[]) {
+  public loop(interval: number, handle: Function, context: any, ...args: any[]) {
     const counter = this.add(interval, 0);
-    counter.onCount.add(fn, context, false, ...args);
+    counter.onCount.add(handle, context, false, ...args);
     return counter;
   }
 
   /**
    * 每帧执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public everyTick(fn: Function, context: any, ...args: any[]) {
+  public everyTick(handle: Function, context: any, ...args: any[]) {
     const counter = this.add(0, 0);
-    counter.onTick.add(fn, context, false, ...args);
+    counter.onTick.add(handle, context, false, ...args);
     return counter;
   }
 
   /**
    * 以固定频率重复执行
-   * @param fn 回调方法
+   * @param handle 回调方法
    * @param context 回调上下文
    * @param args 回调入参
    * @returns
    */
-  public fixedTick(interval: number, fn: Function, context: any, ...args: any[]) {
+  public fixedTick(interval: number, handle: Function, context: any, ...args: any[]) {
     const counter = this.add(interval, 0);
-    counter.onFixedTick.add(fn, context, false, ...args);
+    counter.onFixedTick.add(handle, context, false, ...args);
     return counter;
   }
 
