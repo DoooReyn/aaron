@@ -48,7 +48,7 @@ export class StoreEntry<T extends Dict> {
   load() {
     if (this.data) return;
 
-    const content = sys.localStorage.getItem(this.token);
+    const content = sys.localStorage.getItem(this.key);
     if (content) {
       this._raw = this.decode(content) as T;
     } else {
@@ -78,6 +78,6 @@ export class StoreEntry<T extends Dict> {
 
   /** 保存数据 */
   save() {
-    sys.localStorage.setItem(this.token, this.encode());
+    sys.localStorage.setItem(this.key, this.encode());
   }
 }

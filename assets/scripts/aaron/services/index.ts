@@ -10,6 +10,7 @@ export * from './AscendingId';
 export * from './Catcher';
 export * from './EventBus';
 export * from './GlobalAdapter';
+export * from './Localization';
 export * from './Logger';
 export * from './NodePool';
 export * from './ObjectPool';

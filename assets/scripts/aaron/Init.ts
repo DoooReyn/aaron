@@ -19,6 +19,7 @@ import {
   RichTextAtlas,
   AppLauncher,
   StoreContainer,
+  Localization,
 } from './services';
 
 /**
@@ -64,6 +65,9 @@ export async function init(config: ILaunchOptions): Promise<void> {
   // 注册本地存储容器服务
   aaron.registerServiceFactory(SERVICES.STORE, StoreContainer);
 
+  // 注册本地化服务
+  aaron.registerServiceFactory(SERVICES.LOCALIZATION, Localization);
+
   // 注册性能监视器服务
   aaron.registerServiceFactory(SERVICES.PROFILER, Profiler);
   
@@ -75,6 +79,7 @@ export async function init(config: ILaunchOptions): Promise<void> {
 
   // 按需初始化
   await aaron.appLauncher.initialize();
+  aaron.localization.initialize({});
   aaron.richTextAtlas.initialize();
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');

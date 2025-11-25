@@ -23,9 +23,9 @@ export class StoreContainer extends Service implements IStoreContainer {
       makeKey(token: string) {
         if (argParser.isDev && isBrowser) {
           const user = argParser.args.user ?? 'guest';
-          return argParser.args.appName + '-' + user + '-' + token;
+          return `[${argParser.args.appName}]@${user}:${token}`;
         } else {
-          return argParser.args.appName + '-' + token;
+          return `[${argParser.args.appName}]:${token}`;
         }
       },
       encode<T extends Dict>(data: T) {

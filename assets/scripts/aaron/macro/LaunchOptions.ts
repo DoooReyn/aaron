@@ -1,3 +1,4 @@
+import { sys } from 'cc';
 import { ILaunchOptions, LogLevel } from '../interfaces';
 
 /**
@@ -7,4 +8,5 @@ export const DEFAULT_LAUNCH_OPTIONS: ILaunchOptions = {
   appName: 'Aaron',
   logLevel: LogLevel.INFO,
   env: 'dev',
+  languages: [sys.Language.CHINESE, sys.Language.ENGLISH],
 } as const;

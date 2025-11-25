@@ -18,6 +18,8 @@ import {
   IRichTextAtlas,
   IStoreContainer,
   IService,
+  IEventBus,
+  ILocalization,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -131,6 +133,16 @@ export class Aaron {
   /** 性能分析器服务 */
   get profiler() {
     return this.serviceOf<IProfiler>(SERVICES.PROFILER);
+  }
+
+  /** 事件总线服务 */
+  get eventBus() {
+    return this.serviceOf<IEventBus>(SERVICES.EVENT_BUS);
+  }
+
+  /** 本地化服务 */
+  get localization() {
+    return this.serviceOf<ILocalization>(SERVICES.LOCALIZATION);
   }
 }
 

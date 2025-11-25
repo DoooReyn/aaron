@@ -5,6 +5,7 @@ export * from './IArgParser';
 export * from './ICatcher';
 export * from './IEventBus';
 export * from './IGlobalAdapter';
+export * from './ILocalization';
 export * from './ILogger';
 export * from './IPlatform';
 export * from './IProfiler';

@@ -11,4 +11,5 @@ export * from './Framework';
 export * from './LaunchOptions';
 export * from './Preset';
 export * from './Services';
+export * from './Store';
 export * from './Time';
