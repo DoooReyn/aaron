@@ -26,5 +26,7 @@ export const EVENTS = {
   GUI: {
     /** 应用屏幕点击 */
     SCREEN_TAPPED: 'gui:screen-tapped',
+    /** 红点变化 */
+    RED_DOT_CHANGED: 'gui:red-dot-changed@'
   },
 } as const;

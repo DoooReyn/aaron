@@ -20,6 +20,7 @@ export * from './Model';
 export * from './NodePool';
 export * from './ObjectEntry';
 export * from './ObjectPool';
+export * from './RedDotPool';
 export * from './ResLocal';
 export * from './ResRemote';
 export * from './Selector';

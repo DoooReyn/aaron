@@ -17,6 +17,7 @@ export * from './NodePool';
 export * from './ObjectPool';
 export * from './Platform';
 export * from './Profiler';
+export * from './RedDot';
 export * from './ResCache';
 export * from './ResLoader';
 export * from './RichTextAtlas';

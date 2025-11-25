@@ -21,4 +21,5 @@ export const SERVICES = {
   ASTC: 'ASTC',
   RES_CACHE: 'ResCache',
   RES_LOADER: 'ResLoader',
-};
+  RED_DOT: 'RedDot',
+} as const;

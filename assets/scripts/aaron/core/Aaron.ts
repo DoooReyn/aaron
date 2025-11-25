@@ -25,6 +25,7 @@ import {
   IResCache,
   IResLoader,
   IAstc,
+  IRedDotContainer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -173,6 +174,11 @@ export class Aaron {
   /** ASTC 解析服务 */
   get astc() {
     return this.serviceOf<IAstc>(SERVICES.ASTC);
+  }
+
+  /** 红点服务 */
+  get redDot() {
+    return this.serviceOf<IRedDotContainer>(SERVICES.RED_DOT)
   }
 }
 
