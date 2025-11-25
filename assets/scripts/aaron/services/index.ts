@@ -17,5 +17,6 @@ export * from './ObjectPool';
 export * from './Platform';
 export * from './Profiler';
 export * from './RichTextAtlas';
+export * from './Sensitives';
 export * from './StoreContainer';
 export * from './Timer';

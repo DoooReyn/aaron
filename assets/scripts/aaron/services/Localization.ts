@@ -1,8 +1,15 @@
-import { sys } from "cc";
-import { aaron, Service } from "../core";
-import { ILocalization, IStoreEntryOfLang, Language, LanguageDictionary } from "../interfaces";
-import { EVENTS, STORE } from "../macro";
-import { literal } from "../utils";
+import { sys } from 'cc';
+import { Service } from '../core';
+import {
+  IEventBus,
+  ILocalization,
+  IStoreContainer,
+  IStoreEntryOfLang,
+  Language,
+  LanguageDictionary,
+} from '../interfaces';
+import { EVENTS, SERVICES, STORE } from '../macro';
+import { literal } from '../utils';
 
 /**
  * 国际化工具
@@ -59,8 +66,8 @@ export class Localization extends Service implements ILocalization {
   }
   set language(lang: Language) {
     this._current = lang;
-    aaron.store.itemOf<IStoreEntryOfLang>(STORE.LANGUAGE)!.data!.language = lang;
-    aaron.eventBus.app.emit(EVENTS.APP.LANGUAGE_CHANGED, this._current);
+    this.resolve<IStoreContainer>(SERVICES.STORE).itemOf<IStoreEntryOfLang>(STORE.LANGUAGE)!.data!.language = lang;
+    this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.LANGUAGE_CHANGED, this._current);
   }
 
   initialize(options: { language?: Language; supported?: Language[] }) {
@@ -76,8 +83,9 @@ export class Localization extends Service implements ILocalization {
     // 1. 如果本地已经有记录，则使用本地缓存的语言
     // 2. 如果没有本地记录，则使用当前系统的语言
     // 3. 如果系统语言不在支持列表中，则使用传入的语言
-    aaron.store.register<IStoreEntryOfLang>(STORE.LANGUAGE, { language: this._current });
-    const preset = aaron.store.itemOf<IStoreEntryOfLang>(STORE.LANGUAGE);
+    const store = this.resolve<IStoreContainer>(SERVICES.STORE);
+    store.register<IStoreEntryOfLang>(STORE.LANGUAGE, { language: this._current });
+    const preset = store.itemOf<IStoreEntryOfLang>(STORE.LANGUAGE);
     if (preset) {
       // 使用缓存语言
       this.language = preset.data!.language;

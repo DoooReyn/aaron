@@ -17,4 +17,5 @@ export const SERVICES = {
   PROFILER: 'Profiler',
   LOCALIZATION: 'Localization',
   TIMER: 'Timer',
+  SENSITIVES: 'Sensitives'
 };

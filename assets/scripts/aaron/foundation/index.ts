@@ -20,4 +20,5 @@ export * from './ObjectPool';
 export * from './Selector';
 export * from './StateMachine';
 export * from './StoreEntry';
+export * from './Tick';
 export * from './Trigger';

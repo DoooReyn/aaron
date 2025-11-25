@@ -1,7 +1,8 @@
 import { Texture2D, director, Director, profiler, DynamicAtlasManager, game } from 'cc';
-import { aaron, Service } from '../core';
-import { IProfiler } from '../interfaces';
+import { Service } from '../core';
+import { IArgParser, ILogger, IPlatform, IProfiler } from '../interfaces';
 import { misc } from '../utils';
+import { SERVICES } from '../macro';
 
 /**
  * 性能分析器
@@ -18,45 +19,51 @@ export class Profiler extends Service implements IProfiler {
     this.initDebugPanel();
     this.monitorTextures();
 
-    // 检测是否被调试（发布版需要禁止调试）
-    if (aaron.platform.browser && aaron.argParser.isProd) {
+    if (!this.debuggerAllowed) {
       misc.ban();
     }
+  }
+
+  /**
+   * 是否允许被调试（发布版需要禁止调试）
+   */
+  private get debuggerAllowed() {
+    const platform = this.resolve<IPlatform>(SERVICES.PLATFORM);
+    const argParser = this.resolve<IArgParser>(SERVICES.ARG_PARSER);
+    return platform.desktopBrowser && argParser.isDev;
   }
 
   /**
    * 监控纹理数量
    */
   private monitorTextures() {
-    if (!aaron.argParser.isDev) return;
-
-    const that = this;
-    // @ts-ignore
-    const construct: any = Texture2D.prototype._createTexture;
-    const destruct: any = Texture2D.prototype.destroy;
-    // @ts-ignore
-    Texture2D.prototype._createTexture = function () {
-      const self = this as Texture2D;
-      const hash = self.getHash();
-      that._texturesMap.set(this.getHash(), this);
-      that.appendTextureLog('创建纹理', hash);
-      return construct.apply(self, arguments);
-    };
-    Texture2D.prototype.destroy = function () {
-      const self = this as Texture2D;
-      const hash = self.getHash();
-      that._texturesMap.delete(hash);
-      that.appendTextureLog('销毁纹理', hash);
-      return destruct.apply(self, arguments);
-    };
-    if (aaron.argParser.isDev && aaron.platform.desktopBrowser) {
-      director.on(Director.EVENT_AFTER_DRAW, this.onFrameEnd, this);
+    if (this.debuggerAllowed) {
+      const that = this;
+      // @ts-ignore
+      const construct: any = Texture2D.prototype._createTexture;
+      const destruct: any = Texture2D.prototype.destroy;
+      // @ts-ignore
+      Texture2D.prototype._createTexture = function () {
+        const self = this as Texture2D;
+        const hash = self.getHash();
+        that._texturesMap.set(this.getHash(), this);
+        that.appendTextureLog('创建纹理', hash);
+        return construct.apply(self, arguments);
+      };
+      Texture2D.prototype.destroy = function () {
+        const self = this as Texture2D;
+        const hash = self.getHash();
+        that._texturesMap.delete(hash);
+        that.appendTextureLog('销毁纹理', hash);
+        return destruct.apply(self, arguments);
+      };
+      director.on(Director.EVENT_AFTER_DRAW, debugPanel.update, debugPanel);
     }
   }
 
   /** 初始化调试信息 */
   private initDebugPanel() {
-    if (aaron.argParser.isDev && aaron.platform.desktopBrowser) {
+    if (this.debuggerAllowed) {
       profiler.hideStats();
       const dam = DynamicAtlasManager.instance;
       debugPanel.addItem('device', '设备信息', () => director.root!.device.renderer);
@@ -92,29 +99,18 @@ export class Profiler extends Service implements IProfiler {
    * @param hash 纹理哈希值
    */
   private appendTextureLog(header: string, hash: number) {
-    if (!aaron.argParser.isDev) return;
-
-    const head = `${header}<${hash}>`;
-    const stack = [head, this.getErrorStack(6)].join('\n');
-    if (this._texturesLog.has(hash)) {
-      this._texturesLog.get(hash)!.push(stack);
-    } else {
-      this._texturesLog.set(hash, [stack]);
+    if (this.debuggerAllowed) {
+      const head = `${header}<${hash}>`;
+      const stack = [head, this.getErrorStack(6)].join('\n');
+      if (this._texturesLog.has(hash)) {
+        this._texturesLog.get(hash)!.push(stack);
+      } else {
+        this._texturesLog.set(hash, [stack]);
+      }
     }
   }
 
-  /** 同步调试信息 */
-  private sync() {
-    if (!aaron.argParser.isDev) return;
-    debugPanel.update();
-  }
-
-  /** 帧结束事件 */
-  private onFrameEnd() {
-    this.sync();
-  }
-
-  /** 
+  /**
    * 获取错误堆栈内容
    * @param depth 深度
    */
@@ -135,7 +131,8 @@ export class Profiler extends Service implements IProfiler {
     }
 
     if (this._texturesLog.has(hash)) {
-      this._texturesLog.get(hash)!.forEach((v) => aaron.logger.d(v));
+      const logger = this.resolve<ILogger>(SERVICES.LOGGER);
+      this._texturesLog.get(hash)!.forEach((v) => logger.d(v));
     }
   }
 
@@ -144,46 +141,44 @@ export class Profiler extends Service implements IProfiler {
   }
 
   public dumpTextures() {
-    if (!aaron.argParser.isDev) return;
-
-    let textures = [] as { hash: number; width: number; height: number; memoryUsage: string }[];
-    let totalMemory = 0;
-    this._texturesMap.forEach((v) => {
-      const memory = (v.width * v.height * 4) / 1024;
-      textures.push({
-        hash: v.getHash(),
-        width: v.width,
-        height: v.height,
-        memoryUsage: memory.toFixed(2) + 'K',
+    if (this.debuggerAllowed) {
+      let textures = [] as { hash: number; width: number; height: number; memoryUsage: string }[];
+      let totalMemory = 0;
+      this._texturesMap.forEach((v) => {
+        const memory = (v.width * v.height * 4) / 1024;
+        textures.push({
+          hash: v.getHash(),
+          width: v.width,
+          height: v.height,
+          memoryUsage: memory.toFixed(2) + 'K',
+        });
+        totalMemory += memory / 1024;
       });
-      totalMemory += memory / 1024;
-    });
-    aaron.logger.d(`💻 占用内存: ${totalMemory.toFixed(2)}M`);
-    console.table(
-      textures.sort((a, b) => b.width * b.height - a.width * a.height),
-      ['hash', 'width', 'height', 'memoryUsage']
-    );
+      this.resolve<ILogger>(SERVICES.LOGGER).d(`💻 占用内存: ${totalMemory.toFixed(2)}M`);
+      console.table(
+        textures.sort((a, b) => b.width * b.height - a.width * a.height),
+        ['hash', 'width', 'height', 'memoryUsage']
+      );
+    }
   }
 
   public reload() {
-    aaron.platform.browser && window.location.reload();
+    this.resolve<IPlatform>(SERVICES.PLATFORM).browser && window.location.reload();
   }
 
   public addDebugItem(
     key: string,
     title: string,
     getter: () => string | number | undefined | null
-  ): HTMLElement | null {
-    if (!aaron.argParser.isDev || !aaron.platform.desktopBrowser) {
-      return null;
+  ): HTMLElement | undefined {
+    if (this.debuggerAllowed) {
+      return debugPanel.addItem(key, title, getter);
     }
-    return debugPanel.addItem(key, title, getter);
   }
 
   public removeDebugItem(key: string): void {
-    if (!aaron.argParser.isDev || !aaron.platform.desktopBrowser) {
-      return;
+    if (this.debuggerAllowed) {
+      debugPanel.removeItem(key);
     }
-    debugPanel.removeItem(key);
   }
 }

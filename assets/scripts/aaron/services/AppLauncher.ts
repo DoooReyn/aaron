@@ -1,6 +1,6 @@
 import { director, Director, Camera, Canvas, Scene, Node, game, Game, screen, EventTouch, view } from 'cc';
-import { aaron, Service } from '../core';
-import { IAppLauncher, IEventBus, ILogger } from '../interfaces';
+import { Service } from '../core';
+import { IAppLauncher, IEventBus, ILogger, ITimer } from '../interfaces';
 import { EVENTS, PRESET, SERVICES } from '../macro';
 import { digit, misc, time } from '../utils';
 
@@ -143,6 +143,6 @@ export class AppLauncher extends Service implements IAppLauncher {
   }
 
   private onTick() {
-    aaron.timer.update(game.deltaTime);
+    this.resolve<ITimer>(SERVICES.TIMER).update(game.deltaTime);
   } 
 }

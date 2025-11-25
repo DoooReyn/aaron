@@ -1,9 +1,9 @@
 import { Label, Node, Texture2D, SpriteFrame, ImageAsset } from 'cc';
 import { AutoAtlas } from '../foundation';
-import { IRichTextStyle, IRichTextAtlas, RichTextAtlasLevel, IRichAtlasInfo } from '../interfaces';
+import { IRichTextStyle, IRichTextAtlas, RichTextAtlasLevel, IRichAtlasInfo, IProfiler, IAppLauncher, ILogger } from '../interfaces';
 import { be } from '../utils';
-import { aaron, Service } from '../core';
-import { PRESET } from '../macro';
+import { Service } from '../core';
+import { PRESET, SERVICES } from '../macro';
 
 /**
  * 富文本模板
@@ -73,28 +73,29 @@ export class RichTextAtlas extends Service implements IRichTextAtlas {
   private _template: RichTextTemplate;
 
   initialize() {
-    aaron.profiler.addDebugItem(PRESET.RICH_TEXT_ATLAS, '富文本图集', () => {
+    this.resolve<IProfiler>(SERVICES.PROFILER).addDebugItem(PRESET.RICH_TEXT_ATLAS, '富文本图集', () => {
       const usage = this.getUsage();
       return [`数量: ${usage.atlasCount}`, `占用内存: ${usage.totalMemoryBytes / 1024 / 1024} MB`].join('\n');
     });
 
     this.configureAtlas(PRESET.RICH_TEXT_ATLAS, RichTextAtlasLevel.XLarge);
     this._template = new RichTextTemplate();
-    aaron.appLauncher.root.insertChild(this._template, 2);
+    this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root.insertChild(this._template, 2);
   }
 
   configureAtlas(atlasKey: string, level: RichTextAtlasLevel): void {
+    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     if (this._atlasLevels.has(atlasKey)) {
       const oldLevel = RichTextAtlasLevel[this._atlasLevels.get(atlasKey)];
-      aaron.logger.w(`📚 富文本图集：${atlasKey} 已配置为 ${oldLevel}，请注意合理分配图集标识和等级`);
+      logger.w(`📚 富文本图集：${atlasKey} 已配置为 ${oldLevel}，请注意合理分配图集标识和等级`);
       return;
     }
     this._atlasLevels.set(atlasKey, level);
-    aaron.logger.i(`📚 添加富文本图集: ${atlasKey} ${RichTextAtlasLevel[level]}`);
+    logger.i(`📚 添加富文本图集: ${atlasKey} ${RichTextAtlasLevel[level]}`);
   }
 
   destroy() {
-    aaron.profiler?.removeDebugItem(PRESET.RICH_TEXT_ATLAS);
+    this.resolve<IProfiler>(SERVICES.PROFILER).removeDebugItem(PRESET.RICH_TEXT_ATLAS);
     this._template.destroy();
     this._template = null;
     this.shrinkAll();

@@ -1,5 +1,6 @@
-import { aaron, Service } from '../core';
-import { IGlobalAdapter } from '../interfaces';
+import { Service } from '../core';
+import { IGlobalAdapter, ILogger } from '../interfaces';
+import { SERVICES } from '../macro';
 import { Global } from '../types';
 
 /**
@@ -16,11 +17,11 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   set<T>(key: string, value: T): void {
     if (this.has(key)) {
-      aaron.logger.w(`⚠ 替换全局属性: ${key}，请注意影响`);
+      this.resolve<ILogger>(SERVICES.LOGGER).w(`⚠ 替换全局属性: ${key}，请注意影响`);
       this._env[key] = value;
     } else {
       this._env[key] = value;
-      aaron.logger.d(`➕ 添加全局属性: ${key}`);
+      this.resolve<ILogger>(SERVICES.LOGGER).d(`➕ 添加全局属性: ${key}`);
     }
   }
 
@@ -30,6 +31,6 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   unset(key: string): void {
     delete this._env[key];
-    aaron.logger.d(`➖ 删除全局属性: ${key}`);
+    this.resolve<ILogger>(SERVICES.LOGGER).d(`➖ 删除全局属性: ${key}`);
   }
 }

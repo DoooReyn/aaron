@@ -20,6 +20,7 @@ import {
   IRichTextAtlas,
   IAscendingId,
   ITimer,
+  ISensitives,
 } from './interfaces';
 import {
   Logger,
@@ -37,6 +38,7 @@ import {
   StoreContainer,
   Localization,
   Timer,
+  Sensitives,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -80,6 +82,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 注册本地存储容器服务
   aaron.registerServiceFactory<IStoreContainer>(SERVICES.STORE, StoreContainer);
+
+  // 注册敏感词过滤服务
+  aaron.registerServiceFactory<ISensitives>(SERVICES.SENSITIVES, Sensitives);
 
   // 注册本地化服务
   aaron.registerServiceFactory<ILocalization>(SERVICES.LOCALIZATION, Localization);

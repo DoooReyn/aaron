@@ -21,6 +21,7 @@ import {
   IEventBus,
   ILocalization,
   ITimer,
+  ISensitives,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -149,6 +150,11 @@ export class Aaron {
   /** 定时器服务 */
   get timer() {
     return this.serviceOf<ITimer>(SERVICES.TIMER);
+  }
+
+  /** 敏感词过滤服务 */
+  get sensitives() {
+    return this.serviceOf<ISensitives>(SERVICES.SENSITIVES);
   }
 }
 
