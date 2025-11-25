@@ -12,6 +12,7 @@ export * from './extends/Node';
 export * from './AutoAtlas';
 export * from './DeepProxy';
 export * from './Group';
+export * from './Model';
 export * from './NodePool';
 export * from './ObjectEntry';
 export * from './ObjectPool';
