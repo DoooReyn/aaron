@@ -194,18 +194,17 @@ export class RichText extends Atom {
 
     const pos = event.getLocation();
 
-    for (const n of this._glyphNodes) {
-      if (!n || !n.isValid) {
+    for (const glyphNode of this._glyphNodes) {
+      if (!glyphNode || !glyphNode.isValid) {
         continue;
       }
 
-      const ui = n.getComponent(UITransform);
-      if (!ui) {
+      if (!glyphNode.uiTransform) {
         continue;
       }
 
-      const style = (n as Node & { _richStyle?: IRichTextStyle })._richStyle;
-      if (style && style.linkId && ui.hitTest(pos)) {
+      const style = (glyphNode as Node & { _richStyle?: IRichTextStyle })._richStyle;
+      if (style && style.linkId && glyphNode.uiTransform.hitTest(pos)) {
         aaron.logger.i('🖱 点击链接: ' + style.linkId);
         this.onLinkClick.runWith(style.linkId);
         break;
@@ -481,13 +480,13 @@ export class RichText extends Atom {
     const contentWidth = lines.reduce((m, l) => Math.max(m, l.width), 0);
     const totalHeight = lines.reduce((sum, l) => sum + l.height, 0);
 
-    const ui = this.getComponent(UITransform);
-    if (ui) {
-      ui.setContentSize(contentWidth, totalHeight);
+    const trans = this.getComponent(UITransform);
+    if (trans) {
+      trans.setContentSize(contentWidth, totalHeight);
     }
 
-    const layoutWidth = ui?.width ?? contentWidth;
-    const layoutHeight = ui?.height ?? totalHeight;
+    const layoutWidth = trans?.width ?? contentWidth;
+    const layoutHeight = trans?.height ?? totalHeight;
 
     // 以节点锚点在中心的坐标系来排版
     const originX = -layoutWidth * 0.5;
