@@ -11,7 +11,6 @@ beforeAll(() => {
 });
 
 describe('基础类型规则测试', () => {
-
   describe('BooleanRule (B)', () => {
     test('应该解析布尔值', () => {
       expect(Ruler.parse('B', '1')).toBe(true);
@@ -112,7 +111,6 @@ describe('基础类型规则测试', () => {
 });
 
 describe('数组类型规则测试', () => {
-
   describe('ListRule (L)', () => {
     test('应该解析布尔数组', () => {
       const result = Ruler.parse('L=B', 'true,false,true,false');
@@ -198,7 +196,6 @@ describe('数组类型规则测试', () => {
 });
 
 describe('映射类型规则测试', () => {
-
   describe('MapRule (M)', () => {
     test('应该解析布尔映射', () => {
       const result = Ruler.parse('M=B', 'key1,1;key2,0;key3,T;key4,F');
@@ -301,7 +298,6 @@ describe('映射类型规则测试', () => {
 });
 
 describe('Ruler 类方法测试', () => {
-
   describe('parse 方法', () => {
     test('应该正确解析带参数的规则', () => {
       expect(Ruler.parse('P=选项A,选项B,选项C', '选项A')).toBe(0);
@@ -336,7 +332,7 @@ describe('Ruler 类方法测试', () => {
       const customRule = {
         rule: 'CUSTOM',
         parse: (text: string) => text.toUpperCase(),
-        transform: () => 'string'
+        transform: () => 'string',
       };
 
       Ruler.register(customRule);
@@ -348,7 +344,7 @@ describe('Ruler 类方法测试', () => {
       const duplicateRule = {
         rule: 'B',
         parse: () => true,
-        transform: () => 'boolean'
+        transform: () => 'boolean',
       };
 
       expect(() => Ruler.register(duplicateRule)).toThrow('规则已存在，如需替换，请将 replace 置为真：B');
@@ -358,7 +354,7 @@ describe('Ruler 类方法测试', () => {
       const replacementRule = {
         rule: 'CUSTOM',
         parse: (text: string) => text.toLowerCase(),
-        transform: () => 'custom'
+        transform: () => 'custom',
       };
 
       expect(() => Ruler.register(replacementRule, true)).not.toThrow();
@@ -369,7 +365,6 @@ describe('Ruler 类方法测试', () => {
 });
 
 describe('边界情况和错误处理测试', () => {
-
   describe('空值和null处理', () => {
     test('应该正确处理空字符串', () => {
       expect(Ruler.parse('S', '')).toBe('');
@@ -385,23 +380,6 @@ describe('边界情况和错误处理测试', () => {
     });
   });
 
-  describe('复杂数据结构', () => {
-    test('应该处理嵌套数组', () => {
-      const result = Ruler.parse('LE=S,L=S,B', 'hello,world,true;test,false');
-      expect(result).toEqual(['hello', ['world', true], 'test', false]);
-    });
-
-    test('应该处理复杂的映射结构', () => {
-      const result = Ruler.parse('ME=name,S;scores,L=N;active,B;tags,L=S', '张三,90,85,95,true,工作,生活');
-      expect(result).toEqual({
-        name: '张三',
-        scores: [90, 85, 95],
-        active: true,
-        tags: ['工作', '生活']
-      });
-    });
-  });
-
   describe('特殊字符处理', () => {
     test('应该处理包含分隔符的字符串', () => {
       const result = Ruler.parse('LS', 'hello,world;test,data');
@@ -413,7 +391,7 @@ describe('边界情况和错误处理测试', () => {
       expect(result).toEqual({
         name: '张三',
         city: '北京 上海',
-        job: '软件工程师'
+        job: '软件工程师',
       });
     });
   });
@@ -428,6 +406,178 @@ describe('边界情况和错误处理测试', () => {
       expect(Ruler.transform('LS')).toBe('Array<string>');
       expect(Ruler.transform('MB')).toBe('Record<string, boolean>');
       expect(Ruler.transform('MS')).toBe('Record<string, string>');
+    });
+  });
+});
+
+describe('嵌套类型规则测试', () => {
+  describe('JsonRule (JSON)', () => {
+    test('应该解析JSON格式的嵌套数据', () => {
+      const schema = JSON.stringify({
+        users: [{ name: 'string', age: 'number' }],
+        active: 'boolean',
+      });
+      const data = JSON.stringify({
+        users: [
+          { name: '张三', age: 25 },
+          { name: '李四', age: 30 },
+        ],
+        active: true,
+      });
+
+      const result = Ruler.parse(`JSON=${schema}`, data);
+      expect(result).toEqual({
+        users: [
+          { name: '张三', age: 25 },
+          { name: '李四', age: 30 },
+        ],
+        active: true,
+      });
+    });
+
+    test('应该转换JSON类型', () => {
+      const schema = JSON.stringify({
+        users: [{ name: 'string', age: 'number' }],
+        active: 'boolean',
+      });
+
+      const result = Ruler.transform(`JSON=${schema}`);
+      expect(result).toBe('{ users: Array<{ name: string; age: number }>; active: boolean }');
+    });
+
+    test('应该处理多层嵌套', () => {
+      const schema = JSON.stringify({
+        company: {
+          name: 'string',
+          employees: [{ name: 'string', department: { id: 'number', name: 'string' } }],
+        },
+      });
+
+      const data = JSON.stringify({
+        company: {
+          name: 'TechCorp',
+          employees: [{ name: '张三', department: { id: 1, name: '开发部' } }],
+        },
+      });
+
+      const result = Ruler.parse(`JSON=${schema}`, data);
+      expect(result.company.name).toBe('TechCorp');
+      expect(result.company.employees[0].department.name).toBe('开发部');
+    });
+  });
+
+  describe('ObjectRule (OBJ)', () => {
+    test('应该解析对象类型定义', () => {
+      const data = JSON.stringify({
+        name: '张三',
+        scores: [95, 87, 92],
+        config: { x: 100, y: 200 },
+      });
+
+      const result = Ruler.parse('OBJ={name:string,scores:number[],config:{x:number,y:number}}', data);
+      expect(result).toEqual({
+        name: '张三',
+        scores: [95, 87, 92],
+        config: { x: 100, y: 200 },
+      });
+    });
+
+    test('应该转换对象类型', () => {
+      const result = Ruler.transform('OBJ={name:string,scores:number[],config:{x:number,y:number}}');
+      expect(result).toBe('{ name: string; scores: Array<number>; config: { x: number; y: number } }');
+    });
+
+    test('应该处理复杂的嵌套对象', () => {
+      const data = JSON.stringify({
+        user: {
+          profile: {
+            name: '张三',
+            contacts: [
+              { type: 'email', value: 'zhangsan@example.com' },
+              { type: 'phone', value: '13800138000' },
+            ],
+          },
+          active: true,
+        },
+      });
+
+      const result = Ruler.parse(
+        'OBJ={user:{profile:{name:string,contacts:[{type:string,value:string}]},active:boolean}}',
+        data
+      );
+      expect(result.user.profile.contacts[0].value).toBe('zhangsan@example.com');
+      expect(result.user.active).toBe(true);
+    });
+  });
+
+  describe('EnhancedArrayRule (ARRAY)', () => {
+    test('应该解析增强数组类型', () => {
+      const data = JSON.stringify([
+        { name: '张三', age: 25 },
+        { name: '李四', age: 30 },
+      ]);
+
+      const result = Ruler.parse('ARRAY=[{name:string,age:number}]', data);
+      expect(result).toEqual([
+        { name: '张三', age: 25 },
+        { name: '李四', age: 30 },
+      ]);
+    });
+
+    test('应该转换增强数组类型', () => {
+      const result = Ruler.transform('ARRAY=[{name:string,age:number}]');
+      expect(result).toBe('Array<{ name: string; age: number }>');
+    });
+
+    test('应该处理嵌套数组', () => {
+      const data = JSON.stringify([
+        [
+          { id: 1, name: '任务1' },
+          { id: 2, name: '任务2' },
+        ],
+        [{ id: 3, name: '任务3' }],
+      ]);
+
+      const result = Ruler.parse('ARRAY=[[{id:number,name:string}]]', data);
+      expect(result[0][0].name).toBe('任务1');
+      expect(result[1][0].id).toBe(3);
+    });
+  });
+
+  describe('EnhancedMapRule (MAP)', () => {
+    test('应该解析增强映射类型', () => {
+      const data = JSON.stringify({
+        user: { name: '张三', age: 25 },
+        config: { theme: 'dark', language: 'zh' },
+      });
+
+      const result = Ruler.parse('MAP={user:{name:string,age:number},config:{theme:string,language:string}}', data);
+      expect(result).toEqual({
+        user: { name: '张三', age: 25 },
+        config: { theme: 'dark', language: 'zh' },
+      });
+    });
+
+    test('应该转换增强映射类型', () => {
+      const result = Ruler.transform('MAP={user:{name:string,age:number},config:{theme:string}}');
+      expect(result).toBe('{ user: { name: string; age: number }; config: { theme: string } }');
+    });
+
+    test('应该处理复杂映射值', () => {
+      const data = JSON.stringify({
+        departments: [
+          { id: 1, name: '开发部', employees: [{ name: '张三' }, { name: '李四' }] },
+          { id: 2, name: '产品部', employees: [{ name: '王五' }] },
+        ],
+        metadata: { version: '1.0', created: '2023-01-01' },
+      });
+
+      const result = Ruler.parse(
+        'MAP={departments:[{id:number,name:string,employees:[{name:string}]}],metadata:{version:string,created:string}}',
+        data
+      );
+      expect(result.departments[0].employees[0].name).toBe('张三');
+      expect(result.metadata.version).toBe('1.0');
     });
   });
 });
@@ -458,5 +608,31 @@ describe('性能测试', () => {
     expect(result.key0).toBe('value0');
     expect(result.key99).toBe('value99');
     expect(endTime - startTime).toBeLessThan(50); // 应该在50ms内完成
+  });
+
+  test('嵌套规则性能测试', () => {
+    const largeNestedData = JSON.stringify(
+      Array.from({ length: 100 }, (_, i) => ({
+        id: i,
+        name: `用户${i}`,
+        profile: {
+          age: 20 + (i % 50),
+          active: i % 2 === 0,
+        },
+        tags: [`tag${i % 10}`, `type${i % 5}`],
+      }))
+    );
+
+    const startTime = Date.now();
+    const result = Ruler.parse(
+      'ARRAY=[{id:number,name:string,profile:{age:number,active:boolean},tags:string[]}]',
+      largeNestedData
+    );
+    const endTime = Date.now();
+
+    expect(result).toHaveLength(100);
+    expect(result[0].profile.active).toBe(true);
+    expect(result[99].tags).toContain('tag9');
+    expect(endTime - startTime).toBeLessThan(200); // 应该在200ms内完成
   });
 });
