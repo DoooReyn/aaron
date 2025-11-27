@@ -27,6 +27,7 @@ import {
   IRedDotContainer,
   ITableQuery,
   IGui,
+  IAudioPlayer,
 } from './interfaces';
 import {
   Logger,
@@ -51,6 +52,7 @@ import {
   RedDotContainer,
   TableQuery,
   Gui,
+  AudioPlayer,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -119,6 +121,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   // 注册资源加载服务
   aaron.registerServiceFactory<IResLoader>(SERVICES.RES_LOADER, ResLoader);
 
+  // 注册音频播放服务
+  aaron.registerServiceFactory<IAudioPlayer>(SERVICES.AUDIO_PLAYER, AudioPlayer);
+
   // 注册红点服务
   aaron.registerServiceFactory<IRedDotContainer>(SERVICES.RED_DOT, RedDotContainer);
 
@@ -147,6 +152,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 初始化 ASTC 解析服务
   aaron.astc.initialize();
+
+  // 初始化音频播放服务
+  aaron.audioPlayer.initialize();
   
   // 初始化本地化服务
   const languageOptions =

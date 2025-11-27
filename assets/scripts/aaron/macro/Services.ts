@@ -24,4 +24,5 @@ export const SERVICES = {
   RED_DOT: 'RedDot',
   TABLE_QUERY: 'TableQuery',
   GUI: 'Gui',
+  AUDIO_PLAYER: 'AudioPlayer',
 } as const;

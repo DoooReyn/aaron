@@ -2,6 +2,7 @@ export * from './pool';
 export * from './IAscendingId';
 export * from './IAppLauncher';
 export * from './IASTC';
+export * from './IAudioPlayer';
 export * from './IArgParser';
 export * from './ICatcher';
 export * from './IEventBus';

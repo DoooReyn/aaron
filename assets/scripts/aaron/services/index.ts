@@ -8,6 +8,7 @@ export * from './AppLauncher';
 export * from './ArgParser';
 export * from './AscendingId';
 export * from './ASTC';
+export * from './AudioPlayer';
 export * from './Catcher';
 export * from './EventBus';
 export * from './GlobalAdapter';

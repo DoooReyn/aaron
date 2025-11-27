@@ -28,6 +28,7 @@ import {
   IRedDotContainer,
   ITableQuery,
   IGui,
+  IAudioPlayer,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -191,6 +192,11 @@ export class Aaron {
   /** GUI 服务 */
   get gui() {
     return this.serviceOf<IGui>(SERVICES.GUI);
+  }
+
+  /** 音频播放服务 */
+  get audioPlayer() {
+    return this.serviceOf<IAudioPlayer>(SERVICES.AUDIO_PLAYER);
   }
 }
 
