@@ -25,6 +25,7 @@ import {
   IResLoader,
   IAstc,
   IRedDotContainer,
+  ITableQuery,
 } from './interfaces';
 import {
   Logger,
@@ -47,6 +48,7 @@ import {
   ResLoader,
   Astc,
   RedDotContainer,
+  TableQuery,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -117,6 +119,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 注册红点服务
   aaron.registerServiceFactory<IRedDotContainer>(SERVICES.RED_DOT, RedDotContainer);
+
+  // 注册配置表服务
+  aaron.registerServiceFactory<ITableQuery>(SERVICES.TABLE_QUERY, TableQuery);
 
   // 注册对象池可回收配置
   aaron.objectPool.register(Model, OBJECT_POOL.MODEL);

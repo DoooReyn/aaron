@@ -10,4 +10,4 @@ function encode(data: Object) {
   return JSON.stringify(data, null, 0);
 }
 
-export { encode, decode };
+export const json = { encode, decode };

@@ -18,12 +18,12 @@ export function fmt(template: string, ...args: any[]) {
         return value !== undefined ? String(value) : match;
       });
     }
-    // 否则使用位置参数进行格式化
-    return template.replace(/{(\d+)}/g, (match, index) => {
-      const value = args[parseInt(index)];
-      return value !== undefined ? String(value) : match;
-    });
   }
+  // 否则使用位置参数进行格式化
+  return template.replace(/{(\d+)}/g, (match, index) => {
+    const value = args[parseInt(index)];
+    return value !== undefined ? String(value) : match;
+  });
 }
 
 /**

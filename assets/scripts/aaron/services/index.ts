@@ -23,4 +23,5 @@ export * from './ResLoader';
 export * from './RichTextAtlas';
 export * from './Sensitives';
 export * from './StoreContainer';
+export * from './TableQuery';
 export * from './Timer';

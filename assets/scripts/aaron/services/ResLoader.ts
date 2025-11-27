@@ -238,25 +238,31 @@ export class ResLoader extends Service implements IResLoader {
     const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     const total = items.length;
     let finished = 0;
+    let finishedList = [];
 
     for (const item of items) {
       const [type, options] = item;
       const asset = await this.load(type, options);
+      const url = this.parsePath(options.path)[1];
 
       if (asset) {
         finished++;
+        finishedList.push('✅ ' + url);
+      } else {
+        finishedList.push('❌ ' + url);
+        logger.ef('资源加载器: 加载失败 {0}', url);
       }
-
-      const url = this.parsePath(options.path)[1];
 
       if (onProgress) {
         onProgress(finished, total, url, asset != null);
       }
-
-      logger.ef('资源加载器: 加载失败 {0}', url);
     }
 
-    logger.df('资源加载器: 加载完成 {0}/{1}', finished, total);
+    logger.df('资源加载器: 加载完成 {0}/{1} 资源列表:\n {2}', finished, total, finishedList.join('\n '));
+  }
+
+  loadBatch(items: LoadItem[]) {
+    return Promise.allSettled(items.map((v) => this.load(...v)));
   }
 
   loadSequence(

@@ -22,4 +22,5 @@ export const SERVICES = {
   RES_CACHE: 'ResCache',
   RES_LOADER: 'ResLoader',
   RED_DOT: 'RedDot',
+  TABLE_QUERY: 'TableQuery'
 } as const;

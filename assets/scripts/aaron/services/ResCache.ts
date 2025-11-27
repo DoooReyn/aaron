@@ -36,7 +36,7 @@ export class ResCache extends Service implements IResCache {
     };
 
     this._container.set(key, entry);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 添加资源 {0} 来源:{1} 过期:{2}ms', key, source, expires);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 资源{0}已缓存，{1}s后过期', key, expires / 1000);
   }
 
   /**

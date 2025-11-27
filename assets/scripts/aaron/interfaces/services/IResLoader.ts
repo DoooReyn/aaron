@@ -623,9 +623,9 @@ export interface IResLoader extends IService {
   ): Promise<void>;
 
   /**
-   * 批量加载资源
+   * 批量顺序加载资源（串行）
    * @param items 资源项列表
-   * @param onProgress
+   * @param onProgress 进度回调
    */
   loadMany(
     items: LoadItem[],
@@ -633,9 +633,17 @@ export interface IResLoader extends IService {
   ): Promise<void>;
 
   /**
-   * 顺序加载资源队列（串行）
+   * 批量并行加载资源（不带进度）
+   * @description 适合一股脑丢进去，不管成功还是失败
+   * @param items 资源项列表
+   */
+  loadBatch(items: LoadItem[]): Promise<PromiseSettledResult<Asset>[]>;
+
+  /**
+   * 顺序加载资源队列（串行，可取消）
    * @param items 资源项列表
    * @param onProgress 进度回调
+   * @param onComplete 完成回调
    * @returns 取消加载函数
    */
   loadSequence(
@@ -645,9 +653,10 @@ export interface IResLoader extends IService {
   ): () => void;
 
   /**
-   * 加载资源队列（并行）
+   * 加载资源队列（并行，可取消）
    * @param items 资源项列表
    * @param onProgress 进度回调
+   * @param onComplete 完成回调
    * @param concurrency 并发数
    * @returns 取消加载函数
    */

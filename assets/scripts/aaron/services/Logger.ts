@@ -20,6 +20,7 @@ export class Logger extends Service implements ILogger {
   df(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {
       message = literal.fmt(message, ...args);
+      if (message == undefined) debugger;
       console.log(`[${this._tag}] DEBUG: ${message}`);
     }
   }

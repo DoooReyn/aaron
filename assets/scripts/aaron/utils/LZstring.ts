@@ -510,12 +510,12 @@ var LZString = (function () {
 
 /** 压制 string -> string(lzstring) */
 function encode(data: string): string {
-  return LZString.compress(data);
+  return LZString.compressToBase64(data);
 }
 
 /** 解析 string(lzstring) -> string */
 function decode(data: string): string {
-  return LZString.decompress(data);
+  return LZString.decompressFromBase64(data);
 }
 
-export { encode, decode };
+export const lz4 = { encode, decode };

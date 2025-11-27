@@ -15,4 +15,5 @@ export * from './IResLoader';
 export * from './IRichTextAtlas';
 export * from './ISensitives';
 export * from './IStoreContainer';
+export * from './ITableQuery';
 export * from './ITimer';

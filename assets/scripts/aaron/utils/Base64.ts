@@ -10,4 +10,4 @@ function decode(data: string) {
   return b64dec(data);
 }
 
-export { encode, decode };
+export const b64 = { encode, decode };

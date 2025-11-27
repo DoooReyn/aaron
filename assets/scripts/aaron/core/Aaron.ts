@@ -26,6 +26,7 @@ import {
   IResLoader,
   IAstc,
   IRedDotContainer,
+  ITableQuery,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -160,7 +161,7 @@ export class Aaron {
   get sensitives() {
     return this.serviceOf<ISensitives>(SERVICES.SENSITIVES);
   }
-  
+
   /** 资源缓存容器服务 */
   get resCache() {
     return this.serviceOf<IResCache>(SERVICES.RES_CACHE);
@@ -178,7 +179,12 @@ export class Aaron {
 
   /** 红点服务 */
   get redDot() {
-    return this.serviceOf<IRedDotContainer>(SERVICES.RED_DOT)
+    return this.serviceOf<IRedDotContainer>(SERVICES.RED_DOT);
+  }
+
+  /** 配置表服务 */
+  get tableQuery() {
+    return this.serviceOf<ITableQuery>(SERVICES.TABLE_QUERY);
   }
 }
 
