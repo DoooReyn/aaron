@@ -4,7 +4,7 @@ import path from 'path';
 import { Capitalize, ExtraSpace } from '../lib';
 import { Ruler } from './ruler';
 import { CFG } from './config';
-import { BINWriter, JSONWriter, LZ4Writer, TSWriter } from './writer';
+import { BINWriter, JSONWriter, LZ4Writer, TSWriter, LU8Writer } from './writer';
 
 /**
  * 合并表头
@@ -173,7 +173,7 @@ function SaveSheet(table: string, header2: string[], header3: string[], passable
         }
         break;
       case 'BIN':
-        Save(dirname, '.bin', sheet, BINWriter(data));
+        Save(dirname, '.bin', sheet, LU8Writer(data));
         break;
     }
   }

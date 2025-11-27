@@ -20,6 +20,10 @@ export class RSON {
   public static encodeAsLZ4(input: any) {
     return compressToBase64(JSON.stringify(input, null, 0));
   }
+  /** 将对象序列化为字符串并处理为二进制 */
+  public static encodeAsLU8(input: any): Uint8Array {
+    return pako.deflate(compressToBase64(JSON.stringify(input, null, 0)));
+  }
   /** 将字符串反序列化为对象 */
   public static decode(input: string): any {
     return zipson.parse(input);
@@ -37,5 +41,9 @@ export class RSON {
   /** 从LZ4还原字符串并反序列化为对象 */
   public static decodeFromLZ4(input: string) {
     return JSON.parse(decompressFromBase64(input));
+  }
+  /** 从LZ4还原字符串并反序列化为对象 */
+  public static decodeFromLU8(input: Uint8Array) {
+    return JSON.parse(decompressFromBase64(pako.inflate(input, { to: 'string' })));
   }
 }

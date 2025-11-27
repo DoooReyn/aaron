@@ -30,6 +30,9 @@ export function LZ4Writer(data: Record<number | string, any>) {
 export function BINWriter(data: Record<number | string, any>) {
   return RSON.encodeAsU8(data);
 }
+export function LU8Writer(data: Record<number | string, any>) {
+  return RSON.encodeAsLU8(data);
+}
 
 /**
  * Base64序列化
