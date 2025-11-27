@@ -85,7 +85,26 @@ export interface ITableQuery extends IService {
    * @param key 要查询的字段名
    * @returns 如果条目存在且字段存在，返回字段值；否则返回 undefined。
    */
-  field<T extends ITableEntry, K extends keyof T = keyof T>(token: string, id: string | number, key: K): T[K] | undefined; 
+  field<T extends ITableEntry, K extends keyof T = keyof T>(
+    token: string,
+    id: string | number,
+    key: K
+  ): T[K] | undefined;
+
+  /**
+   * 查询指定条目的多个字段值
+   * @template T 配置表条目类型
+   * @template K 字段名类型
+   * @param token 配置表唯一标识
+   * @param id 配置表主键编号
+   * @param keys 要查询的字段名列表
+   * @returns 如果条目存在且字段存在，返回仅包含字段的条目数据；否则返回 undefined。
+   */
+  fields<T extends ITableEntry, K extends keyof T = keyof T>(
+    token: string,
+    id: string | number,
+    keys: K[]
+  ): Pick<T, K> | undefined;
 
   /**
    * 高级查询

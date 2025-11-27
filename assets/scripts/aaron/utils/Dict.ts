@@ -97,7 +97,7 @@ export function create(d?: Dict) {
 /** 从字典中提取指定键值对 */
 export function pick<K extends Key[]>(d: Dict, keys: K): Pick<Dict, K[number]> {
   return keys.reduce((acc, key) => {
-    acc[key] = d[key];
+    if (d[key] != undefined) acc[key] = d[key];
     return acc;
   }, {} as Pick<Dict, K[number]>);
 }

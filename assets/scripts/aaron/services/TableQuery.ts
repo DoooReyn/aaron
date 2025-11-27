@@ -1,6 +1,7 @@
 import { Service } from '../core';
 import { ILogger, IQuery, ITableEntry, ITableQuery, Table } from '../interfaces';
 import { SERVICES } from '../macro';
+import { Key } from '../types';
 import { dict, lzj } from '../utils';
 
 /**
@@ -97,6 +98,20 @@ export class TableQuery extends Service implements ITableQuery {
       return undefined;
     }
     return entry[key];
+  }
+
+  public fields<T extends ITableEntry, K extends keyof T = keyof T>(
+    token: string,
+    id: string | number,
+    keys: K[]
+  ): Pick<T, K> | undefined {
+    const entry = this.one<T>(token, id);
+
+    if (!entry) {
+      return undefined;
+    }
+
+    return dict.pick(entry, keys as unknown as Key[]) as Pick<T, K>;
   }
 
   public query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
