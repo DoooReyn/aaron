@@ -9,5 +9,8 @@
     "maxrects-packer": "^2.7.3",
     "pako": "^2.1.0",
     "zipson": "^0.2.12"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.4"
   }
 }
