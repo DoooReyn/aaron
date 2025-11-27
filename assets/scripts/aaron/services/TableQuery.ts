@@ -137,7 +137,13 @@ export class TableQuery extends Service implements ITableQuery {
     }
 
     query.matchType ??= 'every';
-    query.amountType ??= 'one';
+    query.amountType ??= 'many';
+    query.cache ??= true;
+
+    if (query.filter != undefined) {
+      query.cache = false;
+    }
+
     const fetchOne = query.amountType === 'one';
     const cacheKey = `${token}-${JSON.stringify(query)}`;
     if (this._caches.has(cacheKey)) {

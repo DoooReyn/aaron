@@ -1,6 +1,6 @@
 import { aaron } from '../core';
 import { ITrigger, ITriggers } from '../interfaces';
-import { might } from '../utils';
+import { might, misc } from '../utils';
 import { ObjectEntry } from './ObjectEntry';
 
 /**
@@ -18,7 +18,7 @@ export class Trigger extends ObjectEntry implements ITrigger {
 
   onInitialize(handle: (...args: any[]) => unknown, context: any, once: boolean = false, args: any[]) {
     this._handle = handle;
-    this._ctx = context;
+    this._ctx = context ?? misc.CTX;
     this._once = once;
     this._args = args;
   }

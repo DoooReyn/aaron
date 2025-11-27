@@ -145,6 +145,16 @@ export interface ITimer extends IService {
    */
   get shared(): ITick;
   /**
+   * 获取系统定时器
+   * - 一般的，不应对此定时器调速
+   */
+  get system(): ITick;
+  /**
+   * 获取回收定时器
+   * - 一般的，不应对此定时器调速
+   */
+  get recycle(): ITick;
+  /**
    * 暂停所有定时器（不包括 Director）
    */
   pause(): void;

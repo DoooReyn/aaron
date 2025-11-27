@@ -116,7 +116,7 @@ export interface IResCache extends IService {
    * 清理过期缓存
    * @returns 清理的数量
    */
-  cleanup(): number;
+  clearUnused(): number;
 
   /**
    * 清空所有缓存

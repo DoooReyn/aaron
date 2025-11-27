@@ -3,7 +3,7 @@
  * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
  */
 import { aaron } from './core';
-import { FRAMEWORK, OBJECT_POOL, SERVICES, VERSION } from './macro';
+import { FRAMEWORK, OBJECT_POOL, SERVICES, TIME_SEC, VERSION } from './macro';
 import {
   IGlobalAdapter,
   ILogger,
@@ -142,6 +142,18 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
     args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {}
   );
   aaron.richTextAtlas.initialize();
+
+  // 启动回收定时器
+  aaron.timer.recycle.loop(
+    TIME_SEC.MINUTE,
+    function () {
+      aaron.resCache.clearUnused();
+      aaron.objectPool.clearUnused();
+      aaron.nodePool.clearUnused();
+      aaron.richTextAtlas.clearUnused();
+    },
+    this
+  );
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');
   aaron.logger.i(`🚀 版本: ${VERSION}`);

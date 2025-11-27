@@ -159,7 +159,7 @@ export class ResCache extends Service implements IResCache {
    * 清理过期缓存
    * @returns 清理的数量
    */
-  cleanup(): number {
+  clearUnused(): number {
     const now = time.now();
     let count = 0;
 

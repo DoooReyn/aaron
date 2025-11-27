@@ -14,23 +14,34 @@ export interface ITableEntry {
   [key: string]: any;
 }
 
-/** 查询量级类型 */
+/** 
+ * 查询量级类型
+ * - `one`：查询单条记录
+ * - `many`：查询多条记录（默认）
+ */
 export type QueryAmountType = 'one' | 'many';
 
-/** 查询匹配类型 */
+/** 
+ * 查询匹配类型
+ * - `some`：查询满足任意条件的记录
+ * - `every`：查询满足所有条件的记录（默认）
+ */
 export type QueryMatchType = 'some' | 'every';
 
-/** 查询条件 */
+/** 
+ * 查询条件
+ * @template T 配置表条目类型
+ */
 export interface IQuery<T extends ITableEntry> {
   /** 查询字段 */
   fields?: Partial<T>;
-  /** 查询过滤器 */
+  /** 查询过滤器（过滤器不会缓存查询结果，因为不可序列化） */
   filter?: (id: number, data: ITableEntry) => boolean;
-  /** 是否缓存 */
+  /** 是否缓存查询结果（默认是） */
   cache?: boolean;
-  /** 查询量级类型 */
+  /** 查询量级类型 (可选模式: `one` | `many`，默认 `many`) */
   amountType?: QueryAmountType;
-  /** 查询匹配类型 */
+  /** 查询匹配类型，仅作用于 fields 字段 (可选模式: `some` | `every`，默认 `every`) */
   matchType?: QueryMatchType;
 }
 
@@ -108,6 +119,7 @@ export interface ITableQuery extends IService {
 
   /**
    * 高级查询
+   * @template T 配置表条目类型
    * @param token 配置表唯一标识
    * @param query 查询条件
    * @description 支持多种查询方式

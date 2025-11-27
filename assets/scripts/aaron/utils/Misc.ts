@@ -2,7 +2,7 @@ import { misc, sys, Texture2D } from 'cc';
 import { runSync } from './Might';
 
 /** 内置上下文 */
-const CTX: object = {};
+export const CTX: object = {};
 
 /** 纹理过滤模式 */
 const { LINEAR, NEAREST } = Texture2D.Filter;

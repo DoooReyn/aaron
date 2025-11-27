@@ -96,6 +96,7 @@ export class AppLauncher extends Service implements IAppLauncher {
 
   /** 关闭应用 */
   private onEnded(): void {
+    this.resolve<ITimer>(SERVICES.TIMER)?.stop();
     this.root.off(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
     game.off(Game.EVENT_SHOW, this.onEnterFG, this);
     game.off(Game.EVENT_HIDE, this.onEnterBG, this);

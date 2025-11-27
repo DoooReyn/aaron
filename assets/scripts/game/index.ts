@@ -1,6 +1,6 @@
 import { EDITOR, DEV, BUILD } from 'cc/env';
 import * as fk from '../aaron';
-import { TableRole, TableDialogue } from './data/table';
+import { TableRole, TableDialogue, ITblDialogue, ITblRole } from './data/table';
 import { BufferAsset } from 'cc';
 
 /** 根据环境切换配置 */
@@ -50,10 +50,32 @@ if (!EDITOR) {
       console.timeEnd('解析表格');
 
       console.time('打印表格');
-      fk.aaron.logger.d('表格 Dialogue 数组形式', TableDialogue.listings);
-      fk.aaron.logger.d('表格 Dialogue 字典形式', TableDialogue.mappings);
-      fk.aaron.logger.d('表格 Role 数组形式', TableRole.listings);
-      fk.aaron.logger.d('表格 Role 字典形式', TableRole.mappings);
+      fk.aaron.logger.d('查询表格 Dialogue id=30003', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
+      fk.aaron.logger.d(
+        '查询表格 Dialogue id=30005 的 text 字段',
+        fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text')
+      );
+      fk.aaron.logger.d(
+        '查询表格 Role id=1005 的字段 name, gender',
+        fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender'])
+      );
+      fk.aaron.logger.d(
+        '查询表格 Role 使用字段过滤 gender=2, direction5=true',
+        fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
+          fields: { gender: 2, direction5: true },
+          matchType: 'every',
+          amountType: 'many',
+          cache: true,
+        })
+      );
+      fk.aaron.logger.d(
+        '查询表格 Role 使用过滤器 filter',
+        fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
+          filter: (id, role) => role.gender === 1 && role.direction5 === false,
+          matchType: 'every',
+          amountType: 'many',
+        })
+      );
       console.timeEnd('打印表格');
     })
     .catch(function (err) {
