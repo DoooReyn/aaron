@@ -13,6 +13,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "lz-string": "^1.5.0",
     "node-xlsx": "^0.24.0",
     "pako": "^2.1.0"
   }

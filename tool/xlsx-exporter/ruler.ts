@@ -894,6 +894,15 @@ export class Ruler {
   }
 
   /**
+   * 规则是否已注册
+   * @param rule 规则
+   * @returns 规则是否已注册
+   */
+  public static has(rule: string) {
+    return this._rules.has(rule);
+  }
+
+  /**
    * 根据规则解析文本
    * @param rule 规则文本
    * @param text 待解析文本

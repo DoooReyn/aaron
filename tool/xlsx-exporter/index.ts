@@ -58,13 +58,13 @@ function mergeAllJSON() {
  * 合并所有TS
  */
 function mergeAllTS() {
-  const all = [];
+  const all: string[] = [CFG.IMPORT];
   const dirPath = path.join(__dirname, CFG.TS);
   const files = fs.readdirSync(dirPath);
   for (const file of files) {
     if (file.endsWith('.ts')) {
       const ts = fs.readFileSync(path.join(dirPath, file), 'utf-8');
-      all.push(ts);
+      all.push(ts.split('\n').slice(1).join('\n'));
     }
   }
   const MINIFIED_AT = path.join(__dirname, CFG.MINIFIED);
@@ -72,7 +72,7 @@ function mergeAllTS() {
   if (!fs.existsSync(MINIFIED_AT)) {
     fs.mkdirSync(MINIFIED_AT);
   }
-  const ts = all.join('\n\n');
+  const ts = all.join('\n');
   fs.writeFileSync(TS_AT, ts, 'utf-8');
 }
 
@@ -83,36 +83,23 @@ function mergeAllDTS() {
   const all = [];
   const dirPath = path.join(__dirname, 'types');
   const files = fs.readdirSync(dirPath);
-  const tables = ['    type Tables = {'];
   for (const file of files) {
     if (file.endsWith('.d.ts')) {
-      const name = path.basename(file, '.d.ts');
-      tables.push('        ' + name + ': ITbl' + Capitalize(name) + ';');
       let dts = fs.readFileSync(path.join(dirPath, file), 'utf-8');
       dts = dts
         .split('\n')
-        .map((line) => '    ' + line)
+        .map((line) => '  ' + line)
         .join('\n');
       all.push(dts);
     }
   }
-  tables.push('    }');
-  all.push(tables.join('\n'));
   const MINIFIED_AT = path.join(__dirname, CFG.MINIFIED);
   const TS_AT = path.join(MINIFIED_AT, CFG.MERGE_AS + '.d.ts');
   if (!fs.existsSync(MINIFIED_AT)) {
     fs.mkdirSync(MINIFIED_AT);
   }
-  const name = Capitalize(CFG.MERGE_AS);
-  const dts = all.join('\n\n');
-  const content = [
-    `export = ${name};`,
-    `export as namespace ${CFG.MERGE_AS};\n`,
-    `declare namespace ${name} {`,
-    dts,
-    '}',
-  ].join('\n');
-  fs.writeFileSync(TS_AT, content, 'utf-8');
+  const dts = all.join('\n');
+  fs.writeFileSync(TS_AT, dts, 'utf-8');
 }
 
 /**
@@ -137,8 +124,9 @@ function clear() {
   const JSON_AT = path.join(__dirname, CFG.JSON);
   const BIN_AT = path.join(__dirname, CFG.BIN);
   const TS_AT = path.join(__dirname, CFG.TS);
+  const LZ4_AT = path.join(__dirname, CFG.LZ4);
   const DTS_AT = path.join(__dirname, 'types');
-  [MINIFIED_AT, JSON_AT, BIN_AT, TS_AT, DTS_AT].forEach((path) => {
+  [MINIFIED_AT, JSON_AT, BIN_AT, TS_AT, DTS_AT, LZ4_AT].forEach((path) => {
     if (fs.existsSync(path)) {
       fs.rmSync(path, { recursive: true });
       fs.mkdirSync(path);
