@@ -3,7 +3,7 @@
  * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
  */
 import { aaron } from './core';
-import { FRAMEWORK, OBJECT_POOL, SERVICES, TIME_SEC, VERSION } from './macro';
+import { FRAMEWORK, OBJECT_POOL, PRESET, SERVICES, TIME_SEC, VERSION } from './macro';
 import {
   IGlobalAdapter,
   ILogger,
@@ -145,7 +145,7 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 启动回收定时器
   aaron.timer.recycle.loop(
-    TIME_SEC.MINUTE,
+    PRESET.LAZY_CLEANUP_S,
     function () {
       aaron.resCache.clearUnused();
       aaron.objectPool.clearUnused();

@@ -9,7 +9,7 @@ export const PRESET = {
   /** 默认富文本图集名称 */
   RICH_TEXT_ATLAS: 'richtext-default',
   /** 懒清理间隔时间（秒） */
-  LAZY_CLEANUP_S: 1,
+  LAZY_CLEANUP_S: 30,
   /** 自动释放池过期时间（毫秒） */
   AUTO_RELEASE_MS: 120_000,
   /** 每次点击最短间隔时间（毫秒） */

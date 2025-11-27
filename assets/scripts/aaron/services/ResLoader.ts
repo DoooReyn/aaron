@@ -60,8 +60,6 @@ export class ResLoader extends Service implements IResLoader {
     }
   }
 
-  public defaultCacheExpires: number = PRESET.AUTO_RELEASE_MS;
-
   isRemote(path: string): boolean {
     return path.startsWith('r:');
   }
@@ -88,7 +86,7 @@ export class ResLoader extends Service implements IResLoader {
     // 卸载资源包
     this.local.unloadAB(bundle, releaseAll);
 
-    this.resolve<ILogger>(SERVICES.LOGGER).df('资源加载器: 卸载资源包 {0}');
+    this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 资源加载器: 卸载资源包 {0}', bundle);
   }
 
   async preload(
@@ -112,18 +110,18 @@ export class ResLoader extends Service implements IResLoader {
       }
 
       if (!loaded) {
-        logger.ef('资源加载器: 预加载失败 {0}', path);
+        logger.ef('❌ 资源加载器: 预加载失败 {0}', path);
       }
     }
 
-    logger.df('资源加载器: 预加载完成 {0}/{1}', finished, total);
+    logger.df('✅ 资源加载器: 预加载完成 {0}/{1}', finished, total);
   }
 
   async load<T extends Asset>(type: Constructor<T>, options: ILoadOptions): Promise<T | null> {
-    const { path, cacheExpires = this.defaultCacheExpires } = options;
+    const { path, cacheExpires = PRESET.AUTO_RELEASE_MS } = options;
     const [source, key, raw] = this.parsePath(path);
     if (source == CacheSource.Unknown) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('资源加载器: 跳过无效路径 {0}', path);
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('⚠️ 资源加载器: 跳过无效路径 {0}', path);
       return null;
     }
 
@@ -131,7 +129,7 @@ export class ResLoader extends Service implements IResLoader {
     const cache = this.resolve<IResCache>(SERVICES.RES_CACHE);
     const cached = cache.get<T>(key);
     if (cached) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('资源加载器: 命中缓存 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 资源加载器: 命中缓存 {0}', key);
       return cached;
     }
 
@@ -153,7 +151,7 @@ export class ResLoader extends Service implements IResLoader {
         refCount: 0,
       });
 
-      this.resolve<ILogger>(SERVICES.LOGGER).df('资源加载器: 加载并缓存 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 资源加载器: 加载并缓存 {0}', key);
     }
 
     return asset;
@@ -227,7 +225,7 @@ export class ResLoader extends Service implements IResLoader {
     const [source, key] = this.parsePath(path);
     if (source !== CacheSource.Unknown) {
       this.resolve<IResCache>(SERVICES.RES_CACHE).delete(key, true);
-      this.resolve<ILogger>(SERVICES.LOGGER).df('资源加载器: 释放资源 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 资源加载器: 释放资源 {0}', key);
     }
   }
 
@@ -250,7 +248,7 @@ export class ResLoader extends Service implements IResLoader {
         finishedList.push('✅ ' + url);
       } else {
         finishedList.push('❌ ' + url);
-        logger.ef('资源加载器: 加载失败 {0}', url);
+        logger.ef('❌ 资源加载器: 加载失败 {0}', url);
       }
 
       if (onProgress) {
@@ -258,7 +256,7 @@ export class ResLoader extends Service implements IResLoader {
       }
     }
 
-    logger.df('资源加载器: 加载完成 {0}/{1} 资源列表:\n {2}', finished, total, finishedList.join('\n '));
+    logger.df('✅ 资源加载器: 加载完成 {0}/{1} 资源列表:\n {2}', finished, total, finishedList.join('\n '));
   }
 
   loadBatch(items: LoadItem[]) {
@@ -347,7 +345,7 @@ export class ResLoader extends Service implements IResLoader {
             }
 
             if (!asset) {
-              this.resolve<ILogger>(SERVICES.LOGGER).ef('资源加载器: 加载失败 {0}', url);
+              this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
             }
           })
       );
@@ -377,7 +375,7 @@ export class ResLoader extends Service implements IResLoader {
             }
 
             if (!asset) {
-              this.resolve<ILogger>(SERVICES.LOGGER).ef('资源加载器: 加载失败 {0}', url);
+              this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
             }
           })
       );

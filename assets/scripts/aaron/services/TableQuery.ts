@@ -73,7 +73,7 @@ export class TableQuery extends Service implements ITableQuery {
       });
       table.listings = listings;
       table.mappings = mappings;
-      this.resolve<ILogger>(SERVICES.LOGGER).d(`配置表：${token} 解析完成`);
+      this.resolve<ILogger>(SERVICES.LOGGER).d(`✅ 配置表：${token} 解析完成`);
 
       resolve(table as Table<R, I>);
     });
@@ -81,7 +81,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   one<T extends ITableEntry>(token: string, id: string | number): T | undefined {
     if (!this._tables.has(token)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 未注册', token);
+      this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 配置表: {0} 未注册', token);
       return undefined;
     }
 
@@ -92,7 +92,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 无数据', token);
+      this.resolve<ILogger>(SERVICES.LOGGER).ef('🈳 配置表: {0} 无数据', token);
       return undefined;
     }
 
@@ -132,7 +132,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
     if (!this._tables.has(token)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 未注册', token);
+      this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 配置表: {0} 未注册', token);
       return [];
     }
 
@@ -152,7 +152,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 无数据', token);
+      this.resolve<ILogger>(SERVICES.LOGGER).ef('🈳 配置表: {0} 无数据', token);
       return [];
     }
 

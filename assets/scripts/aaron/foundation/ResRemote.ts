@@ -477,7 +477,7 @@ export class ResRemote implements IRemoteContainer {
       case 'cc.VideoClip':
         return (await this.loadVideo(path)) as unknown as T | null;
       default:
-        aaron.logger.ef('资源加载器: 不支持的远程资源类型 {0}', typeName);
+        aaron.logger.wf('⚠️ 资源加载器: 不支持的远程资源类型 {0}', typeName);
         return null;
     }
   }

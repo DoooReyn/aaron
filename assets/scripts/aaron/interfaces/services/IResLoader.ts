@@ -438,11 +438,6 @@ export interface IResLoader extends IService {
   readonly remote: IRemoteContainer;
 
   /**
-   * 默认缓存过期时间（毫秒）
-   */
-  defaultCacheExpires: number;
-
-  /**
    * 判断是否为远程资源
    * @param path 资源路径
    * @returns 是否为远程资源

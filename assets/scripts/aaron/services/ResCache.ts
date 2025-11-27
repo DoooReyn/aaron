@@ -20,7 +20,7 @@ export class ResCache extends Service implements IResCache {
     const { key, asset, source, expires = 0, refCount = 0 } = options;
 
     if (!asset || !asset.isValid) {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('缓存: 资源无效，无法缓存 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('❌ 缓存: 资源无效，无法缓存 {0}', key);
       return;
     }
 
@@ -36,7 +36,7 @@ export class ResCache extends Service implements IResCache {
     };
 
     this._container.set(key, entry);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 资源{0}已缓存，{1}s后过期', key, expires / 1000);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 缓存: 资源{0}已缓存，{1}s后过期', key, expires / 1000);
   }
 
   /**
@@ -53,14 +53,14 @@ export class ResCache extends Service implements IResCache {
 
     // 检查资源是否有效
     if (!entry.asset.isValid) {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('缓存: 资源已失效 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('❌ 缓存: 资源已失效 {0}', key);
       this._container.delete(key);
       return null;
     }
 
     // 检查是否过期
     if (entry.expiresAt > 0 && entry.expiresAt < time.now()) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 资源已过期 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('❌ 缓存: 资源已过期 {0}', key);
       this._container.delete(key);
       return null;
     }
@@ -107,11 +107,11 @@ export class ResCache extends Service implements IResCache {
 
     if (release && entry.asset.isValid) {
       entry.asset.decRef();
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 释放资源 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 缓存: 释放资源 {0}', key);
     }
 
     this._container.delete(key);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 删除资源 {0}', key);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('🗑️ 缓存: 删除资源 {0}', key);
 
     return true;
   }
@@ -127,7 +127,7 @@ export class ResCache extends Service implements IResCache {
 
     entry.refCount++;
     entry.asset.addRef();
-    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 增加引用 {0} 计数:{1}', key, entry.refCount);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('➕ 缓存: 增加引用 {0} 计数:{1}', key, entry.refCount);
 
     return entry.refCount;
   }
@@ -144,12 +144,12 @@ export class ResCache extends Service implements IResCache {
 
     entry.refCount = Math.max(0, entry.refCount - 1);
     entry.asset.decRef();
-    this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 减少引用 {0} 计数:{1}', key, entry.refCount);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('➖ 缓存: 减少引用 {0} 计数:{1}', key, entry.refCount);
 
     // 自动释放
     if (autoRelease && entry.refCount === 0) {
       this.delete(key, true);
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 自动释放 {0}', key);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 缓存: 自动释放 {0}', key);
     }
 
     return entry.refCount;
@@ -182,7 +182,7 @@ export class ResCache extends Service implements IResCache {
     }
 
     if (count > 0) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 清理过期资源 {0} 个', count);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('🗑️ 缓存: 清理过期资源 {0} 个', count);
     }
 
     return count;
@@ -205,7 +205,7 @@ export class ResCache extends Service implements IResCache {
     this._container.clear();
 
     if (count > 0) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 清空所有缓存 {0} 个', count);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('🗑️ 缓存: 清空所有缓存 {0} 个', count);
     }
   }
 
@@ -281,7 +281,7 @@ export class ResCache extends Service implements IResCache {
     }
 
     if (count > 0) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('缓存: 清理 {0} 资源 {1} 个', source, count);
+      this.resolve<ILogger>(SERVICES.LOGGER).df('🗑️ 缓存: 清理 {0} 资源 {1} 个', source, count);
     }
 
     return count;
