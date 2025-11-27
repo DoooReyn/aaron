@@ -141,22 +141,33 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
 
   // 按需初始化
+
+  // 初始化应用启动器
   await aaron.appLauncher.initialize();
+
+  // 初始化 ASTC 解析服务
   aaron.astc.initialize();
+  
+  // 初始化本地化服务
   const languageOptions =
     args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {};
   aaron.localization.initialize(languageOptions);
+  
+  // 初始化富文本图集服务
   aaron.richTextAtlas.initialize();
+  
+  // 初始化 GUI 服务
   aaron.gui.initialize();
 
   // 启动回收定时器
   aaron.timer.recycle.loop(
     PRESET.LAZY_CLEANUP_S,
     function () {
-      aaron.resCache.clearUnused();
+      aaron.logger.d('🗑️ 回收未使用资源');
       aaron.objectPool.clearUnused();
       aaron.nodePool.clearUnused();
       aaron.richTextAtlas.clearUnused();
+      aaron.resCache.clearUnused();
     },
     this
   );
