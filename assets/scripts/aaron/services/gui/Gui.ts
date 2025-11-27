@@ -1,4 +1,4 @@
-import { Constructor } from 'cc';
+import { Constructor, Node } from 'cc';
 import { Service } from '../../core';
 import {
   GuiConfig,
@@ -26,7 +26,6 @@ import { GuiMarquee } from './GuiMarquee';
 import { GuiGuide } from './GuiGuide';
 import { GuiTop } from './GuiTop';
 import { SERVICES } from '../../macro';
-import { Node } from 'cc';
 
 export class Gui extends Service implements IGui {
   screen: IGuiScreen;
