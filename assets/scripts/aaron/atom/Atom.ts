@@ -1,4 +1,5 @@
-import { Component, _decorator } from 'cc';
+import { _decorator } from 'cc';
+import { IAtom } from '../interfaces';
 
 const { ccclass } = _decorator;
 
@@ -17,7 +18,7 @@ const { ccclass } = _decorator;
  * - 终止: `onTerminate`
  */
 @ccclass('Atom')
-export class Atom extends Component {
+export class Atom extends IAtom {
   protected onLoad(): void {
     this.onInit();
   }

@@ -5,6 +5,7 @@
  * - 出于服务其他层的目的，interfaces 需严格遵守开闭原则，因此规定 interfaces 只能引用 types 或自身。
  */
 export * from './services';
+export * from './IAtom';
 export * from './IAutoAtlas';
 export * from './IDeepProxy';
 export * from './ILaunchOptions';

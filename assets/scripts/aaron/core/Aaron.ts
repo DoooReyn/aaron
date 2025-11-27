@@ -27,6 +27,7 @@ import {
   IAstc,
   IRedDotContainer,
   ITableQuery,
+  IGui,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -185,6 +186,11 @@ export class Aaron {
   /** 配置表服务 */
   get tableQuery() {
     return this.serviceOf<ITableQuery>(SERVICES.TABLE_QUERY);
+  }
+
+  /** GUI 服务 */
+  get gui() {
+    return this.serviceOf<IGui>(SERVICES.GUI);
   }
 }
 

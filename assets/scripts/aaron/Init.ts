@@ -26,6 +26,7 @@ import {
   IAstc,
   IRedDotContainer,
   ITableQuery,
+  IGui,
 } from './interfaces';
 import {
   Logger,
@@ -49,6 +50,7 @@ import {
   Astc,
   RedDotContainer,
   TableQuery,
+  Gui,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -132,16 +134,20 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   // 解析启动参数
   aaron.argParser.parse(args);
 
+  // 注册 GUI 服务
+  aaron.registerServiceFactory<IGui>(SERVICES.GUI, Gui);
+
   // 最后注册应用启动器服务
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
 
   // 按需初始化
   await aaron.appLauncher.initialize();
   aaron.astc.initialize();
-  aaron.localization.initialize(
-    args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {}
-  );
+  const languageOptions =
+    args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {};
+  aaron.localization.initialize(languageOptions);
   aaron.richTextAtlas.initialize();
+  aaron.gui.initialize();
 
   // 启动回收定时器
   aaron.timer.recycle.loop(
