@@ -6,6 +6,22 @@ import { dict, lzj } from '../utils';
 
 /**
  * 配置表数据注册与查询服务
+ * @example
+ * ```typescript
+ * const tableQuery = aaron.tableQuery;
+ * tableQuery.register({ token: 'table1', header: ['id', 'name']);
+ * await tableQuery.parse('table1', xxx);
+ * // fetch one record
+ * tableQuery.one('table1', 1); // { id: 1, name: 'a' }
+ * // fetch field's value
+ * tableQuery.field('table1', 1, 'name'); // 'a'
+ * // fetch fields's value dictionary
+ * tableQuery.fields('table1', 1, ['id', 'name']); // [1, 'a']
+ * // search records with fields
+ * tableQuery.query('table1', { fields: { id: 1 }, matchType: 'every', amountType: 'one' }); // [{ id: 1, name: 'a' }]
+ * // search records with filter
+ * tableQuery.query('table1', { filter: (id, data) => data.name === 'a' }); // [{ id: 1, name: 'a' }]
+ * ```
  */
 export class TableQuery extends Service implements ITableQuery {
   /** 配置表容器 */
@@ -63,7 +79,7 @@ export class TableQuery extends Service implements ITableQuery {
     });
   }
 
-  public one<T extends ITableEntry>(token: string, id: string | number): T | undefined {
+  one<T extends ITableEntry>(token: string, id: string | number): T | undefined {
     if (!this._tables.has(token)) {
       this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 未注册', token);
       return undefined;
@@ -88,7 +104,7 @@ export class TableQuery extends Service implements ITableQuery {
     return result;
   }
 
-  public field<T extends ITableEntry, K extends keyof T = keyof T>(
+  field<T extends ITableEntry, K extends keyof T = keyof T>(
     token: string,
     id: string | number,
     key: K
@@ -100,7 +116,7 @@ export class TableQuery extends Service implements ITableQuery {
     return entry[key];
   }
 
-  public fields<T extends ITableEntry, K extends keyof T = keyof T>(
+  fields<T extends ITableEntry, K extends keyof T = keyof T>(
     token: string,
     id: string | number,
     keys: K[]
@@ -114,7 +130,7 @@ export class TableQuery extends Service implements ITableQuery {
     return dict.pick(entry, keys as unknown as Key[]) as Pick<T, K>;
   }
 
-  public query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
+  query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
     if (!this._tables.has(token)) {
       this.resolve<ILogger>(SERVICES.LOGGER).ef('配置表: {0} 未注册', token);
       return [];
@@ -171,5 +187,13 @@ export class TableQuery extends Service implements ITableQuery {
     }
 
     return result as T[];
+  }
+
+  invalidateCache(cacheKey?: string) {
+    if (cacheKey) {
+      this._caches.delete(cacheKey);
+    } else {
+      this._caches.clear();
+    }
   }
 }

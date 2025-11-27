@@ -15,10 +15,10 @@ export interface ITableEntry {
 }
 
 /** 查询量级类型 */
-export type QueryAmountType = "one" | "many";
+export type QueryAmountType = 'one' | 'many';
 
 /** 查询匹配类型 */
-export type QueryMatchType = "some" | "every";
+export type QueryMatchType = 'some' | 'every';
 
 /** 查询条件 */
 export interface IQuery<T extends ITableEntry> {
@@ -117,4 +117,10 @@ export interface ITableQuery extends IService {
    * @returns 查询结果数组
    */
   query<T extends ITableEntry>(token: string, query: IQuery<T>): T[];
+
+  /**
+   * 使缓存失效（如果不指定，则使所有缓存失效）
+   * @param cacheKey 缓存键
+   */
+  invalidateCache(cacheKey?: string): void;
 }
