@@ -29,6 +29,7 @@ export class ResCache extends Service implements IResCache {
       key,
       asset,
       source,
+      expires,
       expiresAt: expires > 0 ? now + expires : 0,
       refCount: refCount,
       lastAccessTime: now,
@@ -48,6 +49,7 @@ export class ResCache extends Service implements IResCache {
     const entry = this._container.get(key);
 
     if (!entry) {
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('❌ 缓存: 资源未缓存 {0}', key);
       return null;
     }
 
@@ -77,10 +79,10 @@ export class ResCache extends Service implements IResCache {
    * @returns 是否存在
    */
   has(key: string): boolean {
-    const entry = this._container.get(key);
-    if (!entry) return false;
+    if (!this._container.has(key)) return false;
 
     // 检查资源是否有效
+    const entry = this._container.get(key);
     if (!entry.asset.isValid) {
       this._container.delete(key);
       return false;
@@ -127,6 +129,7 @@ export class ResCache extends Service implements IResCache {
 
     entry.refCount++;
     entry.asset.addRef();
+    entry.expiresAt = entry.expires > 0 ? time.now() + entry.expires : 0;
     this.resolve<ILogger>(SERVICES.LOGGER).df('➕ 缓存: 增加引用 {0} 计数:{1}', key, entry.refCount);
 
     return entry.refCount;
@@ -138,9 +141,10 @@ export class ResCache extends Service implements IResCache {
    * @param autoRelease 引用计数为 0 时是否自动释放
    * @returns 当前引用计数
    */
-  decRef(key: string, autoRelease: boolean = true): number {
+  decRef(key: string, autoRelease: boolean = false): number {
     const entry = this._container.get(key);
     if (!entry) return 0;
+    if (entry.refCount <= 0) return entry.refCount;
 
     entry.refCount = Math.max(0, entry.refCount - 1);
     entry.asset.decRef();
@@ -162,6 +166,7 @@ export class ResCache extends Service implements IResCache {
   clearUnused(): number {
     const now = time.now();
     let count = 0;
+    let deleted: string[] = [];
 
     for (const [key, entry] of this._container) {
       // 清理无效资源
@@ -177,12 +182,13 @@ export class ResCache extends Service implements IResCache {
           entry.asset.decRef();
         }
         this._container.delete(key);
+        deleted.push(key);
         count++;
       }
     }
 
     if (count > 0) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('🗑️ 缓存: 清理过期资源 {0} 个', count);
+      this.resolve<ILogger>(SERVICES.LOGGER).d(`🗑️ 缓存: 清理过期资源 ${count} 个`, deleted);
     }
 
     return count;

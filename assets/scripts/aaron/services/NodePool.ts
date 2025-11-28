@@ -11,6 +11,10 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
   /** 节点池容器 */
   private _container: Map<string, NodePool> = new Map();
 
+  poolOf(token: string): NodePool | undefined {
+    return this._container.get(token);
+  }
+
   registerByConstructor(template: Constructor<IRecyclableNode>, options: IRecyclableOptions): void {
     const token = options.token;
     if (this._container.has(token)) {
@@ -19,6 +23,7 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
 
     const pool = new NodePool(new template(), options);
     this._container.set(token, pool);
+    pool.fill(options.expands);
   }
 
   registerByInstance(template: Node | Prefab, options: IRecyclableOptions): void {
@@ -35,12 +40,14 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
         node.token = token;
         const pool = new NodePool(node as IRecyclableNode, options);
         this._container.set(token, pool);
+        pool.fill(options.expands);
       } else {
         throw new Error(`❌ 节点池: 注册失败，节点实例不符合条件 ${token}`);
       }
     } else {
       const pool = new NodePool(template, options);
       this._container.set(token, pool);
+      pool.fill(options.expands);
     }
   }
 
@@ -63,13 +70,13 @@ export class NodePoolContainer extends Service implements INodePoolContainer {
     return pool.template;
   }
 
-  acquire<N extends IRecyclableNode>(token: string): N | undefined {
+  acquire<N extends IRecyclableNode>(token: string, ...args: any[]): N | undefined {
     if (!this._container.has(token)) {
       throw new Error(`❌ 节点池: 查询失败，节点池不存在 ${token}`);
     }
 
     const pool = this._container.get(token)!;
-    return pool.acquire() as N;
+    return pool.acquire(...args) as N;
   }
 
   recycle(inst: IRecyclableNode): void {

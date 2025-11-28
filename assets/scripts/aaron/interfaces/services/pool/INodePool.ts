@@ -46,6 +46,12 @@ export interface INodePool {
  */
 export interface INodePoolContainer extends IService {
   /**
+   * 获取节点池
+   * @param token 节点池名称
+   * @returns
+   */
+  poolOf(token: string): INodePool | undefined;
+  /**
    * 注册节点池
    * @param template 模板类
    * @@param options 回收配置
@@ -77,9 +83,10 @@ export interface INodePoolContainer extends IService {
   /**
    * 获取节点
    * @param token 节点池名称
+   * @param args 构造参数
    * @returns
    */
-  acquire<N extends IRecyclableNode>(token: string): N | undefined;
+  acquire<N extends IRecyclableNode>(token: string, ...args: any[]): N | undefined;
   /**
    * 回收节点
    * @param inst 节点实例

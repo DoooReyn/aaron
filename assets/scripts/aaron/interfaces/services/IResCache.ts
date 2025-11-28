@@ -39,6 +39,8 @@ export interface ICacheEntry {
   asset: Asset;
   /** 资源来源 */
   source: CacheSource;
+  /** 过期时间（毫秒），0 表示永不过期 */
+  expires: number;
   /** 过期时间戳（毫秒） */
   expiresAt: number;
   /** 引用计数 */

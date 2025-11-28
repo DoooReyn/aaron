@@ -1,3 +1,5 @@
+import { TIME_MS } from "./Time";
+
 /**
  * 一些预设值
  */
@@ -14,4 +16,18 @@ export const PRESET = {
   AUTO_RELEASE_MS: 120_000,
   /** 每次点击最短间隔时间（毫秒） */
   CLICK_INTERVAL_MS: 200,
+  /** 音乐资源池条目参数 */
+  MUSIC_ENTRY_OPTIONS: {
+    token: 'music-entry',
+    expands: 1,
+    capacity: 2,
+    expires: TIME_MS.SECOND * 10,
+  },
+  /** 音效资源池条目参数 */
+  SOUND_ENTRY_OPTIONS: {
+    token: 'sound-entry',
+    expands: 4,
+    capacity: 32,
+    expires: TIME_MS.MINUTE,
+  },
 } as const;

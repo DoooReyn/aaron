@@ -45,6 +45,14 @@ export interface IEventChannel {
    */
   on(listener: IEventListener): void;
   /**
+   * 订阅事件
+   * @param listener 事件名称
+   * @param handle 事件处理函数
+   * @param context 事件上下文 [可选]
+   * @param once 是否只执行一次 [可选]
+   */
+  on(listener: string, handle: (...args: any[]) => void | Promise<void>, context?: any, once?: boolean): void;
+  /**
    * 取消订阅事件
    * - 同时指定事件名称和上下文时，取消该监听器的订阅
    * - 仅指定事件名称时，取消所有该事件的订阅

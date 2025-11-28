@@ -127,10 +127,9 @@ export class ResLoader extends Service implements IResLoader {
 
     // 检查缓存
     const cache = this.resolve<IResCache>(SERVICES.RES_CACHE);
-    const cached = cache.get<T>(key);
-    if (cached) {
+    if (cache.has(key)) {
       this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 资源加载器: 命中缓存 {0}', key);
-      return cached;
+      return cache.get<T>(key);
     }
 
     // 加载资源

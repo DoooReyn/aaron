@@ -7,7 +7,7 @@ export class AscendingId extends Service {
   /** 递增ID容器 */
   private _container: Map<string, number> = new Map();
 
-  create(tag: string, initial: number = 1) {
+  create(tag: string, initial: number = 0) {
     if (!this.has(tag)) {
       this._container.set(tag, initial);
     }

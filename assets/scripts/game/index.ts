@@ -78,6 +78,37 @@ if (!EDITOR) {
         })
       );
       console.timeEnd('🕒 打印表格');
+
+      // 播放背景音乐
+      fk.aaron.audioPlayer.music.play('l:resources@Msc1', {
+        volume: 0.5,
+        onStart: (id: number, url: string) => {
+          fk.aaron.logger.df('✅ 背景音乐播放开始，ID: {0}, URL: {1}', id, url);
+        },
+        onRepeat(id: number, url: string, round: number) {
+          fk.aaron.logger.df('✅ 背景音乐播放重复，ID: {0}, URL: {1}, 轮次: {2}', id, url, round);
+        }
+      });
+
+      let lastClickTime = 0;
+      fk.aaron.eventBus.app.on(fk.EVENTS.GUI.SCREEN_TAPPED, () => {
+        const now = fk.time.now();
+        if (now - lastClickTime < 300) {
+          return;
+        }
+        lastClickTime = now;
+
+        // 播放音效
+        fk.aaron.audioPlayer.sound.play('l:resources@SfxClick', {
+          volume: 0.5,
+          onStart: (id: number, url: string) => {
+            fk.aaron.logger.df('✅ 音效播放开始，ID: {0}, URL: {1}', id, url);
+          },
+          onEnd: (id: number, url: string) => {
+            fk.aaron.logger.df('✅ 音效播放结束，ID: {0}, URL: {1}', id, url);
+          },
+        });
+      }, this);
     })
     .catch(function (err) {
       fk.aaron.logger.e('❌ 游戏框架初始化失败:', err);

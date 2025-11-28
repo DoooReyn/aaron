@@ -40,12 +40,13 @@ export class NodePool implements INodePool {
     }
   }
 
-  acquire(): IRecyclableNode | undefined {
+  acquire(...args: any[]): IRecyclableNode | undefined {
     const node: IRecyclableNode =
       this.size > 0 ? this._items.shift()! : (instantiate(this.template) as IRecyclableNode);
     node.token = this.options.token;
     node.createdAt = 0;
     node.recycledAt = 0;
+    node.onInitialize(...args);
 
     if (this.size == 0 && this.options.expands > 0) {
       setTimeout(() => this.fill(this.options.expands), 0);
@@ -58,8 +59,10 @@ export class NodePool implements INodePool {
     if (inst && inst.isValid && inst.recycledAt === 0) {
       const capacity = this.capacity;
       const size = this.size;
+      inst.createdAt = 0;
+      inst.recycledAt = time.now();
+      inst.onRecycled();
       if (capacity <= 0 || size < capacity) {
-        inst.recycledAt = time.now();
         inst.removeFromParent();
         // 延迟回收，防止同一时间被回收又被取出使用可能引起不必要的麻烦
         setTimeout(() => this._items.push(inst), 0);

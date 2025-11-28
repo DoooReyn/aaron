@@ -41,7 +41,24 @@ export class EventChannel implements IEventChannel {
     return this._listeners.has(event) && this._listeners.get(event)!.length > 0;
   }
 
-  on(listener: IEventListener): void {
+  on(
+    listener: IEventListener | string,
+    handle?: (...args: any[]) => void | Promise<void>,
+    context?: any,
+    once?: boolean
+  ): void {
+    if (typeof listener === 'string') {
+      if (!handle) {
+        return;
+      }
+      once ??= false;
+      listener = {
+        event: listener,
+        handle,
+        once,
+        context,
+      };
+    }
     if (!this._listeners.has(listener.event)) {
       this._listeners.set(listener.event, [listener]);
     } else {

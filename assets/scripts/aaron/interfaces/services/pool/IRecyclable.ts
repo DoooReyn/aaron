@@ -54,4 +54,15 @@ export interface IRecyclableNode extends Node {
    * @warn 请勿手动修改
    */
   recycledAt: number;
+  /**
+   * 初始化回调
+   * @note 初始化时会自动调用，用于初始化节点
+   * @param args 初始化参数
+   */
+  onInitialize(...args: any[]): void;
+  /**
+   * 回收回调
+   * @note 回收时会自动调用，用于清理节点
+   */
+  onRecycled(): void;
 }
