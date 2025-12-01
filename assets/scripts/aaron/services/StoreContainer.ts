@@ -3,7 +3,7 @@ import { StoreEntry } from '../foundation';
 import { IArgParser, IPlatform, IStoreContainer, IStoreModem } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Dict } from '../types';
-import { lzstring, zson, json } from '../utils';
+import { lz4, zson, json } from '../utils';
 
 /**
  * 本地存储容器服务
@@ -30,14 +30,14 @@ export class StoreContainer extends Service implements IStoreContainer {
       },
       encode<T extends Dict>(data: T) {
         if (argParser.isProd) {
-          return lzstring.encode(zson.encode(data));
+          return lz4.encode(zson.encode(data));
         } else {
           return json.encode(data);
         }
       },
       decode<T extends Dict>(data: string) {
         if (argParser.isProd) {
-          return zson.decode(lzstring.decode(data)) as T;
+          return zson.decode(lz4.decode(data)) as T;
         } else {
           return json.decode(data) as T;
         }

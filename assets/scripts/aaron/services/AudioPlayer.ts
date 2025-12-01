@@ -24,15 +24,14 @@ export class AudioPlayer extends Service implements IAudioPlayer {
     const eventBus = this.resolve<IEventBus>(SERVICES.EVENT_BUS);
     eventBus.app.on(EVENTS.APP.ENTER_FOREGROUND, this.resume, this);
     eventBus.app.on(EVENTS.APP.ENTER_BACKGROUND, this.pause, this);
-    eventBus.app.on(
-      EVENTS.APP.EXIT,
-      () => {
-        this.music.stop();
-        this.sound.stop();
-        eventBus.app.off(undefined, this);
-      },
-      this,
-    );
+    eventBus.app.on(EVENTS.APP.EXIT, this.clearEvents, this);
+  }
+
+  /** 清除事件监听 */
+  private clearEvents() {
+    this.music.stop();
+    this.sound.stop();
+    this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.off(undefined, this);
   }
 
   pause(): void {

@@ -7,7 +7,7 @@ import { list } from '../utils';
  * - 用于发布和订阅事件
  * - 每个渠道可以有多个事件监听器
  */
-export class EventChannel implements IEventChannel {
+class EventChannel implements IEventChannel {
   /** 事件监听器容器 */
   private _listeners: Map<string, IEventListener[]> = new Map();
 
@@ -32,7 +32,7 @@ export class EventChannel implements IEventChannel {
             listeners.splice(i, 1);
           }
         },
-        true
+        true,
       );
     }
   }
@@ -45,7 +45,7 @@ export class EventChannel implements IEventChannel {
     listener: IEventListener | string,
     handle?: (...args: any[]) => void | Promise<void>,
     context?: any,
-    once?: boolean
+    once?: boolean,
   ): void {
     if (typeof listener === 'string') {
       if (!handle) {
