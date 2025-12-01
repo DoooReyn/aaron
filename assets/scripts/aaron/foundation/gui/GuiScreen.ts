@@ -17,10 +17,6 @@ export class GuiScreen extends IGuiScreen {
     this.once(Node.EventType.PARENT_CHANGED, GuiHelper.createLayer.bind(GuiHelper, this), this);
   }
 
-  get top(): string | undefined {
-    return this._current?.config.token;
-  }
-
   async open(config: GuiConfig | string, params?: any): Promise<void> {
     // 打开前检查
     config = GuiHelper.preOpen(config);
@@ -28,7 +24,7 @@ export class GuiScreen extends IGuiScreen {
 
     // 检测是否已打开
     if (this._current && this._current.config.token === config.token) {
-      aaron.logger.wf('视图: {0} 已经打开,请勿重复操作', config.token);
+      aaron.logger.wf('📷 视图: {0} 已经打开,请勿重复操作', config.token);
       return;
     }
 
@@ -58,12 +54,23 @@ export class GuiScreen extends IGuiScreen {
         aaron.resCache.decRef(this._current.config.prefab);
         this._current = null;
       } else {
-        aaron.logger.df('视图: Screen栈内仅剩最后一个实例,如果坚持关闭,请使用 close(true)', this._current.config.token);
+        aaron.logger.df(
+          '📷 视图: Screen栈内仅剩最后一个实例,如果坚持关闭,请使用 close(true)',
+          this._current.config.token,
+        );
       }
     }
   }
 
   async back() {
     return Promise.resolve();
+  }
+
+  focus(): void {
+    if (this._current) this._current.controller.onViewFocus();
+  }
+
+  get top(): string | undefined {
+    return this._current?.config.token;
   }
 }

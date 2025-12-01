@@ -88,9 +88,9 @@ export class Gui extends Service implements IGui {
   register(config: GuiConfig): void {
     if (this._registry.has(config.token)) {
       if (this._registry.get(config.token) === config) {
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('视图: {0} 重复注册, 已跳过', config.token);
+        this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 重复注册, 已跳过', config.token);
       } else {
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('视图: {0} 已经注册, 已替换', config.token);
+        this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 已经注册, 已替换', config.token);
         this._registry.set(config.token, config);
       }
     }

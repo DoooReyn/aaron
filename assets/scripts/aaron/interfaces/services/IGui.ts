@@ -352,15 +352,17 @@ export abstract class IGuiScreen extends Node {
   abstract close(force: boolean): Promise<void>;
   /** 返回上一个视图 */
   abstract back(): Promise<void>;
+  /** 聚焦顶层视图 */
+  abstract focus(): void;
 }
 
 /**
- * Page 层
- * @description Page 层是应用程序中用于显示二级页面视图的层级。
- * - Page 层可以包含多个 Page 视图实例。
- * - 返回对 Page 层的调用会关闭当前 Page 视图实例。
+ * 拥栈层
+ * @description 拥栈层是应用程序中用于拥有页面堆栈的层级。
+ * - 拥栈层可以包含多个 Page 视图实例。
+ * - 返回对拥栈层的调用会关闭当前层顶部视图实例。
  */
-export abstract class IGuiPage extends Node {
+export abstract class IGuiStack extends Node {
   /**
    * 打开视图
    * @param config 配置参数或视图标识
@@ -374,13 +376,23 @@ export abstract class IGuiPage extends Node {
   abstract close(config?: GuiConfig | number | string): Promise<void>;
   /** 返回上一个视图 */
   abstract back(): Promise<void>;
-  /** 获取当前视图的深度 */
+  /** 获取视图栈的深度 */
   abstract get depth(): number;
   /** 获取顶部视图标识 */
   abstract get top(): string | undefined;
   /** 判断视图是否存在 */
   abstract exists(token: string): boolean;
+  /** 聚焦顶层视图 */
+  abstract focus(): void;
 }
+
+/**
+ * Page 层
+ * @description Page 层是应用程序中用于显示二级页面视图的层级。
+ * - Page 层可以包含多个 Page 视图实例。
+ * - 返回对 Page 层的调用会关闭当前 Page 视图实例。
+ */
+export abstract class IGuiPage extends IGuiStack {}
 
 /**
  * Popup 层
@@ -388,7 +400,7 @@ export abstract class IGuiPage extends Node {
  * - Popup 层可以包含多个 Popup 视图实例。
  * - 返回对 Popup 层的调用会关闭当前 Popup 视图实例。
  */
-export abstract class IGuiPopup extends Node {}
+export abstract class IGuiPopup extends IGuiStack {}
 
 /**
  * Alert 层
@@ -396,7 +408,7 @@ export abstract class IGuiPopup extends Node {}
  * - Alert 层可以包含多个 Alert 视图实例。
  * - 返回对 Alert 层的调用会关闭当前 Alert 视图实例。
  */
-export abstract class IGuiAlert extends Node {}
+export abstract class IGuiAlert extends IGuiStack {}
 
 /**
  * Toast 层

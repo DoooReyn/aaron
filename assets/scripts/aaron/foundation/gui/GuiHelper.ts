@@ -26,7 +26,7 @@ export class GuiHelper {
       // 字符串模式：直接使用 token
       const token = config as string;
       if (!aaron.gui.has(token)) {
-        aaron.logger.wf('视图: {0} 未注册', token);
+        aaron.logger.wf('📷 视图: {0} 未注册', token);
       }
       return undefined;
     } else {
@@ -35,7 +35,7 @@ export class GuiHelper {
       const token = cfg.token;
       if (!aaron.gui.has(token)) {
         // 自动注册未注册的视图（推荐在应用启动时统一注册）
-        aaron.logger.wf('视图: {0} 未注册(目前已自动注册,但最好统一注册)', token);
+        aaron.logger.wf('📷 视图: {0} 未注册(目前已自动注册,但最好统一注册)', token);
         aaron.gui.register(cfg);
       }
       return cfg;
@@ -59,7 +59,7 @@ export class GuiHelper {
     // 加载预制体资源
     const prefab = await aaron.resLoader.loadPrefab(config.prefab);
     if (!prefab) {
-      aaron.logger.ef('视图: {0} <{1}> 创建实例失败,未能正确识别预制体', config.token, config.prefab);
+      aaron.logger.ef('📷 视图: {0} <{1}> 创建实例失败,未能正确识别预制体', config.token, config.prefab);
       return undefined;
     }
 
@@ -112,7 +112,7 @@ export class GuiHelper {
   public static async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      aaron.logger.d('视图: {0} 播放进入动画 {1}', config.token, lib);
+      aaron.logger.df('📷 视图: {0} 播放进入动画 {1}', config.token, lib);
       // TODO: 集成动画库后启用
       // await aaron.tweenLib.play(node, lib, args ?? { duration: 0.3 });
     }
@@ -130,7 +130,7 @@ export class GuiHelper {
   public static async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      aaron.logger.d('视图: {0} 播放退出动画 {1}', config.token, lib);
+      aaron.logger.df('📷 视图: {0} 播放退出动画 {1}', config.token, lib);
       // TODO: 集成动画库后启用
       // await aaron.tweenLib.play(node, lib, args ?? { duration: 0.3 });
     }
