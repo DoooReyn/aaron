@@ -27,6 +27,9 @@ import { GuiGuide } from './GuiGuide';
 import { GuiTop } from './GuiTop';
 import { SERVICES } from '../../macro';
 
+/**
+ * 视图服务
+ */
 export class Gui extends Service implements IGui {
   screen: IGuiScreen;
   page: IGuiPage;

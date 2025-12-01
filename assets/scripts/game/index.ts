@@ -3,6 +3,9 @@ import * as fk from '../aaron';
 import { TableRole, TableDialogue, ITblDialogue, ITblRole } from './data/table';
 import { BufferAsset } from 'cc';
 
+/** 当前环境 */
+const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
+
 /** 根据环境切换配置 */
 const optionsMapping: Record<'dev' | 'debug' | 'prod', fk.IPartialLaunchOptions> = {
   dev: {
@@ -22,95 +25,113 @@ const optionsMapping: Record<'dev' | 'debug' | 'prod', fk.IPartialLaunchOptions>
   },
 };
 
-/** 当前环境 */
-const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
+/**
+ * 主程序入口
+ *
+ * 1. 初始化游戏框架
+ * 2. 加载表格
+ * 3. 解析表格
+ * 4. 打印表格
+ * 5. 播放背景音乐
+ */
+async function main() {
+  fk.aaron.logger.i('✅ 游戏框架初始化完成');
 
+  // 挂载全局变量 fk
+  fk.aaron.globalAdapter.set('fk', fk);
+
+  // 加载表格
+  console.time('🕒 加载表格');
+  await fk.aaron.resLoader.loadMany([
+    [BufferAsset, { path: 'l:resources@TableDialogue', cacheExpires: 10000 }],
+    [BufferAsset, { path: 'l:resources@TableRole', cacheExpires: 10000 }],
+  ]);
+  console.timeEnd('🕒 加载表格');
+
+  // 解析表格
+  console.time('🕒 解析表格');
+  const txtDialogue = fk.aaron.resCache.get<BufferAsset>('l:resources@TableDialogue');
+  const txtRole = fk.aaron.resCache.get<BufferAsset>('l:resources@TableRole');
+  fk.aaron.tableQuery.registerBatch(TableDialogue, TableRole);
+  await Promise.all([
+    fk.aaron.tableQuery.parse(txtDialogue.name, new Uint8Array(txtDialogue.buffer())),
+    fk.aaron.tableQuery.parse(txtRole.name, new Uint8Array(txtRole.buffer())),
+  ]);
+  console.timeEnd('🕒 解析表格');
+
+  // 打印表格
+  console.time('🕒 打印表格');
+  fk.aaron.logger.d('🔍 查询表格 Dialogue id=30003:\n  ', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
+  fk.aaron.logger.d(
+    '🔍 查询表格 Dialogue id=30005 的 text 字段:\n  ',
+    fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text')
+  );
+  fk.aaron.logger.d(
+    '🔍 查询表格 Role id=1005 的字段 name, gender:\n  ',
+    fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender'])
+  );
+  fk.aaron.logger.d(
+    '🔍 查询表格 Role 使用字段过滤 gender=2, direction5=true:\n  ',
+    fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
+      fields: { gender: 0, direction5: false },
+      matchType: 'every',
+      amountType: 'many',
+      cache: true,
+    })
+  );
+  fk.aaron.logger.d(
+    '🔍 查询表格 Role 使用过滤器 filter:\n  ',
+    fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
+      filter: (id, role) =>
+        role.gender === 1 && role.direction5 === false && role.damage > 30 && role.param.name == '攻击',
+      matchType: 'every',
+      amountType: 'many',
+    })
+  );
+  console.timeEnd('🕒 打印表格');
+
+  // 播放背景音乐
+  fk.aaron.audioPlayer.music.play('l:resources@Msc1', {
+    volume: 0.5,
+    onStart: (id: number, url: string) => {
+      fk.aaron.logger.df('✅ 背景音乐播放开始，ID: {0}, URL: {1}', id, url);
+    },
+    onRepeat(id: number, url: string, round: number) {
+      fk.aaron.logger.df('✅ 背景音乐播放重复，ID: {0}, URL: {1}, 轮次: {2}', id, url, round);
+    },
+  });
+
+  let lastClickTime = 0; // 记录上次点击时间
+  fk.aaron.eventBus.app.on(
+    fk.EVENTS.GUI.SCREEN_TAPPED,
+    () => {
+      // 防止快速点击，300ms 内最多只能触发一次
+      const now = fk.time.now();
+      if (now - lastClickTime < 300) {
+        return;
+      }
+      lastClickTime = now;
+
+      // 播放点击音效
+      fk.aaron.audioPlayer.sound.play('l:resources@SfxClick');
+
+      // 关闭音效
+      fk.aaron.audioPlayer.sound.muted = true;
+    },
+    this
+  );
+}
+
+/**
+ * 游戏框架初始化失败回调函数
+ * @param err - 初始化失败的错误对象
+ */
+function onError(err: Error) {
+  fk.aaron.logger.e('❌ 游戏框架初始化失败:', err);
+}
+
+/** 非编辑器环境才允许初始化 */
 if (!EDITOR) {
   // 初始化框架
-  fk.init(optionsMapping[env])
-    .then(async function () {
-      fk.aaron.logger.i('✅ 游戏框架初始化完成');
-      fk.aaron.globalAdapter.set('fk', fk);
-
-      console.time('🕒 加载表格');
-      await fk.aaron.resLoader.loadMany([
-        [BufferAsset, { path: 'l:resources@TableDialogue', cacheExpires: 10000 }],
-        [BufferAsset, { path: 'l:resources@TableRole', cacheExpires: 10000 }],
-      ]);
-      console.timeEnd('🕒 加载表格');
-
-      console.time('🕒 解析表格');
-      const txtDialogue = fk.aaron.resCache.get<BufferAsset>('l:resources@TableDialogue');
-      const txtRole = fk.aaron.resCache.get<BufferAsset>('l:resources@TableRole');
-      fk.aaron.tableQuery.registerBatch(TableDialogue, TableRole);
-      await Promise.all([
-        fk.aaron.tableQuery.parse(txtDialogue.name, new Uint8Array(txtDialogue.buffer())),
-        fk.aaron.tableQuery.parse(txtRole.name, new Uint8Array(txtRole.buffer())),
-      ]);
-      console.timeEnd('🕒 解析表格');
-
-      console.time('🕒 打印表格');
-      fk.aaron.logger.d('🔍 查询表格 Dialogue id=30003:\n  ', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
-      fk.aaron.logger.d(
-        '🔍 查询表格 Dialogue id=30005 的 text 字段:\n  ',
-        fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text')
-      );
-      fk.aaron.logger.d(
-        '🔍 查询表格 Role id=1005 的字段 name, gender:\n  ',
-        fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender'])
-      );
-      fk.aaron.logger.d(
-        '🔍 查询表格 Role 使用字段过滤 gender=2, direction5=true:\n  ',
-        fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
-          fields: { gender: 0, direction5: false },
-          matchType: 'every',
-          amountType: 'many',
-          cache: true,
-        })
-      );
-      fk.aaron.logger.d(
-        '🔍 查询表格 Role 使用过滤器 filter:\n  ',
-        fk.aaron.tableQuery.query<ITblRole>(TableRole.token, {
-          filter: (id, role) =>
-            role.gender === 1 && role.direction5 === false && role.damage > 30 && role.param.name == '攻击',
-          matchType: 'every',
-          amountType: 'many',
-        })
-      );
-      console.timeEnd('🕒 打印表格');
-
-      // 播放背景音乐
-      fk.aaron.audioPlayer.music.play('l:resources@Msc1', {
-        volume: 0.5,
-        onStart: (id: number, url: string) => {
-          fk.aaron.logger.df('✅ 背景音乐播放开始，ID: {0}, URL: {1}', id, url);
-        },
-        onRepeat(id: number, url: string, round: number) {
-          fk.aaron.logger.df('✅ 背景音乐播放重复，ID: {0}, URL: {1}, 轮次: {2}', id, url, round);
-        }
-      });
-
-      let lastClickTime = 0;
-      fk.aaron.eventBus.app.on(fk.EVENTS.GUI.SCREEN_TAPPED, () => {
-        const now = fk.time.now();
-        if (now - lastClickTime < 300) {
-          return;
-        }
-        lastClickTime = now;
-
-        // 播放音效
-        fk.aaron.audioPlayer.sound.play('l:resources@SfxClick', {
-          volume: 0.5,
-          onStart: (id: number, url: string) => {
-            fk.aaron.logger.df('✅ 音效播放开始，ID: {0}, URL: {1}', id, url);
-          },
-          onEnd: (id: number, url: string) => {
-            fk.aaron.logger.df('✅ 音效播放结束，ID: {0}, URL: {1}', id, url);
-          },
-        });
-      }, this);
-    })
-    .catch(function (err) {
-      fk.aaron.logger.e('❌ 游戏框架初始化失败:', err);
-    });
+  fk.init(optionsMapping[env]).then(main).catch(onError);
 }

@@ -11,6 +11,7 @@
     "zipson": "^0.2.12"
   },
   "devDependencies": {
+    "@cyanheads/git-mcp-server": "^2.5.8",
     "@types/pako": "^2.0.4"
   }
 }
