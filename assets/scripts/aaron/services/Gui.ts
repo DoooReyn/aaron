@@ -118,8 +118,15 @@ export class Gui extends Service implements IGui {
   }
 
   back(): Promise<void> {
-    //
-    return this.screen.back();
+    if (this.alert.depth > 0) {
+      return this.alert.back();
+    } else if (this.popup.depth > 0) {
+      return this.popup.back();
+    } else if (this.page.depth > 0) {
+      return this.page.back();
+    } else {
+      return this.screen.back();
+    }
   }
 
   debugStacks(tag: string): void {
@@ -128,5 +135,17 @@ export class Gui extends Service implements IGui {
 
   debugSnapshots(tag: string): void {
     throw new Error('Method not implemented.');
+  }
+
+  focus() {
+    if (this.alert.depth > 0) {
+      this.alert.focus();
+    } else if (this.popup.depth > 0) {
+      this.popup.focus();
+    } else if (this.page.depth > 0) {
+      this.page.focus();
+    } else {
+      this.screen.focus();
+    }
   }
 }

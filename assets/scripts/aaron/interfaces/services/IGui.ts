@@ -490,8 +490,10 @@ export interface IGui extends IService {
    * @returns GuiConfig
    */
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined;
-  /** 返回（约等于关闭当前视图） */
+  /** 返回（约等于关闭顶层视图） */
   back(): Promise<void>;
+  /** 聚焦顶层视图 */
+  focus(): void;
   /** 调试打印当前视图栈 */
   debugStacks(tag: string): void;
   /** 调试打印当前视图快照 */

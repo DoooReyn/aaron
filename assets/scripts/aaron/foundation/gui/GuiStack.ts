@@ -18,11 +18,6 @@ export class GuiStack extends IGuiStack {
   }
 
   /**
-   * 聚焦上一层级
-   */
-  protected focusNext(): void {}
-
-  /**
    * 关闭指定深度的视图
    * @note 一般来说,此深度即顶层
    * @param index 深度
@@ -44,7 +39,9 @@ export class GuiStack extends IGuiStack {
     page.node.destroy();
 
     if (this._instances.length === 0) {
-      this.focusNext();
+      aaron.gui.focus();
+    } else {
+      this._instances[this._instances.length - 1].controller.onViewWillAppear();
     }
   }
 
