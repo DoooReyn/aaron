@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "git": {
+      "command": "npx",
+      "args": ["@cyanheads/git-mcp-server", "--repository", "."],
+      "description": "Git操作服务器，支持执行git命令"
+    }
+  },
+  "rules": [
+    {
+      "description": "为Aaron框架项目配置中文git commit消息",
+      "pattern": "**",
+      "actions": [
+        {
+          "type": "git_commit",
+          "template": "feat({scope}): {description}\n\n{body}",
+          "conventionalCommits": true,
+          "language": "zh-CN"
+        }
+      ]
+    }
+  ],
+  "preferences": {
+    "language": "zh-CN",
+    "git": {
+      "autoStage": false,
+      "requireConfirmation": true,
+      "defaultBranch": "main",
+      "commitMessageStyle": "conventional"
+    }
+  }
+}
