@@ -1,6 +1,7 @@
 import { Constructor, Node } from 'cc';
 import { IAtom } from '../IAtom';
 import { IService } from '../IService';
+import { Component } from 'cc';
 
 /**
  * GUI 界面类型
@@ -87,10 +88,14 @@ export type GuiBindingType = 'node' | 'nodes' | 'component' | 'components';
  * - required: 是否必需，默认 true；false 时找不到返回 null/[] 而不是报错。
  */
 export interface GuiBindingSpec {
+  /** 绑定类型 */
+  kind: string;
   /** 相对于根节点的路径，例如 "."、"Header/BtnClose" */
   path: string;
   /** 是否必需，默认 true；false 时找不到返回 null/[] 而不是报错 */
   required?: boolean;
+
+  component?: Constructor<Component>;
 }
 
 /**
@@ -123,9 +128,9 @@ export interface GuiNodesBindingSpec extends GuiBindingSpec {
  * - kind: 绑定类型，默认 'component'。
  * - component: 组件构造器，用于指定绑定的组件类型。
  */
-export interface GuiComponentBindingSpec<T = any> extends GuiBindingSpec {
+export interface GuiComponentBindingSpec<T extends Component> extends GuiBindingSpec {
   kind: 'component';
-  component: new (...args: any[]) => T;
+  component: Constructor<T>;
 }
 
 /**
@@ -136,9 +141,9 @@ export interface GuiComponentBindingSpec<T = any> extends GuiBindingSpec {
  * - kind: 绑定类型，默认 'components'。
  * - component: 组件构造器，用于指定绑定的组件类型。
  */
-export interface GuiComponentsBindingSpec<T = any> extends GuiBindingSpec {
+export interface GuiComponentsBindingSpec<T extends Component> extends GuiBindingSpec {
   kind: 'components';
-  component: new (...args: any[]) => T;
+  component: Constructor<T>;
 }
 
 /**
@@ -152,8 +157,8 @@ export interface GuiComponentsBindingSpec<T = any> extends GuiBindingSpec {
 export type GuiBindingSpecs =
   | GuiNodeBindingSpec
   | GuiNodesBindingSpec
-  | GuiComponentBindingSpec
-  | GuiComponentsBindingSpec;
+  | GuiComponentBindingSpec<Component>
+  | GuiComponentsBindingSpec<Component>;
 
 /**
  * 绑定条目：
@@ -169,8 +174,8 @@ export type GuiBindingEntry =
   | [path: string]
   | [path: string, kind: 'node']
   | [path: string, kind: 'nodes']
-  | [path: string, kind: 'component', component: new (...args: any[]) => any]
-  | [path: string, kind: 'components', component: new (...args: any[]) => any];
+  | [path: string, kind: 'component', component: Constructor<Component>]
+  | [path: string, kind: 'components', component: Constructor<Component>];
 
 /** 绑定表：key -> 绑定配置或元组 */
 export type GuiBindingMap = Record<string, GuiBindingEntry>;
@@ -181,27 +186,27 @@ export type GuiBindingResult<S extends GuiBindingEntry> =
   S extends GuiComponentBindingSpec<infer C>
     ? C | null
     : S extends GuiComponentsBindingSpec<infer C>
-    ? C[]
-    : S extends GuiNodeBindingSpec
-    ? Node | null
-    : S extends GuiNodesBindingSpec
-    ? Node[]
-    : // 元组形式：[path] / [path, 'node']
-    S extends [string] | [string, 'node']
-    ? Node | null
-    : S extends [string, 'nodes']
-    ? Node[]
-    : // 元组形式：[path, 'component', Ctor]
-    S extends [string, 'component', infer Ctor]
-    ? Ctor extends new (...args: any[]) => infer I
-      ? I | null
-      : unknown
-    : // 元组形式：[path, 'components', Ctor]
-    S extends [string, 'components', infer Ctor]
-    ? Ctor extends new (...args: any[]) => infer I
-      ? I[]
-      : unknown
-    : unknown;
+      ? C[]
+      : S extends GuiNodeBindingSpec
+        ? Node | null
+        : S extends GuiNodesBindingSpec
+          ? Node[]
+          : // 元组形式：[path] / [path, 'node']
+            S extends [string] | [string, 'node']
+            ? Node | null
+            : S extends [string, 'nodes']
+              ? Node[]
+              : // 元组形式：[path, 'component', Ctor]
+                S extends [string, 'component', infer Ctor]
+                ? Ctor extends new (...args: any[]) => infer I
+                  ? I | null
+                  : unknown
+                : // 元组形式：[path, 'components', Ctor]
+                  S extends [string, 'components', infer Ctor]
+                  ? Ctor extends new (...args: any[]) => infer I
+                    ? I[]
+                    : unknown
+                  : unknown;
 
 /** 根据绑定表推导最终引用字典类型 */
 export type GuiBindingRefs<M extends GuiBindingMap> = {
@@ -218,19 +223,40 @@ export type GuiBindingRefs<M extends GuiBindingMap> = {
 export abstract class IGuiController<M extends GuiBindingMap = {}> extends IAtom {
   /** 视图引用字典（根据绑定配置自动生成） */
   protected refs!: GuiBindingRefs<M>;
-  /** 视图创建回调 */
+  /**
+   * 视图创建回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewCreated(): void;
-  /** 视图将要出现回调 */
+  /**
+   * 视图将要出现回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewWillAppear(params?: any): void;
-  /** 视图已出现回调 */
+  /**
+   * 视图已出现回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewDidAppear(): void;
-  /** 视图将要消失回调 */
+  /**
+   * 视图将要消失回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewWillDisappear(): void;
-  /** 视图已消失回调 */
+  /**
+   * 视图已消失回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewDidDisappear(): void;
-  /** 视图销毁回调 */
+  /**
+   * 视图销毁回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewDisposed(): void;
-  /** 视图获得焦点回调 */
+  /**
+   * 视图获得焦点回调
+   * @note 由视图管理器调用,请勿手动调用
+   */
   abstract onViewFocus(): void;
   /** 视图返回 */
   protected abstract back(): void;

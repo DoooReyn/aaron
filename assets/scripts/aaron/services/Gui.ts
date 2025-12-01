@@ -1,5 +1,5 @@
 import { Constructor, Node } from 'cc';
-import { Service } from '../../core';
+import { Service } from '../core';
 import {
   GuiConfig,
   IAppLauncher,
@@ -15,17 +15,19 @@ import {
   IGuiScreen,
   IGuiToast,
   IGuiTop,
-} from '../../interfaces';
-import { GuiScreen } from './GuiScreen';
-import { GuiPage } from './GuiPage';
-import { GuiPopup } from './GuiPopup';
-import { GuiAlert } from './GuiAlert';
-import { GuiToast } from './GuiToast';
-import { GuiDrawer } from './GuiDrawer';
-import { GuiMarquee } from './GuiMarquee';
-import { GuiGuide } from './GuiGuide';
-import { GuiTop } from './GuiTop';
-import { SERVICES } from '../../macro';
+} from '../interfaces';
+import {
+  GuiScreen,
+  GuiPage,
+  GuiPopup,
+  GuiAlert,
+  GuiToast,
+  GuiDrawer,
+  GuiMarquee,
+  GuiGuide,
+  GuiTop,
+} from '../foundation';
+import { SERVICES } from '../macro';
 
 /**
  * 视图服务

@@ -12,7 +12,7 @@ export * from './AudioPlayer';
 export * from './Catcher';
 export * from './EventBus';
 export * from './GlobalAdapter';
-export * from './gui';
+export * from './Gui';
 export * from './Localization';
 export * from './Logger';
 export * from './NodePool';
