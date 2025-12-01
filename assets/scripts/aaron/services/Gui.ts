@@ -1,4 +1,4 @@
-import { Constructor, Node } from 'cc';
+import { Constructor, Node, UITransform } from 'cc';
 import { Service } from '../core';
 import {
   GuiConfig,
@@ -15,6 +15,7 @@ import {
   IGuiScreen,
   IGuiToast,
   IGuiTop,
+  ILogger,
 } from '../interfaces';
 import {
   GuiScreen,
@@ -28,6 +29,7 @@ import {
   GuiTop,
 } from '../foundation';
 import { SERVICES } from '../macro';
+import { be } from '../utils';
 
 /**
  * 视图服务
@@ -42,6 +44,10 @@ export class Gui extends Service implements IGui {
   marquee: IGuiMarquee;
   guide: IGuiGuide;
   top: IGuiTop;
+
+  /** 视图配置容器 */
+  private _registry: Map<string, GuiConfig> = new Map();
+
   initialize(): IGuiRootLayers {
     const root = this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root;
     this.screen = new GuiScreen('screen');
@@ -54,6 +60,7 @@ export class Gui extends Service implements IGui {
     this.guide = new GuiGuide('guide');
     this.top = new GuiTop('top');
     const gui = new Node('gui');
+    gui.acquire(UITransform).setContentSize(root.size);
     gui.addChild(this.screen);
     gui.addChild(this.page);
     gui.addChild(this.popup);
@@ -77,21 +84,48 @@ export class Gui extends Service implements IGui {
       top: this.top,
     };
   }
+
   register(config: GuiConfig): void {
-    throw new Error('Method not implemented.');
+    if (this._registry.has(config.token)) {
+      if (this._registry.get(config.token) === config) {
+        this.resolve<ILogger>(SERVICES.LOGGER).wf('视图: {0} 重复注册, 已跳过', config.token);
+      } else {
+        this.resolve<ILogger>(SERVICES.LOGGER).wf('视图: {0} 已经注册, 已替换', config.token);
+        this._registry.set(config.token, config);
+      }
+    }
   }
-  registerMBatch(configs: GuiConfig[]): void {
-    throw new Error('Method not implemented.');
+
+  registerBatch(configs: GuiConfig[]): void {
+    configs.forEach((cfg) => this.register(cfg));
   }
-  fetchConfig(keyOrClass: string | Constructor<IGuiController>, source: string): GuiConfig | undefined {
-    throw new Error('Method not implemented.');
+
+  has(token: string) {
+    return this._registry.has(token);
   }
+
+  fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
+    if (be.isString(keyOrClass)) {
+      return this._registry.get(keyOrClass as string);
+    } else {
+      for (const [_, cfg] of this._registry) {
+        if (cfg.controller === keyOrClass) {
+          return cfg;
+        }
+      }
+      return undefined;
+    }
+  }
+
   back(): Promise<void> {
-    throw new Error('Method not implemented.');
+    //
+    return this.screen.back();
   }
+
   debugStacks(tag: string): void {
     throw new Error('Method not implemented.');
   }
+
   debugSnapshots(tag: string): void {
     throw new Error('Method not implemented.');
   }

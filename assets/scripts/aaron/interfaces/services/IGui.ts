@@ -34,10 +34,38 @@ export type GuiOverlayType = 'Toast' | 'Drawer' | 'Marquee' | 'Guide' | 'Top';
  */
 export type GuiCachePolicy = 'DestroyImmediately' | 'LRU' | 'Persistent';
 
+/** 同一节点同名缓动的存在策略 */
+export type TweenerExistencePolicy = 'replace' | 'skip';
+
+/** 缓动参数 */
+export interface ITweenArgs {
+  /** 动画时长（单位：秒） */
+  duration: number;
+  /**
+   * 当同一节点上存在相同 lib 的缓动时的处理策略
+   * replace: 停掉旧的并替换为新的；skip: 跳过新的，不做任何处理
+   */
+  existencePolicy?: TweenerExistencePolicy;
+  /** 回调函数的 this 上下文；未指定时按照调用处传入 */
+  context?: any;
+  /** 动画开始 */
+  onStart?(target: Node): void;
+  /** 动画结束 */
+  onEnd?(target: Node): void;
+  /** 动画暂停 */
+  onPause?(target: Node): void;
+  /** 动画恢复 */
+  onResume?(target: Node): void;
+  /** 动画停止 */
+  onStop?(target: Node): void;
+  /** 透传的自定义参数，将与注册的默认参数进行浅合并 */
+  [k: string]: any;
+}
+
 /**
  * 视图配置
  * @description 定义了应用程序中不同类型的用户界面（UI）的配置。
- * - key: 视图唯一标识，用于在应用程序中引用该视图。
+ * - token: 视图唯一标识，用于在应用程序中引用该视图。
  * - interface: 视图类型，指定了视图的显示方式和行为。
  * - overlay: Overlay 类型，指定了叠加层视图的具体类型。
  * - prefab: 视图预制体路径，指定了视图的可视化表示。
@@ -45,15 +73,15 @@ export type GuiCachePolicy = 'DestroyImmediately' | 'LRU' | 'Persistent';
  * - cachePolicy: 视图缓存策略，指定了视图的缓存方式。
  * - enterTweenLib: 进入动画库，指定了视图进入时的动画效果。
  * - exitTweenLib: 退出动画库，指定了视图退出时的动画效果。
- * - modal: 是否模态，指定了视图是否阻塞用户交互。
- * - closeOnMaskClick: 是否点击遮罩关闭，指定了点击遮罩是否关闭视图。
+ * - modal: 是否模态，指定了视图是否阻塞用户交互(仅对Popup有效)。
+ * - closeOnMaskClick: 是否点击遮罩关闭，指定了点击遮罩是否关闭视图(仅对Popup有效)。
  */
 export interface GuiConfig {
   /** 视图唯一标识 */
-  key: string;
+  token: string;
   /** 视图类型 */
   interface: GuiInterfaceType;
-  /** Overlay 子类型 */
+  /** Overlay 子类型(仅在 interface 为 Overlay 时有效) */
   overlay?: GuiOverlayType;
   /** 预制体路径 */
   prefab: string;
@@ -62,12 +90,12 @@ export interface GuiConfig {
   /** 缓存策略 */
   cachePolicy: GuiCachePolicy;
   /** 进入动画 */
-  enterTweenLib?: string;
+  enterTweenLib?: [string, ITweenArgs?];
   /** 退出动画 */
-  exitTweenLib?: string;
-  /** 是否模态 */
+  exitTweenLib?: [string, ITweenArgs?];
+  /** 是否模态(仅对Popup有效,alert都是modal) */
   modal?: boolean;
-  /** 是否点击遮罩关闭 */
+  /** 是否点击遮罩关闭(仅对Popup有效,alert都是false) */
   closeOnMaskClick?: boolean;
 }
 
@@ -307,10 +335,23 @@ export interface IGuiRootLayers {
  * - 返回对 Screen 层的调用无效。
  */
 export abstract class IGuiScreen extends Node {
-  /** 当前 Screen 实例 */
+  /** 当前视图 */
   protected $instance: IGuiInstance | null = null;
-  /** 打开 Screen 视图 */
+  /** 顶层视图标识 */
+  abstract get top(): string | undefined;
+  /**
+   * 打开视图
+   * @param config 配置参数
+   * @param params 附加参数
+   */
   abstract open(config: GuiConfig, params?: any): Promise<void>;
+  /**
+   * 关闭当前视图
+   * @param force 是否强制关闭
+   */
+  abstract close(force: boolean): Promise<void>;
+  /** 返回上一个视图 */
+  abstract back(): Promise<void>;
 }
 
 /**
@@ -319,7 +360,27 @@ export abstract class IGuiScreen extends Node {
  * - Page 层可以包含多个 Page 视图实例。
  * - 返回对 Page 层的调用会关闭当前 Page 视图实例。
  */
-export abstract class IGuiPage extends Node {}
+export abstract class IGuiPage extends Node {
+  /**
+   * 打开视图
+   * @param config 配置参数或视图标识
+   * @param params 附加参数
+   */
+  abstract open(config: GuiConfig | string, params?: any): Promise<void>;
+  /**
+   * 关闭视图
+   * @param config 配置参数或栈深度或视图标识
+   */
+  abstract close(config?: GuiConfig | number | string): Promise<void>;
+  /** 返回上一个视图 */
+  abstract back(): Promise<void>;
+  /** 获取当前视图的深度 */
+  abstract get depth(): number;
+  /** 获取顶部视图标识 */
+  abstract get top(): string | undefined;
+  /** 判断视图是否存在 */
+  abstract exists(token: string): boolean;
+}
 
 /**
  * Popup 层
@@ -408,14 +469,15 @@ export interface IGui extends IService {
   /** 注册单个视图配置 */
   register(config: GuiConfig): void;
   /** 批量注册视图配置 */
-  registerMBatch(configs: GuiConfig[]): void;
+  registerBatch(configs: GuiConfig[]): void;
+  /** 检查视图配置是否存在 */
+  has(token: string): boolean;
   /**
    * 根据 key 或 controller 构造器解析 GuiConfig
    * @param keyOrClass GuiConfig key 或 controller 构造器
-   * @param source 调用来源
    * @returns GuiConfig
    */
-  fetchConfig(keyOrClass: string | Constructor<IGuiController>, source: string): GuiConfig | undefined;
+  fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined;
   /** 返回（约等于关闭当前视图） */
   back(): Promise<void>;
   /** 调试打印当前视图栈 */

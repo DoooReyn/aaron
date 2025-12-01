@@ -155,15 +155,15 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 初始化音频播放服务
   aaron.audioPlayer.initialize();
-  
+
   // 初始化本地化服务
   const languageOptions =
     args.languages && args.languages.length > 0 ? { language: args.languages[0], supported: args.languages } : {};
   aaron.localization.initialize(languageOptions);
-  
+
   // 初始化富文本图集服务
   aaron.richTextAtlas.initialize();
-  
+
   // 初始化 GUI 服务
   aaron.gui.initialize();
 
@@ -171,13 +171,12 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   aaron.timer.recycle.loop(
     PRESET.LAZY_CLEANUP_S,
     function () {
-      aaron.logger.d('🗑️ 回收未使用资源');
       aaron.objectPool.clearUnused();
       aaron.nodePool.clearUnused();
       aaron.richTextAtlas.clearUnused();
       aaron.resCache.clearUnused();
     },
-    this
+    this,
   );
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');

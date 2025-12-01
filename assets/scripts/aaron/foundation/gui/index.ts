@@ -8,3 +8,4 @@ export * from './GuiPopup';
 export * from './GuiScreen';
 export * from './GuiToast';
 export * from './GuiTop';
+export * from './GuiHelper';
