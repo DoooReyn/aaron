@@ -1,6 +1,9 @@
-import { Label, Button } from 'cc';
+import { Label, Button, _decorator } from 'cc';
 import { GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
 
+const { ccclass } = _decorator;
+
+@ccclass('SettingsController')
 export class SettingsController extends GuiController<typeof SettingsController.Spec> {
   public static readonly Config: GuiConfig = {
     interface: 'Popup',

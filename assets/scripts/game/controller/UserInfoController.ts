@@ -1,6 +1,5 @@
 import { Button, Label, _decorator } from 'cc';
 import { aaron, GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
-import { ResPath } from '../data/ResPath';
 import { SettingsController } from './SettingsController';
 
 const { ccclass } = _decorator;

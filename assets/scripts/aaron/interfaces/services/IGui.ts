@@ -250,38 +250,38 @@ export interface IGuiController<M extends GuiBindingMap = {}> extends IAtom {
   /** 视图引用字典（根据绑定配置自动生成） */
   refs: GuiBindingRefs<M>;
   /**
-   * 视图创建回调
+   * 视图生命周期：视图创建
    * @note 由视图管理器调用,请勿手动调用
    * @param token 视图标识符
    */
   onViewCreated(token: string): void;
   /**
-   * 视图将要出现回调
+   * 视图生命周期：视图即将出现
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewWillAppear(params?: any): void;
   /**
-   * 视图已出现回调
+   * 视图生命周期：视图完全出现
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewDidAppear(): void;
   /**
-   * 视图将要消失回调
+   * 视图生命周期：视图即将消失
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewWillDisappear(): void;
   /**
-   * 视图已消失回调
+   * 视图生命周期：视图完全消失
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewDidDisappear(): void;
   /**
-   * 视图销毁回调
+   * 视图生命周期：视图销毁
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewDisposed(): void;
   /**
-   * 视图获得焦点回调
+   * 视图生命周期：视图获得焦点
    * @note 由视图管理器调用,请勿手动调用
    */
   onViewFocus(): void;
