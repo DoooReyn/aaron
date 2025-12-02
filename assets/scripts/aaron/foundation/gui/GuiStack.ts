@@ -8,7 +8,7 @@ import { GuiConfig, IGuiInstance, IGuiStack } from '../../interfaces';
  */
 export class GuiStack extends Node implements IGuiStack {
   /** 实例栈 */
-  private _instances: IGuiInstance[] = [];
+  protected $instances: IGuiInstance[] = [];
 
   constructor(name: string) {
     super(name);
@@ -27,22 +27,22 @@ export class GuiStack extends Node implements IGuiStack {
    * @returns
    */
   private async closeOne(index: number, skipAnimation: boolean): Promise<void> {
-    const page = this._instances[index];
+    const page = this.$instances[index];
     if (!page) {
       aaron.logger.wf('📷 视图: 关闭无效,视图不存在,深度 {0}', index);
       return Promise.resolve();
     }
 
-    this._instances.splice(index, 1);
+    this.$instances.splice(index, 1);
     page.controller.onViewWillDisappear();
     if (!skipAnimation) await aaron.gui.playExit(page.config, page.node);
     page.controller.onViewDidDisappear();
     aaron.gui.closeInstance(page);
 
-    if (this._instances.length === 0) {
+    if (this.$instances.length === 0) {
       aaron.gui.focus();
     } else {
-      this._instances[this._instances.length - 1].controller.onViewFocus();
+      this.$instances[this.$instances.length - 1].controller.onViewFocus();
     }
 
     this.onViewDepthChanged();
@@ -54,7 +54,7 @@ export class GuiStack extends Node implements IGuiStack {
    * @returns
    */
   private async closeToDepth(index: number): Promise<void> {
-    if (index < 0 || index >= this._instances.length) {
+    if (index < 0 || index >= this.$instances.length) {
       if (index < 0) {
         aaron.logger.w('📷 视图: 关闭无效,深度小于0');
       } else {
@@ -63,12 +63,12 @@ export class GuiStack extends Node implements IGuiStack {
       return Promise.resolve();
     }
 
-    if (this._instances.length === 0) {
+    if (this.$instances.length === 0) {
       aaron.logger.w('📷 视图: 关闭无效,栈内已无视图');
       return Promise.resolve();
     }
 
-    const depth = this._instances.length;
+    const depth = this.$instances.length;
     for (let i = depth - 1; i >= index; i--) {
       await this.closeOne(i, true);
     }
@@ -98,9 +98,14 @@ export class GuiStack extends Node implements IGuiStack {
       return;
     }
 
+    // 关闭高层级所有视图（除 Alert 外）
+    if (cfg.interface === 'Page') {
+      await aaron.gui.popup.close();
+    }
+
     // 1. 如果已经是顶层视图了,则跳过
-    if (this._instances.length > 0) {
-      const top = this._instances[this._instances.length - 1];
+    if (this.$instances.length > 0) {
+      const top = this.$instances[this.$instances.length - 1];
       if (top.config.token === cfg.token) {
         aaron.logger.wf('📷 视图: {0} 已经打开,请勿重复操作', cfg.token);
         return;
@@ -109,10 +114,10 @@ export class GuiStack extends Node implements IGuiStack {
 
     // 2.1 如果不是顶层视图，则判断是否中间视图；
     // 2.2 如果是中间视图，则将原本在它上面的视图全部关闭，相当于将中间视图置顶
-    const index = this._instances.findIndex((page) => page.config.token === cfg.token);
+    const index = this.$instances.findIndex((page) => page.config.token === cfg.token);
     if (index > -1) {
       await this.closeToDepth(index + 1);
-      this._instances[index].controller.onViewFocus();
+      this.$instances[index].controller.onViewFocus();
       return;
     }
 
@@ -120,7 +125,7 @@ export class GuiStack extends Node implements IGuiStack {
     const inst = await aaron.gui.createInstance(this, cfg);
     if (!inst) return;
 
-    this._instances.push(inst);
+    this.$instances.push(inst);
     inst.controller.onViewCreated(cfg.token);
     inst.controller.onViewWillAppear(params);
     await aaron.gui.playEnter(cfg, inst.node);
@@ -136,7 +141,7 @@ export class GuiStack extends Node implements IGuiStack {
     } else if (be.isNumber(config)) {
       // 按深度关闭
       const index = config as number;
-      const depth = this._instances.length;
+      const depth = this.$instances.length;
       if (index < 0) {
         // 关闭全部
         await this.closeToDepth(0);
@@ -149,7 +154,7 @@ export class GuiStack extends Node implements IGuiStack {
       }
     } else if (be.isString(config)) {
       // 关闭到指定视图
-      const index = this._instances.findIndex((page) => page.config.token === config);
+      const index = this.$instances.findIndex((page) => page.config.token === config);
       if (index > -1) {
         await this.close(index);
       } else {
@@ -158,7 +163,7 @@ export class GuiStack extends Node implements IGuiStack {
     } else if (be.isObject(config) && (config as GuiConfig).token) {
       // 关闭到指定视图
       const token = (config as GuiConfig).token;
-      const index = this._instances.findIndex((page) => page.config.token === token);
+      const index = this.$instances.findIndex((page) => page.config.token === token);
       if (index > -1) {
         await this.close(index);
       } else {
@@ -170,29 +175,29 @@ export class GuiStack extends Node implements IGuiStack {
   }
 
   async back(): Promise<void> {
-    if (this._instances.length > 0) {
-      await this.closeOne(this._instances.length - 1, false);
+    if (this.$instances.length > 0) {
+      await this.closeOne(this.$instances.length - 1, false);
     }
   }
 
   focus(): void {
-    if (this._instances.length > 0) {
-      this._instances[this._instances.length - 1].controller.onViewFocus();
+    if (this.$instances.length > 0) {
+      this.$instances[this.$instances.length - 1].controller.onViewFocus();
     }
   }
 
   get depth() {
-    return this._instances.length;
+    return this.$instances.length;
   }
 
   get top() {
-    if (this._instances.length > 0) {
-      return this._instances[this._instances.length - 1].config.token;
+    if (this.$instances.length > 0) {
+      return this.$instances[this.$instances.length - 1].config.token;
     }
     return undefined;
   }
 
   exists(token: string) {
-    return this._instances.findIndex((instance) => instance.config.token === token) > -1;
+    return this.$instances.findIndex((instance) => instance.config.token === token) > -1;
   }
 }

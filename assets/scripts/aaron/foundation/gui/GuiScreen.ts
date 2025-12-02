@@ -32,6 +32,10 @@ export class GuiScreen extends Node implements IGuiScreen {
       return;
     }
 
+    // 关闭高层级所有视图（除 Alert 外）
+    await aaron.gui.popup.close();
+    await aaron.gui.page.close();
+
     // 关闭上一个实例
     await this.close(true);
 

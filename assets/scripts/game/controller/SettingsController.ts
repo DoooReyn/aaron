@@ -4,12 +4,11 @@ import { GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
 export class SettingsController extends GuiController<typeof SettingsController.Spec> {
   public static readonly Config: GuiConfig = {
     interface: 'Popup',
-    token: 'PopupSettings',
-    path: 'l:resources@PopupSettings',
+    token: 'GuiSettings',
+    path: 'l:resources@GuiSettings',
     cachePolicy: 'Expires',
     cacheExpires: 60_000,
     controller: SettingsController,
-    modal: false,
     closeOnMaskClick: true,
   };
 

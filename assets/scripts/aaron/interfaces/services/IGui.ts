@@ -91,9 +91,7 @@ export interface GuiConfig {
   enterTweenLib?: [string, ITweenArgs?];
   /** 退出动画 */
   exitTweenLib?: [string, ITweenArgs?];
-  /** 是否模态(仅对Popup有效,alert都是modal) */
-  modal?: boolean;
-  /** 是否点击遮罩关闭(仅对Popup有效,alert都是false) */
+  /** 是否点击遮罩关闭(仅对Popup有效) */
   closeOnMaskClick?: boolean;
 }
 

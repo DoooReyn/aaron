@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "606e0edc-44f5-4822-a35b-18c54fe7279b",
+  "uuid": "863b4fe7-ff26-4ad3-9b1b-52ba0216e033",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "PopupUserInfo"
+    "syncNodeName": "GuiSettings"
   }
 }

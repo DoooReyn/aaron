@@ -47,6 +47,13 @@ export class GuiPopup extends GuiStack implements IGuiPopup {
   }
 
   private onMaskClicked(): void {
-    aaron.eventBus.app.emit(EVENTS.GUI.POPUP_MASK_CLICKED);
+    if (this.depth > 0) {
+      const top = this.$instances[this.depth - 1];
+      if (top.config.closeOnMaskClick) {
+        top.controller.close();
+      } else {
+        aaron.eventBus.app.emit(EVENTS.GUI.ALERT_MASK_CLICKED, top.config.token);
+      }
+    }
   }
 }

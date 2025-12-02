@@ -9,12 +9,11 @@ const { ccclass } = _decorator;
 export class UserInfoController extends GuiController<typeof UserInfoController.Spec> {
   public static readonly Config: GuiConfig = {
     interface: 'Popup',
-    token: 'PopupUserInfo',
-    path: 'l:resources@PopupUserInfo',
+    token: 'GuiUserInfo',
+    path: 'l:resources@GuiUserInfo',
     cachePolicy: 'Expires',
     cacheExpires: 60_000,
     controller: UserInfoController,
-    modal: false,
     closeOnMaskClick: true,
   };
 

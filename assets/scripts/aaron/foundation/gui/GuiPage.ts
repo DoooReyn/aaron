@@ -1,3 +1,4 @@
+import { aaron } from '../../core';
 import { GuiConfig } from '../../interfaces';
 import { GuiStack } from './GuiStack';
 

@@ -43,6 +43,9 @@ export class GuiAlert extends GuiStack {
   }
 
   private onMaskClicked(): void {
-    aaron.eventBus.app.emit(EVENTS.GUI.ALERT_MASK_CLICKED);
+    if (this.depth > 0) {
+      const top = this.$instances[this.depth - 1];
+      aaron.eventBus.app.emit(EVENTS.GUI.ALERT_MASK_CLICKED, top.config.token);
+    }
   }
 }
