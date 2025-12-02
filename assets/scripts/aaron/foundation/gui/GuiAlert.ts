@@ -1,3 +1,42 @@
+import { Node, UITransform, Graphics } from 'cc';
+import { aaron } from '../../core';
+import { COLOR, EVENTS } from '../../macro';
 import { GuiStack } from './GuiStack';
+import { color } from '../../utils';
 
-export class GuiAlert extends GuiStack {}
+export class GuiAlert extends GuiStack {
+  private _mask: Node;
+
+  constructor(name: string) {
+    super(name);
+
+    const mask = new Node('mask');
+    mask.acquire(UITransform);
+    mask.acquire(Graphics);
+    mask.on(Node.EventType.TOUCH_END, this.onMaskClicked, this);
+    mask.active = false;
+    this.addChild(mask);
+    this._mask = mask;
+  }
+
+  onViewDepthChanged(): void {
+    if (this.depth === 0) {
+      this._mask.active = false;
+      this._mask.uiGraphics.clear();
+    } else {
+      this._mask.active = true;
+      const { width, height } = this.size;
+      this._mask.uiTransform.setContentSize(width, height);
+      this._mask.uiGraphics.clear();
+      this._mask.uiGraphics.fillColor = color.from(COLOR.BLACK_25);
+      this._mask.uiGraphics.fillRect(-width / 2 - 10, -height / 2 - 10, width + 20, height + 20);
+    }
+
+    // 同步告知弹窗层
+    aaron.gui.popup.onViewDepthChanged();
+  }
+
+  private onMaskClicked(): void {
+    aaron.eventBus.app.emit(EVENTS.GUI.ALERT_MASK_CLICKED);
+  }
+}

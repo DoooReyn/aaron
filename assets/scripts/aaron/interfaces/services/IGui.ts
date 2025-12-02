@@ -248,46 +248,51 @@ export type GuiBindingRefs<M extends GuiBindingMap> = {
  * - 视图控制器还负责处理视图与用户的交互事件，例如按钮点击、输入框输入等。
  * - 视图控制器可以通过绑定配置自动生成视图引用字典，方便访问和操作视图元素。
  */
-export abstract class IGuiController<M extends GuiBindingMap = {}> extends IAtom {
+export interface IGuiController<M extends GuiBindingMap = {}> extends IAtom {
+  /** 视图标识 */
+  get token(): string;
   /** 视图引用字典（根据绑定配置自动生成） */
-  protected refs!: GuiBindingRefs<M>;
+  refs: GuiBindingRefs<M>;
   /**
    * 视图创建回调
    * @note 由视图管理器调用,请勿手动调用
+   * @param token 视图标识符
    */
-  abstract onViewCreated(): void;
+  onViewCreated(token: string): void;
   /**
    * 视图将要出现回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewWillAppear(params?: any): void;
+  onViewWillAppear(params?: any): void;
   /**
    * 视图已出现回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewDidAppear(): void;
+  onViewDidAppear(): void;
   /**
    * 视图将要消失回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewWillDisappear(): void;
+  onViewWillDisappear(): void;
   /**
    * 视图已消失回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewDidDisappear(): void;
+  onViewDidDisappear(): void;
   /**
    * 视图销毁回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewDisposed(): void;
+  onViewDisposed(): void;
   /**
    * 视图获得焦点回调
    * @note 由视图管理器调用,请勿手动调用
    */
-  abstract onViewFocus(): void;
+  onViewFocus(): void;
   /** 视图返回 */
-  protected abstract back(): void;
+  back(): void;
+  /** 视图关闭 */
+  close(): void;
 }
 
 /**
@@ -334,26 +339,24 @@ export interface IGuiRootLayers {
  * - Screen 层同时只能包含一个 Screen 视图实例。
  * - 返回对 Screen 层的调用无效。
  */
-export abstract class IGuiScreen extends Node {
-  /** 当前视图 */
-  protected $instance: IGuiInstance | null = null;
+export interface IGuiScreen extends Node {
   /** 顶层视图标识 */
-  abstract get top(): string | undefined;
+  get top(): string | undefined;
   /**
    * 打开视图
    * @param config 配置参数
    * @param params 附加参数
    */
-  abstract open(config: GuiConfig, params?: any): Promise<void>;
+  open(config: GuiConfig, params?: any): Promise<void>;
   /**
    * 关闭当前视图
    * @param force 是否强制关闭
    */
-  abstract close(force: boolean): Promise<void>;
+  close(force: boolean): Promise<void>;
   /** 返回上一个视图 */
-  abstract back(): Promise<void>;
+  back(): Promise<void>;
   /** 聚焦顶层视图 */
-  abstract focus(): void;
+  focus(): void;
 }
 
 /**
@@ -362,28 +365,30 @@ export abstract class IGuiScreen extends Node {
  * - 拥栈层可以包含多个 Page 视图实例。
  * - 返回对拥栈层的调用会关闭当前层顶部视图实例。
  */
-export abstract class IGuiStack extends Node {
+export interface IGuiStack extends Node {
   /**
    * 打开视图
    * @param config 配置参数或视图标识
    * @param params 附加参数
    */
-  abstract open(config: GuiConfig | string, params?: any): Promise<void>;
+  open(config: GuiConfig | string, params?: any): Promise<void>;
   /**
    * 关闭视图
    * @param config 配置参数或栈深度或视图标识
    */
-  abstract close(config?: GuiConfig | number | string): Promise<void>;
+  close(config?: GuiConfig | number | string): Promise<void>;
   /** 返回上一个视图 */
-  abstract back(): Promise<void>;
+  back(): Promise<void>;
   /** 获取视图栈的深度 */
-  abstract get depth(): number;
+  get depth(): number;
   /** 获取顶部视图标识 */
-  abstract get top(): string | undefined;
+  get top(): string | undefined;
   /** 判断视图是否存在 */
-  abstract exists(token: string): boolean;
+  exists(token: string): boolean;
   /** 聚焦顶层视图 */
-  abstract focus(): void;
+  focus(): void;
+  /** 视图栈深度变化回调 */
+  onViewDepthChanged(): void;
 }
 
 /**
@@ -392,7 +397,7 @@ export abstract class IGuiStack extends Node {
  * - Page 层可以包含多个 Page 视图实例。
  * - 返回对 Page 层的调用会关闭当前 Page 视图实例。
  */
-export abstract class IGuiPage extends IGuiStack {}
+export interface IGuiPage extends IGuiStack {}
 
 /**
  * Popup 层
@@ -400,7 +405,7 @@ export abstract class IGuiPage extends IGuiStack {}
  * - Popup 层可以包含多个 Popup 视图实例。
  * - 返回对 Popup 层的调用会关闭当前 Popup 视图实例。
  */
-export abstract class IGuiPopup extends IGuiStack {}
+export interface IGuiPopup extends IGuiStack {}
 
 /**
  * Alert 层
@@ -408,7 +413,7 @@ export abstract class IGuiPopup extends IGuiStack {}
  * - Alert 层可以包含多个 Alert 视图实例。
  * - 返回对 Alert 层的调用会关闭当前 Alert 视图实例。
  */
-export abstract class IGuiAlert extends IGuiStack {}
+export interface IGuiAlert extends IGuiStack {}
 
 /**
  * Toast 层
@@ -416,7 +421,7 @@ export abstract class IGuiAlert extends IGuiStack {}
  * - Toast 层可以包含多个 Toast 视图实例。
  * - 返回对 Toast 层的调用无效，因为它是非栈式的层级。
  */
-export abstract class IGuiToast extends Node {}
+export interface IGuiToast extends Node {}
 
 /**
  * Drawer 层
@@ -424,7 +429,7 @@ export abstract class IGuiToast extends Node {}
  * - Drawer 层同时只能包含一个 Drawer 视图实例。
  * - 返回对 Drawer 层的调用无效，因为它是非栈式的层级。
  */
-export abstract class IGuiDrawer extends Node {}
+export interface IGuiDrawer extends Node {}
 
 /**
  * Marquee 层
@@ -432,7 +437,7 @@ export abstract class IGuiDrawer extends Node {}
  * - Marquee 层同时只能包含一个 Marquee 视图实例。
  * - 返回对 Marquee 层的调用无效，因为它是非栈式的层级。
  */
-export abstract class IGuiMarquee extends Node {}
+export interface IGuiMarquee extends Node {}
 
 /**
  * Guide 层
@@ -440,7 +445,7 @@ export abstract class IGuiMarquee extends Node {}
  * - Guide 层同时只能包含一个 Guide 视图实例。
  * - 返回对 Guide 层的调用无效，因为它是非栈式的层级。
  */
-export abstract class IGuiGuide extends Node {}
+export interface IGuiGuide extends Node {}
 
 /**
  * Top 层
@@ -448,7 +453,7 @@ export abstract class IGuiGuide extends Node {}
  * - Top 层同时只能包含一个 Top 视图实例。
  * - 返回对 Top 层的调用无效，因为它是非栈式的层级。
  */
-export abstract class IGuiTop extends Node {}
+export interface IGuiTop extends Node {}
 
 /**
  * 视图服务接口
@@ -492,6 +497,8 @@ export interface IGui extends IService {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined;
   /** 返回（约等于关闭顶层视图） */
   back(): Promise<void>;
+  /** 关闭指定视图 */
+  close(token: string): Promise<void>;
   /** 聚焦顶层视图 */
   focus(): void;
   /** 调试打印当前视图栈 */

@@ -1,15 +1,22 @@
-import { Node, Component } from 'cc';
+import { Node, Component, _decorator } from 'cc';
 import { GuiBindingMap, GuiBindingRefs, GuiBindingSpec, GuiBindingType, IGuiController } from '../../interfaces';
 import { aaron } from '../../core';
+import { Atom } from '../../atom';
+
+const { ccclass } = _decorator;
 
 /**
  * 视图控制器
  */
-export class GuiController<M extends GuiBindingMap = {}> extends IGuiController<M> {
-  /** 视图引用字典（根据绑定配置自动生成） */
-  protected refs!: GuiBindingRefs<M>;
+@ccclass('GuiController')
+export class GuiController<M extends GuiBindingMap = {}> extends Atom implements IGuiController<M> {
+  /** 视图标识 */
+  private _token: string;
   /** 输入参数 */
   protected params: any;
+
+  /** 视图引用字典（根据绑定配置自动生成） */
+  refs!: GuiBindingRefs<M>;
 
   /**
    * 根据绑定配置解析节点/组件引用
@@ -128,7 +135,12 @@ export class GuiController<M extends GuiBindingMap = {}> extends IGuiController<
     return current;
   }
 
-  onViewCreated(): void {
+  get token() {
+    return this._token;
+  }
+
+  onViewCreated(token: string): void {
+    this._token = token;
     const spec = (this.constructor as unknown as { UiSpec: GuiBindingMap }).UiSpec ?? {};
     this.refs = this.bindView(this.node, spec) as GuiBindingRefs<M>;
   }
@@ -147,25 +159,29 @@ export class GuiController<M extends GuiBindingMap = {}> extends IGuiController<
 
   onViewFocus(): void {}
 
-  protected back(): void {}
+  close() {
+    aaron.gui.close(this.token);
+  }
 
-  protected onInit(): void {}
+  back(): void {}
 
-  protected onLaunch(): void {}
+  onInit(): void {}
 
-  protected onRegEvent(): void {}
+  onLaunch(): void {}
 
-  protected onActivate(): void {}
+  onRegEvent(): void {}
 
-  protected onUpdate(dt: number): void {}
+  onActivate(): void {}
 
-  protected onPostUpdate(dt: number): void {}
+  onUpdate(dt: number): void {}
 
-  protected onUnRegEvent(): void {}
+  onPostUpdate(dt: number): void {}
 
-  protected onDeactivate(): void {}
+  onUnRegEvent(): void {}
 
-  protected onPreTerminate(): void {}
+  onDeactivate(): void {}
 
-  protected onTerminate(): void {}
+  onPreTerminate(): void {}
+
+  onTerminate(): void {}
 }

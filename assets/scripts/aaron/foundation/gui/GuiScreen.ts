@@ -7,7 +7,7 @@ import { GuiHelper } from './GuiHelper';
  * Screen 层
  * @description 一级界面
  */
-export class GuiScreen extends IGuiScreen {
+export class GuiScreen extends Node implements IGuiScreen {
   /** 当前视图实例 */
   private _current: IGuiInstance;
 
@@ -35,7 +35,7 @@ export class GuiScreen extends IGuiScreen {
     const inst = await GuiHelper.createInstance(this, config);
     if (!inst) return;
 
-    inst.controller.onViewCreated();
+    inst.controller.onViewCreated(config.token);
     inst.controller.onViewWillAppear(params);
     await GuiHelper.playEnter(config, inst.node);
     inst.controller.onViewDidAppear();

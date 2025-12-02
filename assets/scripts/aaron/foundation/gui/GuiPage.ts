@@ -1,4 +1,3 @@
-import { aaron } from '../../core';
 import { GuiStack } from './GuiStack';
 
 /**

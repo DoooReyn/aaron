@@ -109,6 +109,10 @@ async function main() {
     },
     this,
   );
+
+  // 弹窗
+  fk.aaron.gui.register(ResPath.View.Popup.UserInfo);
+  fk.aaron.gui.popup.open(ResPath.View.Popup.UserInfo, { input: '我是一只鱼' });
 }
 
 /**

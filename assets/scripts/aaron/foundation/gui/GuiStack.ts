@@ -7,7 +7,7 @@ import { GuiHelper } from './GuiHelper';
 /**
  * 拥栈层
  */
-export class GuiStack extends IGuiStack {
+export class GuiStack extends Node implements IGuiStack {
   /** 实例栈 */
   private _instances: IGuiInstance[] = [];
 
@@ -16,6 +16,9 @@ export class GuiStack extends IGuiStack {
 
     this.once(Node.EventType.PARENT_CHANGED, GuiHelper.createLayer.bind(GuiHelper, this), this);
   }
+
+  /** 视图栈深度变化回调 */
+  onViewDepthChanged() {}
 
   /**
    * 关闭指定深度的视图
@@ -41,8 +44,10 @@ export class GuiStack extends IGuiStack {
     if (this._instances.length === 0) {
       aaron.gui.focus();
     } else {
-      this._instances[this._instances.length - 1].controller.onViewWillAppear();
+      this._instances[this._instances.length - 1].controller.onViewFocus();
     }
+
+    this.onViewDepthChanged();
   }
 
   /**
@@ -99,10 +104,12 @@ export class GuiStack extends IGuiStack {
     if (!inst) return;
 
     this._instances.push(inst);
-    inst.controller.onViewCreated();
+    inst.controller.onViewCreated(cfg.token);
     inst.controller.onViewWillAppear(params);
     await GuiHelper.playEnter(cfg, inst.node);
     inst.controller.onViewDidAppear();
+
+    this.onViewDepthChanged();
   }
 
   async close(config?: GuiConfig | number | string): Promise<void> {

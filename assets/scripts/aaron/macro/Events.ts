@@ -25,6 +25,10 @@ export const EVENTS = {
     /** 应用屏幕点击 */
     SCREEN_TAPPED: 'gui:screen-tapped',
     /** 红点变化 */
-    RED_DOT_CHANGED: 'gui:red-dot-changed@'
+    RED_DOT_CHANGED: 'gui:red-dot-changed@',
+    /** 弹窗层遮罩点击事件 */
+    POPUP_MASK_CLICKED: 'gui:popup-mask-clicked',
+    /** 弹窗层遮罩点击事件 */
+    ALERT_MASK_CLICKED: 'gui:alert-mask-clicked',
   },
 } as const;

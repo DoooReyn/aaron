@@ -1,4 +1,4 @@
-import { _decorator } from 'cc';
+import { _decorator, Component } from 'cc';
 import { IAtom } from '../interfaces';
 
 const { ccclass } = _decorator;
@@ -18,7 +18,7 @@ const { ccclass } = _decorator;
  * - 终止: `onTerminate`
  */
 @ccclass('Atom')
-export class Atom extends IAtom {
+export class Atom extends Component implements IAtom {
   protected onLoad(): void {
     this.onInit();
   }
@@ -55,32 +55,32 @@ export class Atom extends IAtom {
   }
 
   /** 生命周期：初始化 */
-  protected onInit(): void {}
+  onInit(): void {}
 
   /** 生命周期：启动 */
-  protected onLaunch(): void {}
+  onLaunch(): void {}
 
   /** 生命周期：注册事件 */
-  protected onRegEvent(): void {}
+  onRegEvent(): void {}
 
   /** 生命周期：激活 */
-  protected onActivate(): void {}
+  onActivate(): void {}
 
   /** 生命周期：更新 */
-  protected onUpdate(dt: number): void {}
+  onUpdate(dt: number): void {}
 
   /** 生命周期：后置更新 */
-  protected onPostUpdate(dt: number): void {}
+  onPostUpdate(dt: number): void {}
 
   /** 生命周期：注销事件 */
-  protected onUnRegEvent(): void {}
+  onUnRegEvent(): void {}
 
   /** 生命周期：禁用 */
-  protected onDeactivate(): void {}
+  onDeactivate(): void {}
 
   /** 生命周期：前置终止 */
-  protected onPreTerminate(): void {}
+  onPreTerminate(): void {}
 
   /** 生命周期：终止 */
-  protected onTerminate(): void {}
+  onTerminate(): void {}
 }

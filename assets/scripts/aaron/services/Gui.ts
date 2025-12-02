@@ -94,6 +94,9 @@ export class Gui extends Service implements IGui {
         this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 已经注册, 已替换', config.token);
         this._registry.set(config.token, config);
       }
+    } else {
+      this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 注册成功', config.token);
+      this._registry.set(config.token, config);
     }
   }
 
@@ -118,7 +121,29 @@ export class Gui extends Service implements IGui {
     }
   }
 
-  back(): Promise<void> {
+  async close(token: string) {
+    if (this._registry.has(token)) {
+      const cfg = this._registry.get(token);
+      switch (cfg.interface) {
+        case 'Alert':
+          await this.alert.close(token);
+          break;
+        case 'Popup':
+          await this.popup.close(token);
+          break;
+        case 'Page':
+          await this.page.close(token);
+          break;
+        case 'Screen':
+          if (this.screen.top === token) {
+            await this.screen.close(true);
+          }
+          break;
+      }
+    }
+  }
+
+  async back(): Promise<void> {
     if (this.alert.depth > 0) {
       return this.alert.back();
     } else if (this.popup.depth > 0) {
