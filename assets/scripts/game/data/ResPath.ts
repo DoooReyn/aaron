@@ -19,7 +19,7 @@ export const ResPath = {
       UserInfo: {
         token: 'PopupUserInfo',
         prefab: 'l:resources@PopupUserInfo',
-        cachePolicy: 'LRU',
+        cacheExpires: 60_000,
         controller: UserInfoController,
         interface: 'Popup',
       },

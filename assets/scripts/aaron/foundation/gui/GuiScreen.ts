@@ -51,7 +51,7 @@ export class GuiScreen extends Node implements IGuiScreen {
         this._current.controller.onViewDidDisappear();
         this._current.controller.onViewDisposed();
         this._current.node.destroy();
-        aaron.resCache.decRef(this._current.config.prefab);
+        aaron.resCache.decRef(this._current.config.path);
         this._current = null;
       } else {
         aaron.logger.df(

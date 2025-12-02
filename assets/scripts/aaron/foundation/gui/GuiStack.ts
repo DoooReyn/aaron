@@ -40,6 +40,7 @@ export class GuiStack extends Node implements IGuiStack {
     page.controller.onViewDidDisappear();
     page.controller.onViewDisposed();
     page.node.destroy();
+    aaron.resCache.decRef(page.config.token);
 
     if (this._instances.length === 0) {
       aaron.gui.focus();

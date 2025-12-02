@@ -25,15 +25,6 @@ export type GuiInterfaceType = 'Screen' | 'Page' | 'Popup' | 'Alert' | 'Overlay'
  */
 export type GuiOverlayType = 'Toast' | 'Drawer' | 'Marquee' | 'Guide' | 'Top';
 
-/**
- * 视图缓存策略
- * @description 定义了应用程序中不同类型的用户界面（UI）的缓存策略。
- * - DestroyImmediately: 立即销毁界面，不缓存。
- * - LRU: 最近最少使用策略，根据最近使用时间来缓存界面。
- * - Persistent: 持久化缓存策略，界面会被缓存起来，直到手动销毁或应用退出。
- */
-export type GuiCachePolicy = 'DestroyImmediately' | 'LRU' | 'Persistent';
-
 /** 同一节点同名缓动的存在策略 */
 export type TweenerExistencePolicy = 'replace' | 'skip';
 
@@ -70,7 +61,7 @@ export interface ITweenArgs {
  * - overlay: Overlay 类型，指定了叠加层视图的具体类型。
  * - prefab: 视图预制体路径，指定了视图的可视化表示。
  * - controller: 视图控制脚本构造器，用于处理视图的逻辑和交互。
- * - cachePolicy: 视图缓存策略，指定了视图的缓存方式。
+ * - cacheExpires: 视图缓存过期时间,用于指定视图销毁后多久销毁资源。
  * - enterTweenLib: 进入动画库，指定了视图进入时的动画效果。
  * - exitTweenLib: 退出动画库，指定了视图退出时的动画效果。
  * - modal: 是否模态，指定了视图是否阻塞用户交互(仅对Popup有效)。
@@ -84,11 +75,11 @@ export interface GuiConfig {
   /** Overlay 子类型(仅在 interface 为 Overlay 时有效) */
   overlay?: GuiOverlayType;
   /** 预制体路径 */
-  prefab: string;
+  path: string;
   /** 视图控制脚本构造器 */
   controller: Constructor<IGuiController<GuiBindingMap>>;
-  /** 缓存策略 */
-  cachePolicy: GuiCachePolicy;
+  /** 视图缓存过期时间 */
+  cacheExpires: number;
   /** 进入动画 */
   enterTweenLib?: [string, ITweenArgs?];
   /** 退出动画 */

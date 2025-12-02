@@ -1,4 +1,4 @@
-import { Node, UITransform, Widget, instantiate } from 'cc';
+import { Node, Prefab, UITransform, Widget, instantiate } from 'cc';
 import { GuiConfig } from '../../interfaces';
 import { aaron } from '../../core';
 import { be } from '../../utils';
@@ -8,6 +8,7 @@ import { be } from '../../utils';
  *
  * 提供视图创建、图层设置和动画播放等通用功能。
  * 主要用于 Gui 服务内部的视图实例化和生命周期管理。
+ * @TODO 节点缓存与清理
  */
 export class GuiHelper {
   /**
@@ -57,9 +58,9 @@ export class GuiHelper {
    */
   public static async createInstance(parent: Node, config: GuiConfig) {
     // 加载预制体资源
-    const prefab = await aaron.resLoader.loadPrefab(config.prefab);
+    const prefab = await aaron.resLoader.load(Prefab, config);
     if (!prefab) {
-      aaron.logger.ef('📷 视图: {0} <{1}> 创建实例失败,未能正确识别预制体', config.token, config.prefab);
+      aaron.logger.ef('📷 视图: {0} <{1}> 创建实例失败,未能正确识别预制体', config.token, config.path);
       return undefined;
     }
 
@@ -68,7 +69,7 @@ export class GuiHelper {
     parent.addChild(node);
 
     // 增加预制体资源引用
-    aaron.resCache.addRef(config.prefab);
+    aaron.resCache.addRef(config.path);
 
     // 获取控制器组件
     const controller = node.acquire(config.controller);
