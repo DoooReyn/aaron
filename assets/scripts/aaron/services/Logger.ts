@@ -13,7 +13,7 @@ export class Logger extends Service implements ILogger {
 
   d(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {
-      console.log(`[${this._tag}] DEBUG: ${message}`, ...args);
+      console.debug(`[${this._tag}] DEBUG: ${message}`, ...args);
     }
   }
 
@@ -21,7 +21,7 @@ export class Logger extends Service implements ILogger {
     if (this._level <= LogLevel.DEBUG) {
       message = literal.fmt(message, ...args);
       if (message == undefined) debugger;
-      console.log(`[${this._tag}] DEBUG: ${message}`);
+      console.debug(`[${this._tag}] DEBUG: ${message}`);
     }
   }
 

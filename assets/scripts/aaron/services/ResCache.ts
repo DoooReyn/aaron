@@ -37,7 +37,7 @@ export class ResCache extends Service implements IResCache {
     };
 
     this._container.set(key, entry);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 缓存: 资源{0}已缓存，{1}s后过期', key, expires / 1000);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 缓存: 资源 {0}，预设 {1}s 后过期', key, expires / 1000);
   }
 
   /**
@@ -130,7 +130,7 @@ export class ResCache extends Service implements IResCache {
     entry.refCount++;
     // entry.asset.addRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
     entry.expiresAt = entry.expires > 0 ? time.now() + entry.expires : 0;
-    this.resolve<ILogger>(SERVICES.LOGGER).df('➕ 缓存: 增加引用 {0} 计数:{1}', key, entry.refCount);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('➕ 缓存: 增持 {0} 计数:{1}', key, entry.refCount);
 
     return entry.refCount;
   }
@@ -148,12 +148,11 @@ export class ResCache extends Service implements IResCache {
 
     entry.refCount = Math.max(0, entry.refCount - 1);
     // entry.asset.decRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
-    this.resolve<ILogger>(SERVICES.LOGGER).df('➖ 缓存: 减少引用 {0} 计数:{1}', key, entry.refCount);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('➖ 缓存: 减持 {0} 计数:{1}', key, entry.refCount);
 
     // 自动释放
     if (autoRelease && entry.refCount === 0) {
       this.delete(key, true);
-      this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 缓存: 自动释放 {0}', key);
     }
 
     return entry.refCount;

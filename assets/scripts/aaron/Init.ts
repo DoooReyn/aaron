@@ -175,6 +175,7 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
       aaron.nodePool.clearUnused();
       aaron.richTextAtlas.clearUnused();
       aaron.resCache.clearUnused();
+      aaron.gui.clearUnused();
     },
     this,
   );

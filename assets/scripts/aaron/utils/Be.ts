@@ -1,4 +1,4 @@
-import { Component, js } from 'cc';
+import { Node, Component, js } from 'cc';
 
 /**
  * 检查值是否为 undefined

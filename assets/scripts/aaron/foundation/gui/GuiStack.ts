@@ -1,8 +1,7 @@
 import { Node } from 'cc';
 import { aaron } from '../../core';
-import { be } from '../../utils';
+import { be, literal } from '../../utils';
 import { GuiConfig, IGuiInstance, IGuiStack } from '../../interfaces';
-import { GuiHelper } from './GuiHelper';
 
 /**
  * 拥栈层
@@ -14,7 +13,7 @@ export class GuiStack extends Node implements IGuiStack {
   constructor(name: string) {
     super(name);
 
-    this.once(Node.EventType.PARENT_CHANGED, GuiHelper.createLayer.bind(GuiHelper, this), this);
+    this.once(Node.EventType.PARENT_CHANGED, () => aaron.gui.createLayer(this), this);
   }
 
   /** 视图栈深度变化回调 */
@@ -36,11 +35,9 @@ export class GuiStack extends Node implements IGuiStack {
 
     this._instances.splice(index, 1);
     page.controller.onViewWillDisappear();
-    if (!skipAnimation) await GuiHelper.playExit(page.config, page.node);
+    if (!skipAnimation) await aaron.gui.playExit(page.config, page.node);
     page.controller.onViewDidDisappear();
-    page.controller.onViewDisposed();
-    page.node.destroy();
-    aaron.resCache.decRef(page.config.token);
+    aaron.gui.closeInstance(page);
 
     if (this._instances.length === 0) {
       aaron.gui.focus();
@@ -77,10 +74,29 @@ export class GuiStack extends Node implements IGuiStack {
     }
   }
 
+  /**
+   * 内部检查是否对应层级
+   * @param cfg Gui 配置
+   * @returns
+   */
+  protected internalInpsect(cfg: GuiConfig): boolean {
+    return false;
+  }
+
   async open(config: GuiConfig | string, params?: any): Promise<void> {
     // 打开前检查
-    const cfg: GuiConfig = GuiHelper.preOpen(config);
+    const cfg: GuiConfig = aaron.gui.inspect(config);
     if (cfg === undefined) return;
+
+    if (!this.internalInpsect(cfg)) {
+      aaron.logger.wf(
+        '📷 视图: {0} 层级不符 {1} != {2}，请检查',
+        cfg.token,
+        literal.capitalize(this.name),
+        cfg.interface,
+      );
+      return;
+    }
 
     // 1. 如果已经是顶层视图了,则跳过
     if (this._instances.length > 0) {
@@ -91,9 +107,9 @@ export class GuiStack extends Node implements IGuiStack {
       }
     }
 
-    // 2. 如果不是顶层视图,则判断是否中间视图
+    // 2.1 如果不是顶层视图，则判断是否中间视图；
+    // 2.2 如果是中间视图，则将原本在它上面的视图全部关闭，相当于将中间视图置顶
     const index = this._instances.findIndex((page) => page.config.token === cfg.token);
-    // 2.1 如果是中间视图,则关闭中间视图到顶层视图之间的所有视图(左开右闭),然后聚焦到目标视图
     if (index > -1) {
       await this.closeToDepth(index + 1);
       this._instances[index].controller.onViewFocus();
@@ -101,13 +117,13 @@ export class GuiStack extends Node implements IGuiStack {
     }
 
     // 3. 如果未打开过,则添加为顶层视图
-    const inst = await GuiHelper.createInstance(this, cfg);
+    const inst = await aaron.gui.createInstance(this, cfg);
     if (!inst) return;
 
     this._instances.push(inst);
     inst.controller.onViewCreated(cfg.token);
     inst.controller.onViewWillAppear(params);
-    await GuiHelper.playEnter(cfg, inst.node);
+    await aaron.gui.playEnter(cfg, inst.node);
     inst.controller.onViewDidAppear();
 
     this.onViewDepthChanged();

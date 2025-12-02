@@ -1,21 +1,43 @@
-import { Button, _decorator } from 'cc';
-import { aaron, GuiBindingMap, GuiController } from '../../aaron';
+import { Button, Label, _decorator } from 'cc';
+import { aaron, GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
+import { ResPath } from '../data/ResPath';
+import { SettingsController } from './SettingsController';
 
 const { ccclass } = _decorator;
 
 @ccclass('UserInfoController')
-export class UserInfoController extends GuiController<typeof UserInfoController.UiSpec> {
-  protected static readonly UiSpec = {
+export class UserInfoController extends GuiController<typeof UserInfoController.Spec> {
+  public static readonly Config: GuiConfig = {
+    interface: 'Popup',
+    token: 'PopupUserInfo',
+    path: 'l:resources@PopupUserInfo',
+    cachePolicy: 'Expires',
+    cacheExpires: 60_000,
+    controller: UserInfoController,
+    modal: false,
+    closeOnMaskClick: true,
+  };
+
+  public static readonly Spec = {
+    body: ['Bkg', 'node'],
     btnClose: ['BtnClose', 'component', Button],
+    btnSettings: ['BtnSettings', 'component', Button],
+    title: ['Title', 'component', Label],
   } as const satisfies GuiBindingMap;
 
-  onViewDidAppear(): void {
-    super.onViewDidAppear();
+  onViewWillAppear(): void {
+    super.onViewWillAppear();
     this.refs.btnClose.node.on(Button.EventType.CLICK, this.close, this);
+    this.refs.btnSettings.node.on(Button.EventType.CLICK, this.openSettings, this);
   }
 
-  onViewDidDisappear(): void {
-    super.onViewDidDisappear();
+  onViewWillDisappear(): void {
+    super.onViewWillDisappear();
     this.refs.btnClose.node.off(Button.EventType.CLICK, this.close, this);
+    this.refs.btnSettings.node.off(Button.EventType.CLICK, this.openSettings, this);
+  }
+
+  private openSettings(): void {
+    aaron.gui.open(SettingsController.Config);
   }
 }

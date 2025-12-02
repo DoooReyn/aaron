@@ -18,8 +18,8 @@ class ReferTableContainer {
  */
 class InternalReferTable extends ReferBase<ReferTableContainer, BufferAsset> {
   protected apply(): void {
-    const data = (this.container.data = this._asset.buffer());
-    aaron.tableQuery.parse(this._asset.name, new Uint8Array(data));
+    const data = (this.container.data = this.$asset.buffer());
+    aaron.tableQuery.parse(this.$asset.name, new Uint8Array(data));
   }
   protected discard(): void {
     this.container.data = null;

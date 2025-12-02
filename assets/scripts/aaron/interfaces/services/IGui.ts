@@ -78,8 +78,15 @@ export interface GuiConfig {
   path: string;
   /** 视图控制脚本构造器 */
   controller: Constructor<IGuiController<GuiBindingMap>>;
-  /** 视图缓存过期时间 */
-  cacheExpires: number;
+  /**
+   * 缓存策略
+   * - Persistence: 持久化缓存，视图关闭后不会销毁资源。
+   * - Expires: 过期缓存，视图关闭后会保留一段时间的缓存。
+   * - LRU: 最近最少使用缓存，视图关闭后会保留最近使用的缓存。
+   */
+  cachePolicy: 'Persistence' | 'Expires' | 'LRU';
+  /** 视图缓存过期时间(仅对 Expires 策略有效) */
+  cacheExpires?: number;
   /** 进入动画 */
   enterTweenLib?: [string, ITweenArgs?];
   /** 退出动画 */
@@ -298,6 +305,8 @@ export interface IGuiInstance {
   controller: IGuiController;
   /** 视图配置 */
   config: GuiConfig;
+  /** 关闭时间 */
+  closeAt?: number;
 }
 
 /** UIRoot 及各层级节点 */
@@ -472,6 +481,8 @@ export interface IGui extends IService {
   readonly guide: IGuiGuide;
   /** Top 层 */
   readonly top: IGuiTop;
+  /** LRU 实例保留数量，限制1~10之间，默认为3 */
+  lruReserves: number;
   /** 初始化或获取 UIRoot 及各层级节点 */
   initialize(): IGuiRootLayers;
   /** 注册单个视图配置 */
@@ -486,8 +497,80 @@ export interface IGui extends IService {
    * @returns GuiConfig
    */
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined;
+  /**
+   * 创建视图实例
+   *
+   * 根据配置创建视图的节点实例，包括：
+   * - 加载预制体资源
+   * - 实例化节点并添加到父节点
+   * - 增加预制体引用计数
+   * - 获取控制器组件
+   *
+   * @param parent 父节点
+   * @param config 视图配置
+   * @returns 视图实例对象，包含配置、节点和控制器，创建失败返回 undefined
+   */
+  createInstance(parent: Node, config: GuiConfig): Promise<IGuiInstance | undefined>;
+  /**
+   * 关闭视图实例
+   * @param instance 视图实例
+   */
+  closeInstance(instance: IGuiInstance): void;
+  /**
+   * 清空未使用实例
+   */
+  clearUnused(): void;
+  /**
+   * 预处理视图配置
+   *
+   * 验证视图配置的有效性，处理视图注册状态。
+   * 支持两种输入方式：
+   * - 字符串：直接使用视图 token
+   * - 配置对象：完整的 GuiConfig 配置
+   *
+   * @param config 视图配置（token 或 GuiConfig）
+   * @returns 处理后的配置，如果配置无效则返回 undefined
+   */
+  inspect(config: GuiConfig | string): GuiConfig | undefined;
+  /**
+   * 创建视图图层
+   *
+   * 为视图层节点设置 UI 变换组件和对齐配置：
+   * - 添加 UITransform 组件
+   * - 配置 Widget 组件实现全屏对齐
+   * - 启用窗口大小变化时自动调整
+   *
+   * @param layer 视图层节点
+   */
+  createLayer(layer: Node): void;
+  /**
+   * 播放视图进入动画
+   *
+   * 根据配置播放视图的进入过渡动画。
+   * 支持外部动画库集成，当前版本暂时注释。
+   *
+   * @param config 视图配置
+   * @param node 视图节点
+   */
+  playEnter(config: GuiConfig, node: Node): Promise<void>;
+  /**
+   * 播放视图退出动画
+   *
+   * 根据配置播放视图的退出过渡动画。
+   * 支持外部动画库集成，当前版本暂时注释。
+   *
+   * @param config 视图配置
+   * @param node 视图节点
+   */
+  playExit(config: GuiConfig, node: Node): Promise<void>;
   /** 返回（约等于关闭顶层视图） */
   back(): Promise<void>;
+  /**
+   * 打开视图
+   * @param config 视图配置
+   * @param params 视图入参
+   */
+  open(config: GuiConfig, params?: any): Promise<void>;
   /** 关闭指定视图 */
   close(token: string): Promise<void>;
   /** 聚焦顶层视图 */

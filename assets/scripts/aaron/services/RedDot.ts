@@ -65,7 +65,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       }
     }
 
-    this.resolve<ILogger>(SERVICES.LOGGER).wf('红点 {0} 注册成功', config.id);
+    this.resolve<ILogger>(SERVICES.LOGGER).df('红点 {0} 注册成功', config.id);
   }
 
   /**
@@ -436,7 +436,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       const storeItem = store.itemOf(key);
       if (storeItem && storeItem.data) {
         this.updateData(id, storeItem.data);
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('红点 {0} 持久化数据恢复成功', id);
+        this.resolve<ILogger>(SERVICES.LOGGER).df('红点 {0} 持久化数据恢复成功', id);
       }
     } catch (error) {
       this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 持久化数据加载失败: {1}', id, error);
@@ -467,6 +467,6 @@ export class RedDotContainer extends Service implements IRedDotContainer {
     this._redDots.clear();
     this._listeners.clear();
     this._batchQueue.length = 0;
-    this.resolve<ILogger>(SERVICES.LOGGER).wf('红点管理系统已清理');
+    this.resolve<ILogger>(SERVICES.LOGGER).d('红点管理系统已清理');
   }
 }

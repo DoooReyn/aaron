@@ -3,6 +3,7 @@ import { aaron } from '../../core';
 import { COLOR, EVENTS } from '../../macro';
 import { GuiStack } from './GuiStack';
 import { color } from '../../utils';
+import { GuiConfig } from '../../interfaces';
 
 export class GuiAlert extends GuiStack {
   private _mask: Node;
@@ -19,6 +20,10 @@ export class GuiAlert extends GuiStack {
     this._mask = mask;
   }
 
+  protected internalInpsect(config: GuiConfig) {
+    return config.interface === 'Alert';
+  }
+
   onViewDepthChanged(): void {
     if (this.depth === 0) {
       this._mask.active = false;
@@ -30,6 +35,7 @@ export class GuiAlert extends GuiStack {
       this._mask.uiGraphics.clear();
       this._mask.uiGraphics.fillColor = color.from(COLOR.BLACK_25);
       this._mask.uiGraphics.fillRect(-width / 2 - 10, -height / 2 - 10, width + 20, height + 20);
+      this._mask.setSiblingIndex(this.depth - 1);
     }
 
     // 同步告知弹窗层

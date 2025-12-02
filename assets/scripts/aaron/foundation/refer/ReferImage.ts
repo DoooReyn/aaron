@@ -10,7 +10,7 @@ export class ReferImage extends ReferBase<Sprite, SpriteFrame> {
   }
 
   protected apply(): void {
-    this.container.spriteFrame = this._asset;
+    this.container.spriteFrame = this.$asset;
   }
 
   protected discard(): void {

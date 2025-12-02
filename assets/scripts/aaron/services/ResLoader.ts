@@ -91,7 +91,7 @@ export class ResLoader extends Service implements IResLoader {
 
   async preload(
     items: PreloadItem[],
-    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void
+    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void,
   ): Promise<void> {
     const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     const total = items.length;
@@ -118,7 +118,7 @@ export class ResLoader extends Service implements IResLoader {
   }
 
   async load<T extends Asset>(type: Constructor<T>, options: ILoadOptions): Promise<T | null> {
-    const { path, cacheExpires = PRESET.AUTO_RELEASE_MS } = options;
+    const { path, cacheExpires = PRESET.ASSET_EXPIRES_MS } = options;
     const [source, key, raw] = this.parsePath(path);
     if (source == CacheSource.Unknown) {
       this.resolve<ILogger>(SERVICES.LOGGER).wf('⚠️ 资源加载器: 跳过无效路径 {0}', path);
@@ -230,7 +230,7 @@ export class ResLoader extends Service implements IResLoader {
 
   async loadMany(
     items: LoadItem[],
-    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void
+    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void,
   ): Promise<void> {
     const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     const total = items.length;
@@ -265,7 +265,7 @@ export class ResLoader extends Service implements IResLoader {
   loadSequence(
     tasks: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
-    onComplete?: (finished: number, total: number) => void | Promise<void>
+    onComplete?: (finished: number, total: number) => void | Promise<void>,
   ): () => void {
     const total = tasks.length;
     let index = 0;
@@ -320,7 +320,7 @@ export class ResLoader extends Service implements IResLoader {
     items: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
     onComplete?: (finished: number, total: number) => void,
-    concurrency: number = 0
+    concurrency: number = 0,
   ) {
     let finished = 0;
     let total = items.length;
@@ -346,7 +346,7 @@ export class ResLoader extends Service implements IResLoader {
             if (!asset) {
               this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
             }
-          })
+          }),
       );
       tasks.forEach((task) => task.load());
 
@@ -376,7 +376,7 @@ export class ResLoader extends Service implements IResLoader {
             if (!asset) {
               this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
             }
-          })
+          }),
       );
 
       const queue = list.split(tasks, concurrency);

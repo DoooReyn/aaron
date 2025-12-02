@@ -3,9 +3,13 @@ import { GuiStack } from './GuiStack';
 import { color } from '../../utils';
 import { COLOR, EVENTS } from '../../macro';
 import { aaron } from '../../core';
-import { IGuiPopup } from '../../interfaces';
+import { GuiConfig, IGuiPopup } from '../../interfaces';
 
+/**
+ * Popup 弹窗层
+ */
 export class GuiPopup extends GuiStack implements IGuiPopup {
+  /** 遮罩 */
   private _mask: Node;
 
   constructor(name: string) {
@@ -18,6 +22,10 @@ export class GuiPopup extends GuiStack implements IGuiPopup {
     mask.active = false;
     this.addChild(mask);
     this._mask = mask;
+  }
+
+  protected internalInpsect(config: GuiConfig) {
+    return config.interface === 'Popup';
   }
 
   onViewDepthChanged(): void {
@@ -34,6 +42,7 @@ export class GuiPopup extends GuiStack implements IGuiPopup {
       this._mask.uiGraphics.clear();
       this._mask.uiGraphics.fillColor = color.from(COLOR.BLACK_25);
       this._mask.uiGraphics.fillRect(-width / 2 - 10, -height / 2 - 10, width + 20, height + 20);
+      this._mask.setSiblingIndex(this.depth - 1);
     }
   }
 

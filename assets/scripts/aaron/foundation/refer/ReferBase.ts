@@ -14,10 +14,10 @@ export interface ReferContainer {
  */
 export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
   /** 资源 */
-  protected _asset: T;
+  protected $asset: T;
 
   /** 上次使用的资源路径 */
-  protected _url: string;
+  protected $url: string;
 
   /**
    * 构造
@@ -35,7 +35,7 @@ export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
 
   /** 资源是否有效 */
   get isAssetValid(): boolean {
-    return this._asset && this._asset.isValid;
+    return this.$asset && this.$asset.isValid;
   }
 
   /** 容器、资源是否都有效 */
@@ -61,8 +61,8 @@ export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
       }
     } else {
       // 如果资源有效，保存资源信息
-      this._url = preferred.path;
-      this._asset = asset;
+      this.$url = preferred.path;
+      this.$asset = asset;
     }
 
     return Promise.resolve();
@@ -81,7 +81,7 @@ export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
    */
   async load(preffered: ILoadOptions, fallback?: ILoadOptions): Promise<void> {
     if (this.isValid) {
-      if (this._url == preffered.path) return;
+      if (this.$url == preffered.path) return;
       this.unload();
     }
 
@@ -97,8 +97,8 @@ export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
   unload() {
     this.discard();
     if (this.isAssetValid) {
-      aaron.resCache.decRef(this._url);
-      this._asset = null;
+      aaron.resCache.decRef(this.$url);
+      this.$asset = null;
     }
   }
 }

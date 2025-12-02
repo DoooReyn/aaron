@@ -1,19 +1,22 @@
-import { Node, Component, _decorator } from 'cc';
+import { Node, Component, EventTouch, _decorator } from 'cc';
 import { GuiBindingMap, GuiBindingRefs, GuiBindingSpec, GuiBindingType, IGuiController } from '../../interfaces';
 import { aaron } from '../../core';
 import { Atom } from '../../atom';
+import { be } from '../../utils';
 
 const { ccclass } = _decorator;
 
 /**
  * 视图控制器
+ * @note 请配置静态属性 Config 方便自动注册视图
+ * @note 请配置静态属性 Spec 方便自动解析视图绑定的节点或组件
  */
 @ccclass('GuiController')
 export class GuiController<M extends GuiBindingMap = {}> extends Atom implements IGuiController<M> {
   /** 视图标识 */
   private _token: string;
   /** 输入参数 */
-  protected params: any;
+  protected $params: any;
 
   /** 视图引用字典（根据绑定配置自动生成） */
   refs!: GuiBindingRefs<M>;
@@ -135,23 +138,34 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
     return current;
   }
 
+  protected onBodyClicked(event: EventTouch): void {
+    // 处理点击事件
+  }
+
   get token() {
     return this._token;
   }
 
   onViewCreated(token: string): void {
     this._token = token;
-    const spec = (this.constructor as unknown as { UiSpec: GuiBindingMap }).UiSpec ?? {};
+    const spec = (this.constructor as unknown as { Spec: GuiBindingMap }).Spec ?? {};
     this.refs = this.bindView(this.node, spec) as GuiBindingRefs<M>;
   }
 
   onViewWillAppear(params?: any): void {
-    this.params = params;
+    this.$params = params;
+    if (be.isCCNode(this.refs.body)) {
+      (<Node>this.refs.body).on(Node.EventType.TOUCH_END, this.onBodyClicked, this);
+    }
   }
 
   onViewDidAppear(): void {}
 
-  onViewWillDisappear(): void {}
+  onViewWillDisappear(): void {
+    if (be.isCCNode(this.refs.body)) {
+      (<Node>this.refs.body).off(Node.EventType.TOUCH_END, this.onBodyClicked, this);
+    }
+  }
 
   onViewDidDisappear(): void {}
 

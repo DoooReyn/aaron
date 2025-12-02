@@ -1,9 +1,8 @@
 import { EDITOR, DEV, BUILD } from 'cc/env';
 import * as fk from '../aaron';
 import { TableRole, TableDialogue, ITblDialogue, ITblRole } from './data/table';
-import { BufferAsset } from 'cc';
-import { ReferTable } from '../aaron';
 import { ResPath } from './data/ResPath';
+import { UserInfoController } from './controller/UserInfoController';
 
 /** 当前环境 */
 const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
@@ -111,8 +110,7 @@ async function main() {
   );
 
   // 弹窗
-  fk.aaron.gui.register(ResPath.View.Popup.UserInfo);
-  fk.aaron.gui.popup.open(ResPath.View.Popup.UserInfo, { input: '我是一只鱼' });
+  fk.aaron.gui.open(UserInfoController.Config, { input: '我是一只鱼' });
 }
 
 /**
