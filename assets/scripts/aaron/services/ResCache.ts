@@ -128,7 +128,7 @@ export class ResCache extends Service implements IResCache {
     if (!entry) return 0;
 
     entry.refCount++;
-    entry.asset.addRef();
+    // entry.asset.addRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
     entry.expiresAt = entry.expires > 0 ? time.now() + entry.expires : 0;
     this.resolve<ILogger>(SERVICES.LOGGER).df('➕ 缓存: 增加引用 {0} 计数:{1}', key, entry.refCount);
 
@@ -147,7 +147,7 @@ export class ResCache extends Service implements IResCache {
     if (entry.refCount <= 0) return entry.refCount;
 
     entry.refCount = Math.max(0, entry.refCount - 1);
-    entry.asset.decRef();
+    // entry.asset.decRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
     this.resolve<ILogger>(SERVICES.LOGGER).df('➖ 缓存: 减少引用 {0} 计数:{1}', key, entry.refCount);
 
     // 自动释放
@@ -172,6 +172,7 @@ export class ResCache extends Service implements IResCache {
       // 清理无效资源
       if (!entry.asset.isValid) {
         this._container.delete(key);
+        deleted.push(key);
         count++;
         continue;
       }
@@ -188,7 +189,7 @@ export class ResCache extends Service implements IResCache {
     }
 
     if (count > 0) {
-      this.resolve<ILogger>(SERVICES.LOGGER).d(`🗑️ 缓存: 清理过期资源 ${count} 个`, deleted);
+      this.resolve<ILogger>(SERVICES.LOGGER).d(`🗑️ 缓存: 清理过期资源 ${count} 个`, deleted.join());
     }
 
     return count;

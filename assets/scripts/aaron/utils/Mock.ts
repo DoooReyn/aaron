@@ -6,7 +6,7 @@ import { Key } from '../types';
  * @param key 键
  * @param val 值
  */
-export function InjectMember(key: Key, val: any) {
+function InjectMember(key: Key, val: any) {
   return function (target: any) {
     target.prototype[key] = val;
     return target;
@@ -19,15 +19,15 @@ export function InjectMember(key: Key, val: any) {
  * @param key 键
  * @returns 原型成员
  */
-export function MemberOf<V>(target: any, key: Key) {
+function MemberOf<V>(target: any, key: Key) {
   return target.prototype[key] as V;
 }
 
-/** 
+/**
  * 记录方法执行耗时
  * @param tag 标识
  */
-export function TimeConsuming(tag: string) {
+function TimeConsuming(tag: string) {
   // 返回实际的方法装饰器
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     if (DEV) {
@@ -56,3 +56,5 @@ export function TimeConsuming(tag: string) {
     return descriptor;
   };
 }
+
+export { InjectMember, MemberOf, TimeConsuming };

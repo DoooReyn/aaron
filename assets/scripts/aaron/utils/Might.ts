@@ -1,12 +1,12 @@
 /** 异常捕获返回值类型 */
-export type ReturnType<T> = Readonly<[T?, Error?]>;
+type ReturnType<T> = Readonly<[T?, Error?]>;
 
 /**
  * 执行异步方法并捕获异常
  * @param asyncFn 异步方法
  * @returns
  */
-export async function runAsync<T = any>(asyncFn: Promise<T>): Promise<ReturnType<T>> {
+async function runAsync<T = any>(asyncFn: Promise<T>): Promise<ReturnType<T>> {
   return Promise.resolve(asyncFn)
     .then((result): Readonly<[T]> => [result])
     .catch((err): Readonly<[undefined, Error]> => {
@@ -22,7 +22,7 @@ export async function runAsync<T = any>(asyncFn: Promise<T>): Promise<ReturnType
  * 执行同步方法并捕获异常
  * @param syncFn 同步方法
  */
-export function runSync<T = any>(syncFn: (...args: any[]) => T, context?: any, ...args: any[]): ReturnType<T> {
+function runSync<T = any>(syncFn: (...args: any[]) => T, context?: any, ...args: any[]): ReturnType<T> {
   try {
     if (context !== undefined) {
       const result = syncFn.apply(context, args);
@@ -36,3 +36,5 @@ export function runSync<T = any>(syncFn: (...args: any[]) => T, context?: any, .
     return [undefined, err];
   }
 }
+
+export { runAsync, runSync, type ReturnType };

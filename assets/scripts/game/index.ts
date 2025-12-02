@@ -2,6 +2,8 @@ import { EDITOR, DEV, BUILD } from 'cc/env';
 import * as fk from '../aaron';
 import { TableRole, TableDialogue, ITblDialogue, ITblRole } from './data/table';
 import { BufferAsset } from 'cc';
+import { ReferTable } from '../aaron';
+import { ResPath } from './data/ResPath';
 
 /** 当前环境 */
 const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
@@ -40,35 +42,22 @@ async function main() {
   // 挂载全局变量 fk
   fk.aaron.globalAdapter.set('fk', fk);
 
-  // 加载表格
-  console.time('🕒 加载表格');
-  await fk.aaron.resLoader.loadMany([
-    [BufferAsset, { path: 'l:resources@TableDialogue', cacheExpires: 10000 }],
-    [BufferAsset, { path: 'l:resources@TableRole', cacheExpires: 10000 }],
-  ]);
-  console.timeEnd('🕒 加载表格');
-
   // 解析表格
   console.time('🕒 解析表格');
-  const txtDialogue = fk.aaron.resCache.get<BufferAsset>('l:resources@TableDialogue');
-  const txtRole = fk.aaron.resCache.get<BufferAsset>('l:resources@TableRole');
   fk.aaron.tableQuery.registerBatch(TableDialogue, TableRole);
-  await Promise.all([
-    fk.aaron.tableQuery.parse(txtDialogue.name, new Uint8Array(txtDialogue.buffer())),
-    fk.aaron.tableQuery.parse(txtRole.name, new Uint8Array(txtRole.buffer())),
-  ]);
+  await Promise.all([fk.ReferTable.Load(ResPath.Tbl.Dialogue), fk.ReferTable.Load(ResPath.Tbl.Role)]);
   console.timeEnd('🕒 解析表格');
 
-  // 打印表格
-  console.time('🕒 打印表格');
+  // 查询表格
+  console.time('🕒 查询表格');
   fk.aaron.logger.d('🔍 查询表格 Dialogue id=30003:\n  ', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
   fk.aaron.logger.d(
     '🔍 查询表格 Dialogue id=30005 的 text 字段:\n  ',
-    fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text')
+    fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text'),
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role id=1005 的字段 name, gender:\n  ',
-    fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender'])
+    fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender']),
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role 使用字段过滤 gender=2, direction5=true:\n  ',
@@ -77,7 +66,7 @@ async function main() {
       matchType: 'every',
       amountType: 'many',
       cache: true,
-    })
+    }),
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role 使用过滤器 filter:\n  ',
@@ -86,12 +75,12 @@ async function main() {
         role.gender === 1 && role.direction5 === false && role.damage > 30 && role.param.name == '攻击',
       matchType: 'every',
       amountType: 'many',
-    })
+    }),
   );
-  console.timeEnd('🕒 打印表格');
+  console.timeEnd('🕒 查询表格');
 
   // 播放背景音乐
-  fk.aaron.audioPlayer.music.play('l:resources@Msc1', {
+  fk.aaron.audioPlayer.music.play(ResPath.Audio.Msc1, {
     volume: 0.5,
     onStart: (id: number, url: string) => {
       fk.aaron.logger.df('✅ 背景音乐播放开始，ID: {0}, URL: {1}', id, url);
@@ -113,12 +102,12 @@ async function main() {
       lastClickTime = now;
 
       // 播放点击音效
-      fk.aaron.audioPlayer.sound.play('l:resources@SfxClick');
+      fk.aaron.audioPlayer.sound.play(ResPath.Audio.SfxClick);
 
       // 关闭音效
       fk.aaron.audioPlayer.sound.muted = true;
     },
-    this
+    this,
   );
 }
 

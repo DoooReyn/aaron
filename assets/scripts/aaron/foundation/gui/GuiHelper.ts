@@ -82,7 +82,6 @@ export class GuiHelper {
    * 为视图层节点设置 UI 变换组件和对齐配置：
    * - 添加 UITransform 组件
    * - 配置 Widget 组件实现全屏对齐
-   * - 设置四边对齐边距为 -4（避免边缘裁剪）
    * - 启用窗口大小变化时自动调整
    *
    * @param layer 视图层节点
@@ -93,10 +92,9 @@ export class GuiHelper {
 
     // 配置对齐组件
     const wid = layer.acquire(Widget);
-    wid.top = wid.bottom = wid.left = wid.right = -4; // 设置边距
+    wid.top = wid.bottom = wid.left = wid.right = 0; // 设置边距
     wid.isAlignTop = wid.isAlignBottom = wid.isAlignLeft = wid.isAlignRight = true; // 启用四边对齐
     wid.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE; // 窗口大小变化时重新对齐
-    wid.target = aaron.appLauncher.root; // 设置对齐目标
     wid.updateAlignment(); // 立即更新对齐状态
   }
 

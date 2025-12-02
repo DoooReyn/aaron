@@ -1,5 +1,5 @@
-import { Sprite, SpriteFrame } from "cc";
-import { ReferBase } from "./ReferBase";
+import { Sprite, SpriteFrame } from 'cc';
+import { ReferBase } from './ReferBase';
 
 /**
  * 图片资源引用

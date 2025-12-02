@@ -1,13 +1,18 @@
-import { Asset, Component } from 'cc';
+import { Asset } from 'cc';
 import { Constructor } from '../../types';
 import { aaron } from '../../core';
 import { be } from '../../utils';
+import { ILoadOptions } from '../../interfaces';
+
+export interface ReferContainer {
+  get isValid(): boolean;
+}
 
 /**
  * 资源引用策略
  * @description 统一资源加载、释放等操作
  */
-export abstract class ReferBase<K extends Component, T extends Asset> {
+export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
   /** 资源 */
   protected _asset: T;
 
@@ -18,7 +23,10 @@ export abstract class ReferBase<K extends Component, T extends Asset> {
    * 构造
    * @param container 容器
    */
-  constructor(public readonly container: K, public readonly cls: Constructor<T>) {}
+  constructor(
+    public readonly container: K,
+    public readonly cls: Constructor<T>,
+  ) {}
 
   /** 容器是否有效 */
   protected get isContainerValid(): boolean {
@@ -37,14 +45,14 @@ export abstract class ReferBase<K extends Component, T extends Asset> {
 
   /**
    * 加载资源
-   * @param url 资源路径
-   * @param fallback 保底资源
+   * @param preferred 首选资源加载选项
+   * @param fallback 保底资源加载选项
    */
-  private async internalLoad(url: string, fallback?: string) {
+  private async internalLoad(preferred: ILoadOptions, fallback?: ILoadOptions) {
     let asset: T | null = null;
 
     // 选择加载策略
-    asset = await aaron.resLoader.load<T>(this.cls, { path: url });
+    asset = await aaron.resLoader.load<T>(this.cls, preferred);
 
     if (be.isEmpty(asset)) {
       // 如果资源无效，尝试加载保底资源
@@ -53,7 +61,7 @@ export abstract class ReferBase<K extends Component, T extends Asset> {
       }
     } else {
       // 如果资源有效，保存资源信息
-      this._url = url;
+      this._url = preferred.path;
       this._asset = asset;
     }
 
@@ -68,18 +76,18 @@ export abstract class ReferBase<K extends Component, T extends Asset> {
 
   /**
    * 使用资源
-   * @param url 资源路径
-   * @param fallback 降级资源路径
+   * @param preffered 首选资源
+   * @param fallback 降级资源
    */
-  load(url: string, fallback?: string) {
+  async load(preffered: ILoadOptions, fallback?: ILoadOptions): Promise<void> {
     if (this.isValid) {
-      if (this._url == url) return;
+      if (this._url == preffered.path) return;
       this.unload();
     }
 
-    this.internalLoad(url, fallback).then(() => {
+    return this.internalLoad(preffered, fallback).then(() => {
       if (this.isValid) {
-        aaron.resCache.addRef(url);
+        aaron.resCache.addRef(preffered.path);
         this.apply();
       }
     });

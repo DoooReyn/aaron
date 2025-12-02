@@ -1,5 +1,5 @@
 import { Node } from 'cc';
-import { IMusicPlayer, IAudioEntry, IMusicOptions } from '../../interfaces';
+import { IMusicPlayer, IAudioEntry, IMusicOptions, ILoadOptions } from '../../interfaces';
 import { PRESET } from '../../macro';
 import { aaron } from '../../core';
 
@@ -50,10 +50,10 @@ export class MusicPlayer extends Node implements IMusicPlayer {
     this.muted ? this._entry?.pause() : this._entry?.resume();
   }
 
-  play(url: string, options?: IMusicOptions): number {
+  play(arg: ILoadOptions, options?: IMusicOptions): number {
     // 音乐同时只能有一份实例，因此如果正在播放相同的音乐，直接返回当前ID
-    if (this._entry && this._entry.url === url) {
-      aaron.logger.if('🎵 音乐正在播放中 {0}', url);
+    if (this._entry && this._entry.url === arg.path) {
+      aaron.logger.if('🎵 音乐正在播放中 {0}', arg.path);
       return this._current;
     }
 
@@ -65,7 +65,7 @@ export class MusicPlayer extends Node implements IMusicPlayer {
     this.addChild(entry);
 
     // 播放音乐
-    const id = entry.playMusic(url, this._masterVolume * this._volume, options);
+    const id = entry.playMusic(arg, this._masterVolume * this._volume, options);
     if (id === -1) {
       entry.stop();
     } else {

@@ -2,7 +2,7 @@ import { misc, sys, Texture2D } from 'cc';
 import { runSync } from './Might';
 
 /** 内置上下文 */
-export const CTX: object = {};
+const CTX: object = {};
 
 /** 纹理过滤模式 */
 const { LINEAR, NEAREST } = Texture2D.Filter;
@@ -99,4 +99,4 @@ function setAntiAliasing(tex: Texture2D, enabled: boolean): void {
   tex && tex.setFilters(filter, filter);
 }
 
-export { idle, debounce, throttle, ban, nextTick, setAntiAliasing };
+export { CTX, idle, debounce, throttle, ban, nextTick, setAntiAliasing };

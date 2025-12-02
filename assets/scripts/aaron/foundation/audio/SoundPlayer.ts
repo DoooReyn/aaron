@@ -1,5 +1,5 @@
 import { Node } from 'cc';
-import { ISoundPlayer, IAudioEntry, ISoundOptions } from '../../interfaces';
+import { ISoundPlayer, IAudioEntry, ISoundOptions, ILoadOptions } from '../../interfaces';
 import { PRESET } from '../../macro';
 import { aaron } from '../../core';
 import { digit } from '../../utils';
@@ -35,7 +35,7 @@ export class SoundPlayer extends Node implements ISoundPlayer {
     }
   }
 
-  play(url: string, options: ISoundOptions = { volume: 1 }): number {
+  play(arg: ILoadOptions, options: ISoundOptions = { volume: 1 }): number {
     // 补充基础音效参数
     options.volume = digit.clamp01(options.volume);
 
@@ -51,11 +51,11 @@ export class SoundPlayer extends Node implements ISoundPlayer {
       if (index > -1) {
         self._entries.splice(index, 1);
       }
-      onEnd?.(id, url);
+      onEnd?.(id, arg.path);
     };
 
     // 播放音效
-    const id = entry.playSound(url, this._masterVolume * entry.selfVolume, options);
+    const id = entry.playSound(arg, this._masterVolume * entry.selfVolume, options);
     if (id === -1) {
       entry.stop();
     } else {

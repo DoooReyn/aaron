@@ -27,6 +27,7 @@ import {
   GuiMarquee,
   GuiGuide,
   GuiTop,
+  GuiHelper,
 } from '../foundation';
 import { SERVICES } from '../macro';
 import { be } from '../utils';
@@ -60,7 +61,7 @@ export class Gui extends Service implements IGui {
     this.guide = new GuiGuide('guide');
     this.top = new GuiTop('top');
     const gui = new Node('gui');
-    gui.acquire(UITransform).setContentSize(root.size);
+    GuiHelper.createLayer(gui);
     gui.addChild(this.screen);
     gui.addChild(this.page);
     gui.addChild(this.popup);

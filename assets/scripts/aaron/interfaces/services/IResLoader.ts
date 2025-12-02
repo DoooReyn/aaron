@@ -23,7 +23,6 @@ import {
 import { Constructor, IMemoryImageSource } from '../../types';
 import { IService } from '../IService';
 
-
 /**
  * 预加载资源项(仅本地资源)
  * - [资源类型, 资源路径]
@@ -467,6 +466,7 @@ export interface IResLoader extends IService {
 
   /**
    * 通用资源加载方法
+   * @note 仅加载资源,引用计数需要用户在加载完成后自行处理 `ResCache.addRef`
    * @param type 资源类型构造函数
    * @param options 加载选项
    * @returns 资源实例
@@ -614,7 +614,7 @@ export interface IResLoader extends IService {
    */
   preload(
     items: PreloadItem[],
-    onProgress?: (finished: number, total: number, path: string, loaded: boolean) => void
+    onProgress?: (finished: number, total: number, path: string, loaded: boolean) => void,
   ): Promise<void>;
 
   /**
@@ -624,7 +624,7 @@ export interface IResLoader extends IService {
    */
   loadMany(
     items: LoadItem[],
-    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void
+    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void,
   ): Promise<void>;
 
   /**
@@ -644,7 +644,7 @@ export interface IResLoader extends IService {
   loadSequence(
     tasks: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
-    onComplete?: (finished: number, total: number) => void | Promise<void>
+    onComplete?: (finished: number, total: number) => void | Promise<void>,
   ): () => void;
 
   /**
@@ -659,7 +659,7 @@ export interface IResLoader extends IService {
     items: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
     onComplete?: (finished: number, total: number) => void | Promise<void>,
-    concurrency?: number
+    concurrency?: number,
   ): () => void;
 }
 

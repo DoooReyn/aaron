@@ -1,7 +1,7 @@
-import { Node } from 'cc';
 import { IService } from '../IService';
 import { AudioSource } from 'cc';
 import { IRecyclableNode } from './pool';
+import { ILoadOptions } from './IResLoader';
 
 /**
  * 音频播放服务接口
@@ -71,23 +71,23 @@ export interface IAudioEntry extends IRecyclableNode {
   source: AudioSource;
   /** 音频资源路径 */
   url: string;
-  
+
   /**
    * 播放音乐
-   * @param url 音乐资源路径
+   * @param arg 音乐资源加载选项
    * @param volume 音量
    * @param options 音乐参数
    * @returns 音乐ID
    */
-  playMusic(url: string, volume: number, options?: IMusicOptions): number;
+  playMusic(arg: ILoadOptions, volume: number, options?: IMusicOptions): number;
   /**
    * 播放音效
-   * @param url 音效资源路径
+   * @param arg 音效资源加载选项
    * @param volume 音量
    * @param options 音效参数
    * @returns 音效ID
    */
-  playSound(url: string, volume: number, options?: ISoundOptions): number;
+  playSound(arg: ILoadOptions, volume: number, options?: ISoundOptions): number;
   /**
    * 设置音量
    * @param value 音量值
@@ -120,11 +120,11 @@ export interface IMusicPlayer {
   muted: boolean;
   /**
    * 播放音乐
-   * @param url 音乐资源路径
+   * @param arg 音乐资源路径
    * @param options 音乐参数
    * @returns 音乐ID
    */
-  play(url: string, options?: IMusicOptions): number;
+  play(arg: ILoadOptions, options?: IMusicOptions): number;
   /** 暂停当前播放的音乐 */
   pause(): void;
   /** 恢复当前暂停的音乐 */
@@ -143,11 +143,11 @@ export interface ISoundPlayer {
   muted: boolean;
   /**
    * 播放音效
-   * @param url 音效资源路径
+   * @param arg 音效资源加载选项
    * @param options 音效参数
    * @returns 音效ID
    */
-  play(url: string, options?: ISoundOptions): number;
+  play(arg: ILoadOptions, options?: ISoundOptions): number;
   /**
    * 暂停音效
    * @param id 音效ID，不传则暂停所有音效

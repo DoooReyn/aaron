@@ -1,5 +1,5 @@
-import { AudioSource, Node, tween, macro } from 'cc';
-import { IAudioEntry, IMusicOptions, ISoundOptions } from '../../interfaces';
+import { AudioClip, AudioSource, Node, tween, macro } from 'cc';
+import { IAudioEntry, ILoadOptions, IMusicOptions, ISoundOptions } from '../../interfaces';
 import { aaron } from '../../core';
 
 /**
@@ -52,21 +52,21 @@ export class AudioEntry extends Node implements IAudioEntry {
     this._selfVolume = value;
   }
 
-  playMusic(url: string, volume: number, options: IMusicOptions = { volume: 1 }): number {
+  playMusic(arg: ILoadOptions, volume: number, options: IMusicOptions = { volume: 1 }): number {
     // 获取音频ID
     const self = this;
     const id = aaron.ascendingId.next('audio-entry');
     this.aid = id;
 
     // 加载音频剪辑
-    aaron.resLoader.loadAudio(url).then((clip) => {
+    aaron.resLoader.load(AudioClip, arg).then((clip) => {
       if (!clip) {
         self.stop();
         return;
       }
 
       // 增加资源引用计数
-      aaron.resCache.addRef(url);
+      aaron.resCache.addRef(arg.path);
 
       // 播放音乐
       const duration = clip.getDuration();
@@ -82,7 +82,7 @@ export class AudioEntry extends Node implements IAudioEntry {
       // 一次循环完成
       function onEnd() {
         self.repeats++;
-        options?.onRepeat?.(id, url, self.repeats);
+        options?.onRepeat?.(id, arg.path, self.repeats);
         play();
       }
 
@@ -92,25 +92,25 @@ export class AudioEntry extends Node implements IAudioEntry {
       self.on(AudioSource.EventType.ENDED, onEnd, self);
 
       // 同步音频源，准备播放
-      self.url = url;
+      self.url = arg.path;
       self.source.clip = clip;
       self.source.volume = volume;
       self.source.loop = false;
       play();
-      options?.onStart?.(id, url);
+      options?.onStart?.(id, arg.path);
     });
 
     return id;
   }
 
-  playSound(url: string, volume: number, options?: ISoundOptions): number {
+  playSound(arg: ILoadOptions, volume: number, options?: ISoundOptions): number {
     // 获取音频ID
     const self = this;
     const id = aaron.ascendingId.next('audio-entry');
     this.aid = id;
 
     // 播放音效
-    aaron.resLoader.loadAudio(url).then((clip) => {
+    aaron.resLoader.load(AudioClip, arg).then((clip) => {
       if (!clip) {
         self.aid = -1;
         self.stop();
@@ -118,7 +118,7 @@ export class AudioEntry extends Node implements IAudioEntry {
       }
 
       // 增加资源引用计数
-      aaron.resCache.addRef(url);
+      aaron.resCache.addRef(arg.path);
 
       // 初始化音效选项
       const duration = clip.getDuration();
@@ -141,10 +141,10 @@ export class AudioEntry extends Node implements IAudioEntry {
       function onEnd() {
         self.repeats++;
         if (self.repeats <= self.repeatsMax) {
-          options?.onRepeat?.(id, url, self.repeats);
+          options?.onRepeat?.(id, arg.path, self.repeats);
           play();
         } else {
-          options?.onEnd?.(id, url);
+          options?.onEnd?.(id, arg.path);
           self.stop();
         }
       }
@@ -155,12 +155,12 @@ export class AudioEntry extends Node implements IAudioEntry {
       this.on(AudioSource.EventType.ENDED, onEnd, this);
 
       // 同步音频源，准备播放
-      this.url = url;
+      this.url = arg.path;
       this.source.clip = clip;
       this.source.volume = volume;
       this.source.loop = false;
       play();
-      options?.onStart?.(id, url);
+      options?.onStart?.(id, arg.path);
     });
 
     return id;
