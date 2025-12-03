@@ -1,10 +1,9 @@
-import { aaron } from '../../core';
 import { GuiConfig } from '../../interfaces';
 import { GuiStack } from './GuiStack';
 
 /**
- * Page 页面层
- * @description 二级页面（全屏，带返回按钮）
+ * Page
+ * @description 二级页面（一般为全屏带返回按钮的页面）
  */
 export class GuiPage extends GuiStack {
   protected internalInpsect(config: GuiConfig) {

@@ -6,7 +6,9 @@ import { aaron } from '../../core';
 import { GuiConfig, IGuiPopup } from '../../interfaces';
 
 /**
- * Popup 弹窗层
+ * Popup
+ * @description 普通弹窗层，非全屏，用于显示内容较少的页面或操作确认页面，比如：查看用户信息、确认删除好友等。
+ * @note 可以通过配置视图控制器的 Spec.body 和 Config.closeOnMaskClick，以达到点击主体外部关闭页面的目的。
  */
 export class GuiPopup extends GuiStack implements IGuiPopup {
   /** 遮罩 */

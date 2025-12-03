@@ -5,6 +5,11 @@ import { GuiStack } from './GuiStack';
 import { color, time } from '../../utils';
 import { GuiConfig } from '../../interfaces';
 
+/**
+ * Alert 警示弹窗层
+ * @description 通常用于重要消息的通知，必须用户确认才可以关闭，比如：更新通知、确认支付、网络掉线等。
+ * @note 切换一级、二级、普通弹窗都不会影响警示弹窗层。
+ */
 export class GuiAlert extends GuiStack {
   private _mask: Node;
 

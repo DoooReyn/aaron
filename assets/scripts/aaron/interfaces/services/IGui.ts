@@ -3,6 +3,7 @@ import { Constructor } from '../../types';
 import { IAtom } from '../IAtom';
 import { IService } from '../IService';
 import { ITweenArgs } from './ITweener';
+import { ITriggers } from '../ITrigger';
 
 /**
  * GUI 界面类型
@@ -420,11 +421,22 @@ export interface IGuiGuide extends Node {}
 
 /**
  * Top 层
- * @description Top 层是应用程序中用于显示顶部导航栏视图的层级。
+ * @description Top 层是应用程序中用于显示顶部视图的层级。
  * - Top 层同时只能包含一个 Top 视图实例。
  * - 返回对 Top 层的调用无效，因为它是非栈式的层级。
  */
-export interface IGuiTop extends Node {}
+export interface IGuiTop extends Node {
+  /** 是否接受触摸 */
+  touchAllowed: boolean;
+  /** 触摸开始事件 */
+  onStart: ITriggers;
+  /** 触摸移动事件 */
+  onMove: ITriggers;
+  /** 触摸结束事件 */
+  onEnd: ITriggers;
+  /** 触摸取消事件 */
+  onCancel: ITriggers;
+}
 
 /**
  * 视图服务接口

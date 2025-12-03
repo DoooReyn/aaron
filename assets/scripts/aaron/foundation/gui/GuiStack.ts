@@ -5,6 +5,7 @@ import { GuiConfig, IGuiInstance, IGuiStack } from '../../interfaces';
 
 /**
  * 拥栈层
+ * @description 拥有视图栈的层，通常用于管理多个视图的显示和隐藏。
  */
 export class GuiStack extends Node implements IGuiStack {
   /** 实例栈 */

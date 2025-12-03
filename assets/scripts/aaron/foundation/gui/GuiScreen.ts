@@ -3,8 +3,8 @@ import { GuiConfig, IGuiInstance, IGuiScreen } from '../../interfaces';
 import { aaron } from '../../core';
 
 /**
- * Screen 主页层
- * @description 一级界面
+ * Screen
+ * @description 一级界面，全屏，通常是常驻页面，比如：登录界面、游戏大厅等。
  */
 export class GuiScreen extends Node implements IGuiScreen {
   /** 当前视图实例 */
