@@ -183,7 +183,7 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
 
   onLaunch(): void {}
 
-  onRegEvent(): void {}
+  onRegisterEvent(): void {}
 
   onActivate(): void {}
 
@@ -191,7 +191,7 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
 
   onPostUpdate(dt: number): void {}
 
-  onUnRegEvent(): void {}
+  onUnregisterEvent(): void {}
 
   onDeactivate(): void {}
 

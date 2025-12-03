@@ -13,7 +13,7 @@ export interface IAtom extends Component {
   /** 生命周期：启动 */
   onLaunch(): void;
   /** 生命周期：注册事件 */
-  onRegEvent(): void;
+  onRegisterEvent(): void;
   /** 生命周期：激活 */
   onActivate(): void;
   /** 生命周期：更新 */
@@ -21,7 +21,7 @@ export interface IAtom extends Component {
   /** 生命周期：后置更新 */
   onPostUpdate(dt: number): void;
   /** 生命周期：注销事件 */
-  onUnRegEvent(): void;
+  onUnregisterEvent(): void;
   /** 生命周期：禁用 */
   onDeactivate(): void;
   /** 生命周期：前置终止 */

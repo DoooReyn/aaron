@@ -1,6 +1,6 @@
-import { Color, Enum, EventTouch, Node, Sprite, Tween, TTFFont, UITransform, Vec2, _decorator, tween } from 'cc';
-import { aaron } from '../core';
+import { Color, Enum, EventTouch, Node, Sprite, TTFFont, Tween, UITransform, Vec2, _decorator, tween } from 'cc';
 import { Atom } from './Atom';
+import { aaron } from '../core';
 import { Triggers } from '../foundation';
 import { COLOR } from '../macro';
 import { color, grapheme } from '../utils';
@@ -19,9 +19,9 @@ const { property, ccclass, menu } = _decorator;
 /**
  * 富文本组件（低 DC 版本）
  */
-@ccclass('RichText')
-@menu('Aaron/UI/RichText')
-export class RichText extends Atom {
+@ccclass('AaronRichText')
+@menu('Aaron/Gui/RichText')
+export class AaronRichText extends Atom {
   @property({ multiline: true, tooltip: '文本内容' })
   public text: string = '';
 
@@ -64,7 +64,7 @@ export class RichText extends Atom {
   /** 打字机动画进度 */
   private _typewriterProgress: { progress: number } = { progress: 0 };
 
-  protected onLaunch(): void {
+  onLaunch(): void {
     // 根据组件配置为当前图集标识设置等级
     aaron.richTextAtlas.configureAtlas(this.atlasKey, this.atlasLevel as unknown as RichTextAtlasLevel);
     aaron.richTextAtlas.addRef(this.atlasKey);
@@ -72,22 +72,22 @@ export class RichText extends Atom {
     this.updateView();
   }
 
-  protected onRegEvent(): void {
+  onRegisterEvent(): void {
     this.node.on(Node.EventType.TOUCH_END, this.onTouchEnded, this);
-    super.onRegEvent();
+    super.onRegisterEvent();
   }
 
-  protected onUnRegEvent(): void {
+  onUnregisterEvent(): void {
     this.node.off(Node.EventType.TOUCH_END, this.onTouchEnded, this);
-    super.onUnRegEvent();
+    super.onUnregisterEvent();
   }
 
-  protected onDeactivate(): void {
+  onDeactivate(): void {
     this.clearNodes();
     super.onDeactivate();
   }
 
-  protected onTerminate(): void {
+  onTerminate(): void {
     this.clearNodes();
     this.onLinkClick.clear();
     aaron.richTextAtlas.decRef(this.atlasKey);
@@ -167,7 +167,7 @@ export class RichText extends Atom {
               }
               last = range;
             },
-          }
+          },
         )
         .start();
     }
@@ -175,6 +175,9 @@ export class RichText extends Atom {
 
   /** 清理节点 */
   private clearNodes(): void {
+    // 停止所有打字机动画
+    Tween.stopAllByTarget(this._typewriterProgress);
+    // 清空节点
     for (const n of this._glyphNodes) {
       if (n && n.isValid) {
         n.destroy();

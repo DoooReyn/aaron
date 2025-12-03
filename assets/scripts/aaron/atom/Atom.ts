@@ -28,7 +28,7 @@ export class Atom extends Component implements IAtom {
   }
 
   protected onEnable(): void {
-    this.onRegEvent();
+    this.onRegisterEvent();
     this.onActivate();
   }
 
@@ -41,7 +41,7 @@ export class Atom extends Component implements IAtom {
   }
 
   protected onDisable(): void {
-    this.onUnRegEvent();
+    this.onUnregisterEvent();
     this.onDeactivate();
   }
 
@@ -61,7 +61,7 @@ export class Atom extends Component implements IAtom {
   onLaunch(): void {}
 
   /** 生命周期：注册事件 */
-  onRegEvent(): void {}
+  onRegisterEvent(): void {}
 
   /** 生命周期：激活 */
   onActivate(): void {}
@@ -73,7 +73,7 @@ export class Atom extends Component implements IAtom {
   onPostUpdate(dt: number): void {}
 
   /** 生命周期：注销事件 */
-  onUnRegEvent(): void {}
+  onUnregisterEvent(): void {}
 
   /** 生命周期：禁用 */
   onDeactivate(): void {}

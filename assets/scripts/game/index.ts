@@ -89,26 +89,6 @@ async function main() {
     },
   });
 
-  let lastClickTime = 0; // 记录上次点击时间
-  fk.aaron.eventBus.app.on(
-    fk.EVENTS.GUI.SCREEN_TAPPED,
-    () => {
-      // 防止快速点击，300ms 内最多只能触发一次
-      const now = fk.time.now();
-      if (now - lastClickTime < 300) {
-        return;
-      }
-      lastClickTime = now;
-
-      // 播放点击音效
-      fk.aaron.audioPlayer.sound.play(ResPath.Audio.SfxClick);
-
-      // 关闭音效
-      fk.aaron.audioPlayer.sound.muted = true;
-    },
-    this,
-  );
-
   // 弹窗
   fk.aaron.gui.open(UserInfoController.Config, { input: '我是一只鱼' });
 }

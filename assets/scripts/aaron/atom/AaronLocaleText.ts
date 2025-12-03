@@ -8,9 +8,9 @@ const { ccclass, property, menu } = _decorator;
 /**
  * 本地化文本组件
  */
-@ccclass('LocaleText')
-@menu('Aaron/UI/LocaleText')
-export class LocaleText extends Label {
+@ccclass('AaronLocaleText')
+@menu('Aaron/Gui/LocaleText')
+export class AaronLocaleText extends Label {
   /** 输入参数 */
   private _args: any[] = [];
 
