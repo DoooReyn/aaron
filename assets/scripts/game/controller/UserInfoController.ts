@@ -12,6 +12,8 @@ export class UserInfoController extends GuiController<typeof UserInfoController.
     path: 'l:resources@GuiUserInfo',
     cachePolicy: 'Expires',
     cacheExpires: 60_000,
+    enterTweenLib: ['blur-in'],
+    exitTweenLib: ['blur-out'],
     controller: UserInfoController,
     closeOnMaskClick: true,
   };

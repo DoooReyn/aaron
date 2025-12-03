@@ -29,6 +29,7 @@ import {
   ITableQuery,
   IGui,
   IAudioPlayer,
+  ITweener,
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -197,6 +198,11 @@ export class Aaron {
   /** 音频播放服务 */
   get audioPlayer() {
     return this.serviceOf<IAudioPlayer>(SERVICES.AUDIO_PLAYER);
+  }
+
+  /** 缓动动画服务 */
+  get tweener() {
+    return this.serviceOf<ITweener>(SERVICES.TWEENER);
   }
 }
 

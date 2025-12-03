@@ -11,6 +11,8 @@ export class SettingsController extends GuiController<typeof SettingsController.
     path: 'l:resources@GuiSettings',
     cachePolicy: 'Expires',
     cacheExpires: 60_000,
+    enterTweenLib: ['popup-in'],
+    exitTweenLib: ['popup-out'],
     controller: SettingsController,
     closeOnMaskClick: true,
   };

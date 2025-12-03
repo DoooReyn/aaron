@@ -20,7 +20,7 @@ export * from './Zlib';
 export * as md5 from './Md5';
 export * as might from './Might';
 export * as misc from './Misc';
-export * as mock from './Mock';
+export * from './Mock';
 export * as native from './Native';
 export * as random from './Random';
 export * as re from './RegExp';

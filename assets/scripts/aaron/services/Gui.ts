@@ -254,8 +254,7 @@ export class Gui extends Service implements IGui {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
       aaron.logger.df('📷 视图: {0} 播放进入动画 {1}', config.token, lib);
-      // TODO: 集成动画库后启用
-      // await aaron.tweenLib.play(node, lib, args ?? { duration: 0.3 });
+      await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
 
@@ -263,8 +262,7 @@ export class Gui extends Service implements IGui {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
       aaron.logger.df('📷 视图: {0} 播放退出动画 {1}', config.token, lib);
-      // TODO: 集成动画库后启用
-      // await aaron.tweenLib.play(node, lib, args ?? { duration: 0.3 });
+      await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
 

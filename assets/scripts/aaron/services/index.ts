@@ -27,3 +27,4 @@ export * from './Sensitives';
 export * from './StoreContainer';
 export * from './TableQuery';
 export * from './Timer';
+export * from './Tweener';

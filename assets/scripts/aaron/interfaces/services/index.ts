@@ -19,3 +19,4 @@ export * from './ISensitives';
 export * from './IStoreContainer';
 export * from './ITableQuery';
 export * from './ITimer';
+export * from './ITweener';

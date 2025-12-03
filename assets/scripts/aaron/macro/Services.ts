@@ -25,4 +25,5 @@ export const SERVICES = {
   TABLE_QUERY: 'TableQuery',
   GUI: 'Gui',
   AUDIO_PLAYER: 'AudioPlayer',
+  TWEENER: 'Tweener',
 } as const;

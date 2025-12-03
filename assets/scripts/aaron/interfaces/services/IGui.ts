@@ -1,7 +1,8 @@
-import { Constructor, Node } from 'cc';
+import { Component, Node } from 'cc';
+import { Constructor } from '../../types';
 import { IAtom } from '../IAtom';
 import { IService } from '../IService';
-import { Component } from 'cc';
+import { ITweenArgs } from './ITweener';
 
 /**
  * GUI 界面类型
@@ -24,34 +25,6 @@ export type GuiInterfaceType = 'Screen' | 'Page' | 'Popup' | 'Alert' | 'Overlay'
  * - Top: 顶部界面，通常用于管理（开启或禁止）触摸传递。
  */
 export type GuiOverlayType = 'Toast' | 'Drawer' | 'Marquee' | 'Guide' | 'Top';
-
-/** 同一节点同名缓动的存在策略 */
-export type TweenerExistencePolicy = 'replace' | 'skip';
-
-/** 缓动参数 */
-export interface ITweenArgs {
-  /** 动画时长（单位：秒） */
-  duration: number;
-  /**
-   * 当同一节点上存在相同 lib 的缓动时的处理策略
-   * replace: 停掉旧的并替换为新的；skip: 跳过新的，不做任何处理
-   */
-  existencePolicy?: TweenerExistencePolicy;
-  /** 回调函数的 this 上下文；未指定时按照调用处传入 */
-  context?: any;
-  /** 动画开始 */
-  onStart?(target: Node): void;
-  /** 动画结束 */
-  onEnd?(target: Node): void;
-  /** 动画暂停 */
-  onPause?(target: Node): void;
-  /** 动画恢复 */
-  onResume?(target: Node): void;
-  /** 动画停止 */
-  onStop?(target: Node): void;
-  /** 透传的自定义参数，将与注册的默认参数进行浅合并 */
-  [k: string]: any;
-}
 
 /**
  * 视图配置

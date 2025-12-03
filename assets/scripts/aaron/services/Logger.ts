@@ -6,14 +6,12 @@ import { literal } from '../utils';
  * 日志服务
  */
 export class Logger extends Service implements ILogger {
-  /** 日志标识 */
-  private readonly _tag: string = 'Aaron';
   /** 当前日志等级 */
   private _level: LogLevel = LogLevel.INFO;
 
   d(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {
-      console.debug(`[${this._tag}] DEBUG: ${message}`, ...args);
+      console.debug(`😑 ${message}`, ...args);
     }
   }
 
@@ -21,46 +19,46 @@ export class Logger extends Service implements ILogger {
     if (this._level <= LogLevel.DEBUG) {
       message = literal.fmt(message, ...args);
       if (message == undefined) debugger;
-      console.debug(`[${this._tag}] DEBUG: ${message}`);
+      console.debug(`😑 ${message}`);
     }
   }
 
   i(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.INFO) {
-      console.info(`[${this._tag}] INFO: ${message}`, ...args);
+      console.info(`😊 ${message}`, ...args);
     }
   }
 
   if(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.INFO) {
       message = literal.fmt(message, ...args);
-      console.info(`[${this._tag}] INFO: ${message}`);
+      console.info(`😊 ${message}`);
     }
   }
 
   w(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.WARN) {
-      console.warn(`[${this._tag}] WARN: ${message}`, ...args);
+      console.warn(`🤔 ${message}`, ...args);
     }
   }
 
   wf(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.WARN) {
       message = literal.fmt(message, ...args);
-      console.warn(`[${this._tag}] WARN: ${message}`);
+      console.warn(`🤔 ${message}`);
     }
   }
 
   e(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.ERROR) {
-      console.error(`[${this._tag}] ERROR: ${message}`, ...args);
+      console.error(`😭 ${message}`, ...args);
     }
   }
 
   ef(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.ERROR) {
       message = literal.fmt(message, ...args);
-      console.error(`[${this._tag}] ERROR: ${message}`);
+      console.error(`😭 ${message}`);
     }
   }
 

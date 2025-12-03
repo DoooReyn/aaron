@@ -66,7 +66,7 @@ export class AppLauncher extends Service implements IAppLauncher {
 
           resolve();
         },
-        this
+        this,
       );
     });
   }
@@ -138,12 +138,11 @@ export class AppLauncher extends Service implements IAppLauncher {
    */
   private onScreenTapped(touch: EventTouch): void {
     if (this.root._uiProps.uiTransformComp.hitTest(touch.getLocation())) {
-      this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕点击', touch);
       this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.GUI.SCREEN_TAPPED, touch);
     }
   }
 
   private onTick() {
     this.resolve<ITimer>(SERVICES.TIMER).update(game.deltaTime);
-  } 
+  }
 }

@@ -28,6 +28,7 @@ import {
   ITableQuery,
   IGui,
   IAudioPlayer,
+  ITweener,
 } from './interfaces';
 import {
   Logger,
@@ -53,6 +54,7 @@ import {
   TableQuery,
   Gui,
   AudioPlayer,
+  Tweener,
 } from './services';
 import { Option, Trigger, Counter, Model } from './foundation';
 
@@ -64,6 +66,8 @@ import { Option, Trigger, Counter, Model } from './foundation';
 export async function init(args: IPartialLaunchOptions): Promise<void> {
   console.log(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
   console.log(`📋 架构模式: ${FRAMEWORK.architecture}`);
+
+  // ------------------------------ 注册服务 ------------------------------//
 
   // 注册递增ID生成器服务
   aaron.registerServiceFactory<IAscendingId>(SERVICES.ASCENDING_ID, AscendingId);
@@ -139,13 +143,16 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   // 解析启动参数
   aaron.argParser.parse(args);
 
+  // 注册动画服务
+  aaron.registerServiceFactory<ITweener>(SERVICES.TWEENER, Tweener);
+
   // 注册 GUI 服务
   aaron.registerServiceFactory<IGui>(SERVICES.GUI, Gui);
 
   // 最后注册应用启动器服务
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
 
-  // 按需初始化
+  // ------------------------------ 初始化服务 ------------------------------
 
   // 初始化应用启动器
   await aaron.appLauncher.initialize();
@@ -163,6 +170,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 初始化富文本图集服务
   aaron.richTextAtlas.initialize();
+
+  // 初始化缓动动画服务
+  aaron.tweener.initialize();
 
   // 初始化 GUI 服务
   aaron.gui.initialize();
