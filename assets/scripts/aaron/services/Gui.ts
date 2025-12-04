@@ -115,13 +115,13 @@ export class Gui extends Service implements IGui {
   register(config: GuiConfig): void {
     if (this._registry.has(config.token)) {
       if (this._registry.get(config.token) === config) {
-        this._logViewRegister('duplicate', config.token);
+        this.logViewRegister('duplicate', config.token);
       } else {
-        this._logViewRegister('replaced', config.token);
+        this.logViewRegister('replaced', config.token);
         this._registry.set(config.token, config);
       }
     } else {
-      this._logViewRegister('new', config.token);
+      this.logViewRegister('new', config.token);
       this._registry.set(config.token, config);
     }
   }
@@ -137,7 +137,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this._logView('warn', Message.GUI.FETCH_CONFIG_INVALID);
+      this.logView('warn', Message.GUI.FETCH_CONFIG_INVALID);
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -149,17 +149,17 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this._logView('warn', Message.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
+      this.logView('warn', Message.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
     }
   }
 
   async createInstance(parent: Node, config: GuiConfig): Promise<IGuiInstance | undefined> {
     // 使用验证方法
-    if (!this._validateParentNode(parent, config.token)) {
+    if (!this.validateParentNode(parent, config.token)) {
       return undefined;
     }
 
-    if (!this._validateConfig(config)) {
+    if (!this.validateConfig(config)) {
       return undefined;
     }
 
@@ -169,14 +169,14 @@ export class Gui extends Service implements IGui {
       instance.closeAt = 0;
       this._closedInstances.delete(config.token);
       parent.addChild(instance.node);
-      this._logViewOperation('cached', config.token);
+      this.logViewOperation('cached', config.token);
       return instance;
     }
 
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      this._logView('error', Message.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
+      this.logView('error', Message.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
       return undefined;
     }
 
@@ -189,7 +189,7 @@ export class Gui extends Service implements IGui {
 
     // 获取控制器组件
     const controller = node.acquire(config.controller);
-    this._logViewOperation('created', config.token);
+    this.logViewOperation('created', config.token);
 
     return { config, node, controller, closeAt: 0 } as IGuiInstance;
   }
@@ -197,7 +197,7 @@ export class Gui extends Service implements IGui {
   closeInstance(inst: IGuiInstance): void {
     inst.node.removeFromParent();
     inst.closeAt = time.now();
-    this._logViewOperation('closed', inst.config.token);
+    this.logViewOperation('closed', inst.config.token);
 
     if (inst.config.cachePolicy === 'DestroyImmediately') {
       // 立即销毁
@@ -215,28 +215,30 @@ export class Gui extends Service implements IGui {
     const lru: IGuiInstance[] = [];
     const now = time.now();
 
+    // 分类提取需要清理的实例
     this._closedInstances.forEach((inst) => {
       switch (inst.config.cachePolicy) {
         case 'Expires':
-          // 过期清理
-          if ((inst.config.cacheExpires ??= 60_000) > 0 && inst.config.cacheExpires + inst.closeAt! < now) {
+          // 已经过期的需要清理
+          if (this.isInstanceExpires(inst, now)) {
             unused.push(inst);
           }
           break;
         case 'Persistence':
-          // 不销毁
+          // 持久保留的不需要清理
           break;
         case 'LRU':
-          // LRU
+          // 遵循 LRU 规则的加入到 lru 列表
           lru.push(inst);
           break;
         case 'DestroyImmediately':
-          // 立即销毁
+          // 有立即销毁标记的需要清理
           unused.push(inst);
           break;
       }
     });
 
+    // 验证 LRU 规则
     if (lru.length > this._lruReserves) {
       // 最老的排在前面，然后取前几个超出的加入删除队列
       const excessLruInstances = lru.sort((a, b) => b.closeAt - a.closeAt).splice(lru.length - this._lruReserves);
@@ -257,7 +259,7 @@ export class Gui extends Service implements IGui {
       // 字符串模式：直接使用 token
       const token = config as string;
       if (!this.has(token)) {
-        this._logViewOperation('unregistered', token);
+        this.logViewOperation('unregistered', token);
         return undefined;
       }
       return this._registry.get(token);
@@ -288,7 +290,7 @@ export class Gui extends Service implements IGui {
   async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      this._logView('debug', Message.GUI.ANIMATION_ENTER, config.token, lib);
+      this.logView('debug', Message.GUI.ANIMATION_ENTER, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -296,7 +298,7 @@ export class Gui extends Service implements IGui {
   async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      this._logView('debug', Message.GUI.ANIMATION_EXIT, config.token, lib);
+      this.logView('debug', Message.GUI.ANIMATION_EXIT, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -397,12 +399,23 @@ export class Gui extends Service implements IGui {
   // === 私有辅助方法 ===
 
   /**
+   * 视图实例是否已过期
+   * @param inst 视图实例
+   * @param now 当前时间戳
+   * @returns
+   */
+  private isInstanceExpires(inst: IGuiInstance, now?: number): boolean {
+    now ??= time.now();
+    return (inst.config.cacheExpires ??= 60_000) > 0 && inst.config.cacheExpires + inst.closeAt! < now;
+  }
+
+  /**
    * 统一的视图日志记录
    * @param level 日志级别
    * @param message 日志消息
    * @param args 参数
    */
-  private _logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
+  private logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
     const fullMessage = Message.GUI.CATEGORY + message;
     switch (level) {
       case 'debug':
@@ -426,9 +439,9 @@ export class Gui extends Service implements IGui {
    * @param token 视图标识
    * @returns 是否有效
    */
-  private _validateParentNode(parent: Node, token: string): boolean {
+  private validateParentNode(parent: Node, token: string): boolean {
     if (!parent || !parent.isValid) {
-      this._logView('error', Message.GUI.CREATE_PARENT_INVALID, token);
+      this.logView('error', Message.GUI.CREATE_PARENT_INVALID, token);
       return false;
     }
     return true;
@@ -439,9 +452,9 @@ export class Gui extends Service implements IGui {
    * @param config 配置对象
    * @returns 是否有效
    */
-  private _validateConfig(config: GuiConfig): boolean {
+  private validateConfig(config: GuiConfig): boolean {
     if (!config || !config.token || !config.controller) {
-      this._logView('error', Message.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
+      this.logView('error', Message.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
       return false;
     }
     return true;
@@ -452,7 +465,7 @@ export class Gui extends Service implements IGui {
    * @param operation 操作类型
    * @param token 视图标识
    */
-  private _logViewOperation(
+  private logViewOperation(
     operation: 'cached' | 'created' | 'closed' | 'registered' | 'unregistered',
     token: string,
   ): void {
@@ -463,7 +476,7 @@ export class Gui extends Service implements IGui {
       registered: Message.GUI.REGISTERED,
       unregistered: Message.GUI.UNREGISTERED,
     };
-    this._logView('debug', messages[operation], token);
+    this.logView('debug', messages[operation], token);
   }
 
   /**
@@ -471,13 +484,13 @@ export class Gui extends Service implements IGui {
    * @param type 注册类型
    * @param token 视图标识
    */
-  private _logViewRegister(type: 'duplicate' | 'replaced' | 'new', token: string): void {
+  private logViewRegister(type: 'duplicate' | 'replaced' | 'new', token: string): void {
     const messages = {
       duplicate: Message.GUI.REGISTER_DUPLICATE,
       replaced: Message.GUI.REGISTER_REPLACED,
       new: Message.GUI.REGISTERED,
     };
     const level = type === 'duplicate' ? 'warn' : 'debug';
-    this._logView(level, messages[type], token);
+    this.logView(level, messages[type], token);
   }
 }
