@@ -48,6 +48,11 @@ export class Gui extends Service implements IGui {
   guide: IGuiGuide;
   top: IGuiTop;
 
+  /** 缓存的服务引用 */
+  private _logger!: ILogger;
+  private _resLoader!: IResLoader;
+  private _resCache!: IResCache;
+
   /** LRU 实例保留数量 */
   private _lruReserves: number = 3;
 
@@ -65,6 +70,11 @@ export class Gui extends Service implements IGui {
   }
 
   initialize(): IGuiRootLayers {
+    // 缓存常用服务引用
+    this._logger = this.resolve<ILogger>(SERVICES.LOGGER);
+    this._resLoader = this.resolve<IResLoader>(SERVICES.RES_LOADER);
+    this._resCache = this.resolve<IResCache>(SERVICES.RES_CACHE);
+
     const root = this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root;
     this.screen = new GuiScreen('screen');
     this.page = new GuiPage('page');
@@ -104,13 +114,13 @@ export class Gui extends Service implements IGui {
   register(config: GuiConfig): void {
     if (this._registry.has(config.token)) {
       if (this._registry.get(config.token) === config) {
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 重复注册, 已跳过', config.token);
+        this._logger.wf('📷 视图: {0} 重复注册, 已跳过', config.token);
       } else {
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 已经注册, 已替换', config.token);
+        this._logger.wf('📷 视图: {0} 已经注册, 已替换', config.token);
         this._registry.set(config.token, config);
       }
     } else {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 已经注册', config.token);
+      this._logger.df('📷 视图: {0} 已经注册', config.token);
       this._registry.set(config.token, config);
     }
   }
@@ -126,7 +136,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: fetchConfig 参数无效');
+      this._logger.wf('📷 视图: fetchConfig 参数无效');
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -138,22 +148,21 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: fetchConfig 不支持的参数类型: {0}', typeof keyOrClass);
+      this._logger.wf('📷 视图: fetchConfig 不支持的参数类型: {0}', typeof keyOrClass);
     }
   }
 
   async createInstance(parent: Node, config: GuiConfig): Promise<IGuiInstance | undefined> {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
 
     // 检查父节点
     if (!parent || !parent.isValid) {
-      logger.ef('📷 视图: {0} 创建实例失败，父节点无效', config.token);
+      this._logger.ef('📷 视图: {0} 创建实例失败，父节点无效', config.token);
       return undefined;
     }
 
     // 检查配置
     if (!config || !config.token || !config.controller) {
-      logger.ef('📷 视图: {0} 创建实例失败，配置无效', config.token);
+      this._logger.ef('📷 视图: {0} 创建实例失败，配置无效', config.token);
       return undefined;
     }
 
@@ -163,14 +172,14 @@ export class Gui extends Service implements IGui {
       instance.closeAt = 0;
       this._closedInstances.delete(config.token);
       parent.addChild(instance.node);
-      logger.df('📷 视图: {0} 从缓存创建', config.token);
+      this._logger.df('📷 视图: {0} 从缓存创建', config.token);
       return instance;
     }
 
     // 如果未找到,则加载视图的预制体资源
-    const prefab = await this.resolve<IResLoader>(SERVICES.RES_LOADER).load(Prefab, config);
+    const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      logger.ef('📷 视图: {0} <{1}> 创建实例失败，未能正确识别预制体', config.token, config.path);
+      this._logger.ef('📷 视图: {0} <{1}> 创建实例失败，未能正确识别预制体', config.token, config.path);
       return undefined;
     }
 
@@ -179,11 +188,11 @@ export class Gui extends Service implements IGui {
     parent.addChild(node);
 
     // 立即减持预制体资源引用，让预制体资源进入未使用资源队列
-    this.resolve<IResCache>(SERVICES.RES_CACHE).addRef(config.path);
+    this._resCache.addRef(config.path);
 
     // 获取控制器组件
     const controller = node.acquire(config.controller);
-    logger.df('📷 视图: {0} 从实例创建', config.token);
+    this._logger.df('📷 视图: {0} 从实例创建', config.token);
 
     return { config, node, controller, closeAt: 0 } as IGuiInstance;
   }
@@ -191,13 +200,13 @@ export class Gui extends Service implements IGui {
   closeInstance(inst: IGuiInstance): void {
     inst.node.removeFromParent();
     inst.closeAt = time.now();
-    this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 关闭', inst.config.token);
+    this._logger.df('📷 视图: {0} 关闭', inst.config.token);
 
     if (inst.config.cachePolicy === 'DestroyImmediately') {
       // 立即销毁
       inst.controller.onViewDisposed();
       inst.node.destroy();
-      this.resolve<IResCache>(SERVICES.RES_CACHE).decRef(inst.config.path, true);
+      this._resCache.decRef(inst.config.path, true);
     } else {
       // 走缓存方式
       this._closedInstances.set(inst.config.token, inst);
@@ -208,7 +217,6 @@ export class Gui extends Service implements IGui {
     const unused: IGuiInstance[] = [];
     const lru: IGuiInstance[] = [];
     const now = time.now();
-    const cache = this.resolve<IResCache>(SERVICES.RES_CACHE);
 
     this._closedInstances.forEach((inst) => {
       switch (inst.config.cachePolicy) {
@@ -242,7 +250,7 @@ export class Gui extends Service implements IGui {
     unused.forEach((inst) => {
       inst.controller.onViewDisposed();
       inst.node.destroy();
-      cache.decRef(inst.config.path, true);
+      this._resCache.decRef(inst.config.path, true);
       this._closedInstances.delete(inst.config.token);
     });
   }
@@ -252,7 +260,7 @@ export class Gui extends Service implements IGui {
       // 字符串模式：直接使用 token
       const token = config as string;
       if (!this.has(token)) {
-        this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: {0} 未注册', token);
+        this._logger.wf('📷 视图: {0} 未注册', token);
         return undefined;
       }
       return this._registry.get(token);
