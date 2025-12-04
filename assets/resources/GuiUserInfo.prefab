@@ -1419,7 +1419,6 @@
     "tapStartSound": "l:resources@SfxClick",
     "tapEndSound": "",
     "holdTriggerSound": "l:resources@SfxClick",
-    "mute": false,
     "normalColor": {
       "__type__": "cc.Color",
       "r": 255,

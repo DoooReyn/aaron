@@ -9,25 +9,8 @@
  *
  * // 在 GUI 服务中使用
  * export class Gui {
- *   private static readonly MESSAGES = Message.GUI;
  *   private _logView(message: string, ...args: any[]) {
- *     console.log(this.MESSAGES.CATEGORY + message, ...args);
- *   }
- * }
- *
- * // 在资源服务中使用
- * export class ResourceManager {
- *   private static readonly MESSAGES = Message.RESOURCE;
- *   private _log(message: string, ...args: any[]) {
- *     console.log(this.MESSAGES.CATEGORY + message, ...args);
- *   }
- * }
- *
- * // 在音频服务中使用
- * export class AudioManager {
- *   private static readonly MESSAGES = Message.AUDIO;
- *   private _log(message: string, ...args: any[]) {
- *     console.log(this.MESSAGES.CATEGORY + message, ...args);
+ *     console.log(Message.GUI.CATEGORY + message, ...args);
  *   }
  * }
  * ```
