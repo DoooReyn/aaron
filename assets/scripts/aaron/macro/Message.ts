@@ -1,12 +1,7 @@
 /**
  * 消息模板常量
  *
- * 统一管理整个框架中的消息模板，包括：
- * - 日志前缀
- * - 错误消息
- * - 成功消息
- * - 警告消息
- * - 调试消息
+ * 统一管理整个框架中的消息模板
  *
  * 使用方式：
  * ```typescript
@@ -20,20 +15,10 @@
  */
 
 export namespace Message {
-  /** 通用消息前缀 */
-  export const COMMON = {
-    LOG_PREFIX: '📋 日志: ',
-    ERROR_PREFIX: '❌ 错误: ',
-    WARN_PREFIX: '⚠️ 警告: ',
-    INFO_PREFIX: 'ℹ️ 信息: ',
-    SUCCESS_PREFIX: '✅ 成功: ',
-    DEBUG_PREFIX: '🐛 调试: ',
-  } as const;
-
   /** GUI 服务相关消息 */
   export const GUI = {
-    // 日志前缀
-    LOG_PREFIX: '📷 视图: ',
+    // 消息类别前缀
+    CATEGORY: '📷 视图: ',
 
     // 注册相关消息
     REGISTERED: '{0} 已经注册',
@@ -62,43 +47,36 @@ export namespace Message {
 
   /** 资源管理相关消息 */
   export const RESOURCE = {
-    LOG_PREFIX: '📦 资源: ',
+    CATEGORY: '📦 资源: ',
   } as const;
 
   /** 音频管理相关消息 */
   export const AUDIO = {
-    LOG_PREFIX: '🔊 音频: ',
+    CATEGORY: '🔊 音频: ',
   } as const;
 
   /** 网络相关消息 */
   export const NETWORK = {
-    LOG_PREFIX: '🌐 网络: ',
+    CATEGORY: '🌐 网络: ',
   } as const;
 
   /** 数据管理相关消息 */
   export const DATA = {
-    LOG_PREFIX: '💾 数据: ',
+    CATEGORY: '💾 数据: ',
   } as const;
 
   /** 计时器相关消息 */
   export const TIMER = {
-    LOG_PREFIX: '⏰ 计时器: ',
+    CATEGORY: '⏰ 计时器: ',
   } as const;
 
   /** 工具相关消息 */
   export const UTIL = {
-    LOG_PREFIX: '🛠️ 工具: ',
+    CATEGORY: '🛠️ 工具: ',
   } as const;
 
   /** 应用程序相关消息 */
   export const APP = {
-    LOG_PREFIX: '🚀 应用: ',
+    CATEGORY: '🚀 应用: ',
   } as const;
 }
-
-/**
- * 消息模板类型定义
- */
-export type MessageTemplate = string;
-export type MessageCategory = keyof typeof Message;
-export type MessageKey = string;
