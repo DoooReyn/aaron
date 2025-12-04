@@ -57,8 +57,9 @@ export interface GuiConfig {
    * - Persistence: 持久化缓存，视图关闭后不会销毁资源。
    * - Expires: 过期缓存，视图关闭后会保留一段时间的缓存。
    * - LRU: 最近最少使用缓存，视图关闭后会保留最近使用的缓存。
+   * - DestroyImmediately: 立即销毁缓存，视图关闭后会立即销毁资源。
    */
-  cachePolicy: 'Persistence' | 'Expires' | 'LRU';
+  cachePolicy: 'Persistence' | 'Expires' | 'LRU' | 'DestroyImmediately';
   /** 视图缓存过期时间(仅对 Expires 策略有效) */
   cacheExpires?: number;
   /** 进入动画 */
@@ -314,6 +315,8 @@ export interface IGuiRootLayers {
 export interface IGuiScreen extends Node {
   /** 顶层视图标识 */
   get top(): string | undefined;
+  /** 视图栈 */
+  get stack(): string[];
   /**
    * 打开视图
    * @param config 配置参数
@@ -355,6 +358,8 @@ export interface IGuiStack extends Node {
   get depth(): number;
   /** 获取顶部视图标识 */
   get top(): string | undefined;
+  /** 视图栈 */
+  get stack(): string[];
   /** 判断视图是否存在 */
   exists(token: string): boolean;
   /** 聚焦顶层视图 */
@@ -560,6 +565,4 @@ export interface IGui extends IService {
   focus(): void;
   /** 调试打印当前视图栈 */
   debugStacks(tag: string): void;
-  /** 调试打印当前视图快照 */
-  debugSnapshots(tag: string): void;
 }

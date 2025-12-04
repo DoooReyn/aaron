@@ -198,6 +198,10 @@ export class GuiStack extends Node implements IGuiStack {
     return undefined;
   }
 
+  get stack() {
+    return this.$instances.map((instance) => instance.config.token);
+  }
+
   exists(token: string) {
     return this.$instances.findIndex((instance) => instance.config.token === token) > -1;
   }

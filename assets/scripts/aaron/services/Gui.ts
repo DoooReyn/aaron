@@ -124,37 +124,53 @@ export class Gui extends Service implements IGui {
   }
 
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
-    if (be.isString(keyOrClass)) {
+    // 参数验证
+    if (keyOrClass === null || keyOrClass === undefined) {
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: fetchConfig 参数无效');
+      return undefined;
+    } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
-    } else {
+    } else if (be.isFunction(keyOrClass)) {
       for (const [_, cfg] of this._registry) {
         if (cfg.controller === keyOrClass) {
           return cfg;
         }
       }
       return undefined;
+    } else {
+      this.resolve<ILogger>(SERVICES.LOGGER).wf('📷 视图: fetchConfig 不支持的参数类型: {0}', typeof keyOrClass);
     }
   }
 
   async createInstance(parent: Node, config: GuiConfig): Promise<IGuiInstance | undefined> {
+    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
+
+    // 检查父节点
+    if (!parent || !parent.isValid) {
+      logger.ef('📷 视图: {0} 创建实例失败，父节点无效', config.token);
+      return undefined;
+    }
+
+    // 检查配置
+    if (!config || !config.token || !config.controller) {
+      logger.ef('📷 视图: {0} 创建实例失败，配置无效', config.token);
+      return undefined;
+    }
+
     // 先从已关闭的视图实例中获取
     if (this._closedInstances.has(config.token)) {
       const instance = this._closedInstances.get(config.token);
       instance.closeAt = 0;
       this._closedInstances.delete(config.token);
       parent.addChild(instance.node);
-      this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 从缓存创建', config.token);
+      logger.df('📷 视图: {0} 从缓存创建', config.token);
       return instance;
     }
 
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this.resolve<IResLoader>(SERVICES.RES_LOADER).load(Prefab, config);
     if (!prefab) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef(
-        '📷 视图: {0} <{1}> 创建实例失败，未能正确识别预制体',
-        config.token,
-        config.path,
-      );
+      logger.ef('📷 视图: {0} <{1}> 创建实例失败，未能正确识别预制体', config.token, config.path);
       return undefined;
     }
 
@@ -167,16 +183,25 @@ export class Gui extends Service implements IGui {
 
     // 获取控制器组件
     const controller = node.acquire(config.controller);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 从实例创建', config.token);
+    logger.df('📷 视图: {0} 从实例创建', config.token);
 
     return { config, node, controller, closeAt: 0 } as IGuiInstance;
   }
 
-  closeInstance(instance: IGuiInstance): void {
-    instance.node.removeFromParent();
-    instance.closeAt = time.now();
-    this._closedInstances.set(instance.config.token, instance);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 关闭', instance.config.token);
+  closeInstance(inst: IGuiInstance): void {
+    inst.node.removeFromParent();
+    inst.closeAt = time.now();
+    this.resolve<ILogger>(SERVICES.LOGGER).df('📷 视图: {0} 关闭', inst.config.token);
+
+    if (inst.config.cachePolicy === 'DestroyImmediately') {
+      // 立即销毁
+      inst.controller.onViewDisposed();
+      inst.node.destroy();
+      this.resolve<IResCache>(SERVICES.RES_CACHE).decRef(inst.config.path, true);
+    } else {
+      // 走缓存方式
+      this._closedInstances.set(inst.config.token, inst);
+    }
   }
 
   clearUnused() {
@@ -185,27 +210,32 @@ export class Gui extends Service implements IGui {
     const now = time.now();
     const cache = this.resolve<IResCache>(SERVICES.RES_CACHE);
 
-    this._closedInstances.forEach((instance, token) => {
-      switch (instance.config.cachePolicy) {
+    this._closedInstances.forEach((inst) => {
+      switch (inst.config.cachePolicy) {
         case 'Expires':
           // 过期清理
-          if ((instance.config.cacheExpires ??= 60_000) > 0 && instance.config.cacheExpires + instance.closeAt! < now) {
-            unused.push(instance);
+          if ((inst.config.cacheExpires ??= 60_000) > 0 && inst.config.cacheExpires + inst.closeAt! < now) {
+            unused.push(inst);
           }
           break;
         case 'Persistence':
-          // 谨慎使用 Persistence 模式,它意味着内存不会被清理
+          // 不销毁
           break;
         case 'LRU':
           // LRU
-          lru.push(instance);
+          lru.push(inst);
+          break;
+        case 'DestroyImmediately':
+          // 立即销毁
+          unused.push(inst);
           break;
       }
     });
 
     if (lru.length > this._lruReserves) {
       // 最老的排在前面，然后取前几个超出的加入删除队列
-      unused.concat(lru.sort((a, b) => b.closeAt - a.closeAt).splice(lru.length - this._lruReserves));
+      const excessLruInstances = lru.sort((a, b) => b.closeAt - a.closeAt).splice(lru.length - this._lruReserves);
+      unused.push(...excessLruInstances);
     }
 
     // 销毁视图实例
@@ -281,7 +311,7 @@ export class Gui extends Service implements IGui {
         await this.screen.open(config, params);
         break;
       case 'Overlay':
-        throw new Error('Overlay not implemented');
+        // throw new Error('Overlay not implemented');
         switch (config.overlay) {
           case 'Drawer':
             break;
@@ -332,12 +362,19 @@ export class Gui extends Service implements IGui {
     }
   }
 
-  debugStacks(tag: string): void {
-    throw new Error('Method not implemented.');
-  }
-
-  debugSnapshots(tag: string): void {
-    throw new Error('Method not implemented.');
+  debugStacks(tag?: string): void {
+    const s1 = this.screen.stack;
+    const s2 = this.page.stack;
+    const s3 = this.popup.stack;
+    const s4 = this.alert.stack;
+    const output = [
+      `<${tag ?? 'Gui'}>视图栈： `,
+      ` screen (${s1.length}) -> ${s1.join(',')}`,
+      ` page   (${s2.length}) -> ${s2.join(',')}`,
+      ` popup  (${s3.length}) -> ${s3.join(',')}`,
+      ` alert  (${s4.length}) -> ${s4.join(',')}`,
+    ].join('\n');
+    aaron.logger.d(output);
   }
 
   focus() {

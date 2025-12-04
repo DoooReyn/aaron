@@ -79,4 +79,8 @@ export class GuiScreen extends Node implements IGuiScreen {
   get top(): string | undefined {
     return this._current?.config.token;
   }
+
+  get stack() {
+    return this._current ? [this._current.config.token] : [];
+  }
 }
