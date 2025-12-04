@@ -39,9 +39,6 @@ import { be, time } from '../utils';
  * 视图服务
  */
 export class Gui extends Service implements IGui {
-  /** 消息模板常量 */
-  private static readonly MESSAGES = Message.GUI;
-
   screen: IGuiScreen;
   page: IGuiPage;
   popup: IGuiPopup;
@@ -140,7 +137,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this._logView('warn', this.MESSAGES.FETCH_CONFIG_INVALID);
+      this._logView('warn', Message.GUI.FETCH_CONFIG_INVALID);
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -152,7 +149,7 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this._logView('warn', this.MESSAGES.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
+      this._logView('warn', Message.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
     }
   }
 
@@ -179,7 +176,7 @@ export class Gui extends Service implements IGui {
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      this._logView('error', this.MESSAGES.CREATE_PREFAB_INVALID, config.token, config.path);
+      this._logView('error', Message.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
       return undefined;
     }
 
@@ -291,7 +288,7 @@ export class Gui extends Service implements IGui {
   async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      this._logView('debug', this.MESSAGES.ANIMATION_ENTER, config.token, lib);
+      this._logView('debug', Message.GUI.ANIMATION_ENTER, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -299,7 +296,7 @@ export class Gui extends Service implements IGui {
   async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      this._logView('debug', this.MESSAGES.ANIMATION_EXIT, config.token, lib);
+      this._logView('debug', Message.GUI.ANIMATION_EXIT, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -406,12 +403,20 @@ export class Gui extends Service implements IGui {
    * @param args 参数
    */
   private _logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
-    const fullMessage = this.MESSAGES.LOG_PREFIX + message;
+    const fullMessage = Message.GUI.CATEGORY + message;
     switch (level) {
-      case 'debug': this._logger.df(fullMessage, ...args); break;
-      case 'info': this._logger.if(fullMessage, ...args); break;
-      case 'warn': this._logger.wf(fullMessage, ...args); break;
-      case 'error': this._logger.ef(fullMessage, ...args); break;
+      case 'debug':
+        this._logger.df(fullMessage, ...args);
+        break;
+      case 'info':
+        this._logger.if(fullMessage, ...args);
+        break;
+      case 'warn':
+        this._logger.wf(fullMessage, ...args);
+        break;
+      case 'error':
+        this._logger.ef(fullMessage, ...args);
+        break;
     }
   }
 
@@ -423,7 +428,7 @@ export class Gui extends Service implements IGui {
    */
   private _validateParentNode(parent: Node, token: string): boolean {
     if (!parent || !parent.isValid) {
-      this._logView('error', this.MESSAGES.CREATE_PARENT_INVALID, token);
+      this._logView('error', Message.GUI.CREATE_PARENT_INVALID, token);
       return false;
     }
     return true;
@@ -436,7 +441,7 @@ export class Gui extends Service implements IGui {
    */
   private _validateConfig(config: GuiConfig): boolean {
     if (!config || !config.token || !config.controller) {
-      this._logView('error', this.MESSAGES.CREATE_CONFIG_INVALID, config?.token || 'unknown');
+      this._logView('error', Message.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
       return false;
     }
     return true;
@@ -447,13 +452,16 @@ export class Gui extends Service implements IGui {
    * @param operation 操作类型
    * @param token 视图标识
    */
-  private _logViewOperation(operation: 'cached' | 'created' | 'closed' | 'registered' | 'unregistered', token: string): void {
+  private _logViewOperation(
+    operation: 'cached' | 'created' | 'closed' | 'registered' | 'unregistered',
+    token: string,
+  ): void {
     const messages = {
-      cached: this.MESSAGES.INSTANCE_FROM_CACHE,
-      created: this.MESSAGES.INSTANCE_FROM_PREFAB,
-      closed: this.MESSAGES.INSTANCE_CLOSED,
-      registered: this.MESSAGES.REGISTERED,
-      unregistered: this.MESSAGES.UNREGISTERED
+      cached: Message.GUI.INSTANCE_FROM_CACHE,
+      created: Message.GUI.INSTANCE_FROM_PREFAB,
+      closed: Message.GUI.INSTANCE_CLOSED,
+      registered: Message.GUI.REGISTERED,
+      unregistered: Message.GUI.UNREGISTERED,
     };
     this._logView('debug', messages[operation], token);
   }
@@ -465,9 +473,9 @@ export class Gui extends Service implements IGui {
    */
   private _logViewRegister(type: 'duplicate' | 'replaced' | 'new', token: string): void {
     const messages = {
-      duplicate: this.MESSAGES.REGISTER_DUPLICATE,
-      replaced: this.MESSAGES.REGISTER_REPLACED,
-      new: this.MESSAGES.REGISTERED
+      duplicate: Message.GUI.REGISTER_DUPLICATE,
+      replaced: Message.GUI.REGISTER_REPLACED,
+      new: Message.GUI.REGISTERED,
     };
     const level = type === 'duplicate' ? 'warn' : 'debug';
     this._logView(level, messages[type], token);

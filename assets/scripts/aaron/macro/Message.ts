@@ -63,144 +63,36 @@ export namespace Message {
   /** 资源管理相关消息 */
   export const RESOURCE = {
     LOG_PREFIX: '📦 资源: ',
-
-    // 加载相关消息
-    LOAD_START: '{0} 开始加载 {1}',
-    LOAD_SUCCESS: '{0} 成功加载 {1}',
-    LOAD_FAILED: '{0} 加载 {1} 失败: {2}',
-    LOAD_PROGRESS: '{0} 加载 {1} 进度: {2}%',
-
-    // 缓存相关消息
-    CACHE_HIT: '{0} 缓存命中 {1}',
-    CACHE_MISS: '{0} 缓存未命中 {1}',
-    CACHE_CLEAR: '{0} 清空缓存',
-    CACHE_EXPIRED: '{0} 缓存已过期 {1}',
-
-    // 引用计数消息
-    REF_INCREMENT: '{0} 增加引用 {1} -> {2}',
-    REF_DECREMENT: '{0} 减少引用 {1} -> {2}',
-    REF_ZERO: '{0} 引用计数归零，准备销毁 {1}',
   } as const;
 
   /** 音频管理相关消息 */
   export const AUDIO = {
     LOG_PREFIX: '🔊 音频: ',
-
-    // 播放相关消息
-    PLAY_START: '{0} 开始播放 {1}',
-    PLAY_STOP: '{0} 停止播放 {1}',
-    PLAY_PAUSE: '{0} 暂停播放 {1}',
-    PLAY_RESUME: '{0} 恢复播放 {1}',
-
-    // 音效消息
-    SOUND_PLAY: '{0} 播放音效 {1}',
-    SOUND_STOP: '{0} 停止音效 {1}',
-
-    // 背景音乐消息
-    MUSIC_PLAY: '{0} 播放背景音乐 {1}',
-    MUSIC_STOP: '{0} 停止背景音乐 {1}',
-    MUSIC_VOLUME: '{0} 设置音乐音量 {1}',
-    SOUND_VOLUME: '{0} 设置音效音量 {1}',
   } as const;
 
   /** 网络相关消息 */
   export const NETWORK = {
     LOG_PREFIX: '🌐 网络: ',
-
-    // 连接相关消息
-    CONNECT_START: '{0} 开始连接 {1}',
-    CONNECT_SUCCESS: '{0} 连接成功 {1}',
-    CONNECT_FAILED: '{0} 连接失败 {1}: {2}',
-    CONNECT_LOST: '{0} 连接丢失 {1}',
-
-    // 请求相关消息
-    REQUEST_SEND: '{0} 发送请求 {1}',
-    REQUEST_SUCCESS: '{0} 请求成功 {1}',
-    REQUEST_FAILED: '{0} 请求失败 {1}: {2}',
-    REQUEST_TIMEOUT: '{0} 请求超时 {1}',
-
-    // 响应相关消息
-    RESPONSE_RECEIVED: '{0} 收到响应 {1}',
-    RESPONSE_PARSE_ERROR: '{0} 响应解析错误 {1}: {2}',
   } as const;
 
   /** 数据管理相关消息 */
   export const DATA = {
     LOG_PREFIX: '💾 数据: ',
-
-    // 存储相关消息
-    SAVE_START: '{0} 开始保存 {1}',
-    SAVE_SUCCESS: '{0} 保存成功 {1}',
-    SAVE_FAILED: '{0} 保存失败 {1}: {2}',
-
-    // 加载相关消息
-    LOAD_START: '{0} 开始加载 {1}',
-    LOAD_SUCCESS: '{0} 加载成功 {1}',
-    LOAD_FAILED: '{0} 加载失败 {1}: {2}',
-
-    // 同步相关消息
-    SYNC_START: '{0} 开始同步 {1}',
-    SYNC_SUCCESS: '{0} 同步成功 {1}',
-    SYNC_FAILED: '{0} 同步失败 {1}: {2}',
   } as const;
 
   /** 计时器相关消息 */
   export const TIMER = {
     LOG_PREFIX: '⏰ 计时器: ',
-
-    // 创建和销毁
-    TIMER_CREATE: '{0} 创建计时器 {1}',
-    TIMER_DESTROY: '{0} 销毁计时器 {1}',
-
-    // 启动和停止
-    TIMER_START: '{0} 启动计时器 {1}',
-    TIMER_STOP: '{0} 停止计时器 {1}',
-    TIMER_PAUSE: '{0} 暂停计时器 {1}',
-    TIMER_RESUME: '{0} 恢复计时器 {1}',
-
-    // 执行相关
-    TIMER_TICK: '{0} 计时器触发 {1}',
-    TIMER_COMPLETE: '{0} 计时器完成 {1}',
   } as const;
 
   /** 工具相关消息 */
   export const UTIL = {
     LOG_PREFIX: '🛠️ 工具: ',
-
-    // 对象池消息
-    POOL_CREATE: '{0} 创建对象池 {1}',
-    POOL_GET: '{0} 从池中获取对象 {1}',
-    POOL_RELEASE: '{0} 释放对象到池 {1}',
-    POOL_CLEAR: '{0} 清空对象池 {1}',
-
-    // 验证消息
-    VALIDATION_FAILED: '{0} 验证失败: {1}',
-    VALIDATION_SUCCESS: '{0} 验证成功',
-
-    // 类型检查消息
-    TYPE_CHECK_FAILED: '{0} 类型检查失败: 期望 {1}，实际 {2}',
   } as const;
 
   /** 应用程序相关消息 */
   export const APP = {
     LOG_PREFIX: '🚀 应用: ',
-
-    // 启动和关闭
-    APP_INIT: '{0} 应用初始化',
-    APP_START: '{0} 应用启动',
-    APP_PAUSE: '{0} 应用暂停',
-    APP_RESUME: '{0} 应用恢复',
-    APP_STOP: '{0} 应用停止',
-
-    // 场景相关
-    SCENE_LOAD_START: '{0} 开始加载场景 {1}',
-    SCENE_LOAD_SUCCESS: '{0} 场景加载成功 {1}',
-    SCENE_LOAD_FAILED: '{0} 场景加载失败 {1}: {2}',
-
-    // 配置相关
-    CONFIG_LOAD: '{0} 加载配置 {1}',
-    CONFIG_SAVE: '{0} 保存配置 {1}',
-    CONFIG_INVALID: '{0} 配置无效 {1}: {2}',
   } as const;
 }
 
