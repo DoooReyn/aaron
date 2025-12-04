@@ -1,5 +1,6 @@
 import { Constructor, Node, Prefab, UITransform, Widget, instantiate } from 'cc';
 import { aaron, Service } from '../core';
+import { Message } from '../macro';
 import {
   GuiConfig,
   IAppLauncher,
@@ -38,6 +39,9 @@ import { be, time } from '../utils';
  * 视图服务
  */
 export class Gui extends Service implements IGui {
+  /** 消息模板常量 */
+  private static readonly MESSAGES = Message.GUI;
+
   screen: IGuiScreen;
   page: IGuiPage;
   popup: IGuiPopup;
@@ -114,13 +118,13 @@ export class Gui extends Service implements IGui {
   register(config: GuiConfig): void {
     if (this._registry.has(config.token)) {
       if (this._registry.get(config.token) === config) {
-        this._logger.wf('📷 视图: {0} 重复注册, 已跳过', config.token);
+        this._logViewRegister('duplicate', config.token);
       } else {
-        this._logger.wf('📷 视图: {0} 已经注册, 已替换', config.token);
+        this._logViewRegister('replaced', config.token);
         this._registry.set(config.token, config);
       }
     } else {
-      this._logger.df('📷 视图: {0} 已经注册', config.token);
+      this._logViewRegister('new', config.token);
       this._registry.set(config.token, config);
     }
   }
@@ -136,7 +140,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this._logger.wf('📷 视图: fetchConfig 参数无效');
+      this._logView('warn', this.MESSAGES.FETCH_CONFIG_INVALID);
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -148,21 +152,17 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this._logger.wf('📷 视图: fetchConfig 不支持的参数类型: {0}', typeof keyOrClass);
+      this._logView('warn', this.MESSAGES.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
     }
   }
 
   async createInstance(parent: Node, config: GuiConfig): Promise<IGuiInstance | undefined> {
-
-    // 检查父节点
-    if (!parent || !parent.isValid) {
-      this._logger.ef('📷 视图: {0} 创建实例失败，父节点无效', config.token);
+    // 使用验证方法
+    if (!this._validateParentNode(parent, config.token)) {
       return undefined;
     }
 
-    // 检查配置
-    if (!config || !config.token || !config.controller) {
-      this._logger.ef('📷 视图: {0} 创建实例失败，配置无效', config.token);
+    if (!this._validateConfig(config)) {
       return undefined;
     }
 
@@ -172,14 +172,14 @@ export class Gui extends Service implements IGui {
       instance.closeAt = 0;
       this._closedInstances.delete(config.token);
       parent.addChild(instance.node);
-      this._logger.df('📷 视图: {0} 从缓存创建', config.token);
+      this._logViewOperation('cached', config.token);
       return instance;
     }
 
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      this._logger.ef('📷 视图: {0} <{1}> 创建实例失败，未能正确识别预制体', config.token, config.path);
+      this._logView('error', this.MESSAGES.CREATE_PREFAB_INVALID, config.token, config.path);
       return undefined;
     }
 
@@ -192,7 +192,7 @@ export class Gui extends Service implements IGui {
 
     // 获取控制器组件
     const controller = node.acquire(config.controller);
-    this._logger.df('📷 视图: {0} 从实例创建', config.token);
+    this._logViewOperation('created', config.token);
 
     return { config, node, controller, closeAt: 0 } as IGuiInstance;
   }
@@ -200,7 +200,7 @@ export class Gui extends Service implements IGui {
   closeInstance(inst: IGuiInstance): void {
     inst.node.removeFromParent();
     inst.closeAt = time.now();
-    this._logger.df('📷 视图: {0} 关闭', inst.config.token);
+    this._logViewOperation('closed', inst.config.token);
 
     if (inst.config.cachePolicy === 'DestroyImmediately') {
       // 立即销毁
@@ -260,7 +260,7 @@ export class Gui extends Service implements IGui {
       // 字符串模式：直接使用 token
       const token = config as string;
       if (!this.has(token)) {
-        this._logger.wf('📷 视图: {0} 未注册', token);
+        this._logViewOperation('unregistered', token);
         return undefined;
       }
       return this._registry.get(token);
@@ -291,7 +291,7 @@ export class Gui extends Service implements IGui {
   async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      aaron.logger.df('📷 视图: {0} 播放进入动画 {1}', config.token, lib);
+      this._logView('debug', this.MESSAGES.ANIMATION_ENTER, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -299,7 +299,7 @@ export class Gui extends Service implements IGui {
   async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      aaron.logger.df('📷 视图: {0} 播放退出动画 {1}', config.token, lib);
+      this._logView('debug', this.MESSAGES.ANIMATION_EXIT, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -395,5 +395,81 @@ export class Gui extends Service implements IGui {
     } else {
       this.screen.focus();
     }
+  }
+
+  // === 私有辅助方法 ===
+
+  /**
+   * 统一的视图日志记录
+   * @param level 日志级别
+   * @param message 日志消息
+   * @param args 参数
+   */
+  private _logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
+    const fullMessage = this.MESSAGES.LOG_PREFIX + message;
+    switch (level) {
+      case 'debug': this._logger.df(fullMessage, ...args); break;
+      case 'info': this._logger.if(fullMessage, ...args); break;
+      case 'warn': this._logger.wf(fullMessage, ...args); break;
+      case 'error': this._logger.ef(fullMessage, ...args); break;
+    }
+  }
+
+  /**
+   * 验证父节点有效性
+   * @param parent 父节点
+   * @param token 视图标识
+   * @returns 是否有效
+   */
+  private _validateParentNode(parent: Node, token: string): boolean {
+    if (!parent || !parent.isValid) {
+      this._logView('error', this.MESSAGES.CREATE_PARENT_INVALID, token);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 验证配置有效性
+   * @param config 配置对象
+   * @returns 是否有效
+   */
+  private _validateConfig(config: GuiConfig): boolean {
+    if (!config || !config.token || !config.controller) {
+      this._logView('error', this.MESSAGES.CREATE_CONFIG_INVALID, config?.token || 'unknown');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 记录视图操作日志
+   * @param operation 操作类型
+   * @param token 视图标识
+   */
+  private _logViewOperation(operation: 'cached' | 'created' | 'closed' | 'registered' | 'unregistered', token: string): void {
+    const messages = {
+      cached: this.MESSAGES.INSTANCE_FROM_CACHE,
+      created: this.MESSAGES.INSTANCE_FROM_PREFAB,
+      closed: this.MESSAGES.INSTANCE_CLOSED,
+      registered: this.MESSAGES.REGISTERED,
+      unregistered: this.MESSAGES.UNREGISTERED
+    };
+    this._logView('debug', messages[operation], token);
+  }
+
+  /**
+   * 记录视图注册相关日志
+   * @param type 注册类型
+   * @param token 视图标识
+   */
+  private _logViewRegister(type: 'duplicate' | 'replaced' | 'new', token: string): void {
+    const messages = {
+      duplicate: this.MESSAGES.REGISTER_DUPLICATE,
+      replaced: this.MESSAGES.REGISTER_REPLACED,
+      new: this.MESSAGES.REGISTERED
+    };
+    const level = type === 'duplicate' ? 'warn' : 'debug';
+    this._logView(level, messages[type], token);
   }
 }

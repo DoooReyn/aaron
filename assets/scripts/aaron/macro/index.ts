@@ -9,6 +9,7 @@ export * from './Color';
 export * from './Events';
 export * from './Framework';
 export * from './LaunchOptions';
+export * from './Message';
 export * from './ObjectPool';
 export * from './Preset';
 export * from './Services';
