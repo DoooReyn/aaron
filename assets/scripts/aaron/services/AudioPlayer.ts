@@ -1,12 +1,13 @@
 import { Service } from '../core';
+import { AudioEntry, MusicPlayer, SoundPlayer } from '../foundation';
 import { IAppLauncher, IAudioPlayer, IEventBus, INodePoolContainer } from '../interfaces';
-import { EVENTS, PRESET, SERVICES } from '../macro';
-import { MusicPlayer, SoundPlayer, AudioEntry } from '../foundation';
+import { EVENTS, MESSAGES, PRESET, SERVICES } from '../macro';
 
 /**
  * 音频播放服务
  */
 export class AudioPlayer extends Service implements IAudioPlayer {
+  readonly token: string = MESSAGES.AUDIO_PLAYER.CATEGORY;
   music: MusicPlayer;
   sound: SoundPlayer;
 

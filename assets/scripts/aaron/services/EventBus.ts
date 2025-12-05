@@ -1,5 +1,6 @@
 import { Service } from '../core';
 import { IEventBus, IEventChannel, IEventListener } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { list } from '../utils';
 
 /**
@@ -113,6 +114,8 @@ class EventChannel implements IEventChannel {
  * - 用于管理事件渠道，实现事件的发布和订阅。
  */
 export class EventBus extends Service implements IEventBus {
+  public readonly token: string = MESSAGES.EVENT_BUS.CATEGORY;
+
   /** 事件渠道容器 */
   private _channels: Map<string, IEventChannel> = new Map();
 

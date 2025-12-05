@@ -1,9 +1,10 @@
-import { Node, Graphics, UITransform } from 'cc';
-import { GuiStack } from './GuiStack';
-import { color, time } from '../../utils';
-import { COLOR, EVENTS } from '../../macro';
+import { Graphics, Node, UITransform } from 'cc';
+
 import { aaron } from '../../core';
 import { GuiConfig, IGuiPopup } from '../../interfaces';
+import { COLOR, EVENTS } from '../../macro';
+import { color, time } from '../../utils';
+import { GuiStack } from './GuiStack';
 
 /**
  * Popup

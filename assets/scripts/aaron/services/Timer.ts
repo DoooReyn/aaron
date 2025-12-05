@@ -1,12 +1,14 @@
 import { Service } from '../core';
 import { Tick } from '../foundation';
 import { ITimer } from '../interfaces';
+import { MESSAGES } from '../macro';
 
 /**
  * 定时器容器
  * @description 提供了时器的安装、卸载和更新功能
  */
 export class Timer extends Service implements ITimer {
+  readonly token: string = MESSAGES.TIMER.CATEGORY;
   /** 定时器容器 */
   private readonly _container: Map<string, Tick> = new Map();
 

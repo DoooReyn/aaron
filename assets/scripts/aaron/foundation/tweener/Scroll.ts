@@ -1,4 +1,5 @@
 import { tween, Node } from 'cc';
+
 import { ITweenArgs, ITweenEntry } from '../../interfaces';
 
 /**

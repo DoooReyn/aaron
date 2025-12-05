@@ -1,8 +1,9 @@
-import { EDITOR, DEV, BUILD } from 'cc/env';
+import { BUILD, DEV, EDITOR } from 'cc/env';
+
 import * as fk from '../aaron';
-import { TableRole, TableDialogue, ITblDialogue, ITblRole } from './data/table';
-import { ResPath } from './data/ResPath';
 import { UserInfoController } from './controller/UserInfoController';
+import { ResPath } from './data/ResPath';
+import { ITblDialogue, ITblRole, TableDialogue, TableRole } from './data/table';
 
 /** 当前环境 */
 const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';

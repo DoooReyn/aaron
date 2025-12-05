@@ -1,10 +1,11 @@
 import { Asset } from 'cc';
-import { Constructor } from '../../types';
-import { aaron } from '../../core';
-import { be } from '../../utils';
-import { ILoadOptions } from '../../interfaces';
 
-export interface ReferContainer {
+import { aaron } from '../../core';
+import { ILoadOptions } from '../../interfaces';
+import { Constructor } from '../../types';
+import { be } from '../../utils';
+
+export interface IReferContainer {
   get isValid(): boolean;
 }
 
@@ -12,7 +13,7 @@ export interface ReferContainer {
  * 资源引用策略
  * @description 统一资源加载、释放等操作
  */
-export abstract class ReferBase<K extends ReferContainer, T extends Asset> {
+export abstract class ReferBase<K extends IReferContainer, T extends Asset> {
   /** 资源 */
   protected $asset: T;
 

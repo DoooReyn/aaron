@@ -1,11 +1,14 @@
 import { sys } from 'cc';
-import { IPlatform } from '../interfaces';
+
 import { Service } from '../core';
+import { IPlatform } from '../interfaces';
+import { MESSAGES } from '../macro';
 
 /**
  * 平台鉴定服务
  */
 export class Platform extends Service implements IPlatform {
+  readonly token: string = MESSAGES.PLATFORM.CATEGORY;
   readonly os = sys.os;
   readonly platform = sys.platform;
   readonly littleEndian = sys.isLittleEndian;

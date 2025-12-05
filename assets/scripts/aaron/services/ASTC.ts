@@ -1,7 +1,8 @@
 import { assetManager, director, gfx, js, sys, AssetManager, ImageAsset, SpriteFrame } from 'cc';
+
 import { Service } from '../core';
-import { ASTC_FORMAT, IAstc, ILogger } from '../interfaces';
-import { SERVICES } from '../macro';
+import { ASTC_FORMAT, IAstc } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { IMemoryImageSource } from '../types';
 
 enum PixelFormat {
@@ -45,19 +46,12 @@ enum PixelFormat {
  * ASTC 压缩纹理支持
  */
 export class Astc extends Service implements IAstc {
+  readonly token: string = MESSAGES.ASTC.CATEGORY;
   /** 目标纹理格式 */
   private _format: ASTC_FORMAT = gfx.Format.ASTC_RGBA_6X6;
 
   /** 解析器 */
   private _parser = (<any>ImageAsset).parseCompressedTextures;
-
-  /** 日志开关 */
-  public logEnabled: boolean = false;
-
-  /** 输出内容 */
-  private dump(log: string, ...args: any) {
-    if (this.logEnabled) this.resolve<ILogger>(SERVICES.LOGGER).d(log, ...args);
-  }
 
   /**
    * 是否支持指定的纹理格式
@@ -273,7 +267,11 @@ export class Astc extends Service implements IAstc {
     const factory = assetManager.factory;
     downloader.register('.astc', (url, options, oncomplete) => {
       downloader._downloadArrayBuffer(url, options, (err: any, data: ArrayBuffer) => {
-        data && this.dump('✅ astc下载成功', url, js.getClassName(data));
+        if (data) {
+          this.logger.d(MESSAGES.ASTC.DOWNLOAD_OK, url, js.getClassName(data));
+        } else {
+          this.logger.e(MESSAGES.ASTC.DOWNLOAD_BAD, url);
+        }
         oncomplete && oncomplete(err, { file: data, url });
       });
     });
@@ -281,10 +279,10 @@ export class Astc extends Service implements IAstc {
       if (data && data.file instanceof ArrayBuffer) {
         const u8 = new Uint8Array(data.file);
         const astc = parseCompressedTextures(u8, 2);
-        this.log('✅ astc: 解析成功', data.url, js.getClassName(astc));
+        this.logger.d(MESSAGES.ASTC.PARSE_OK, data.url, js.getClassName(astc));
         oncomplete && oncomplete(null, { file: astc, url: data.url });
       } else {
-        this.log('❌ astc: 解析失败', data.url);
+        this.logger.e(MESSAGES.ASTC.PARSE_BAD, data.url);
         oncomplete && oncomplete(null, null);
       }
     });
@@ -295,17 +293,16 @@ export class Astc extends Service implements IAstc {
         out = new ImageAsset();
         out._nativeUrl = id;
         out._nativeAsset = data.file;
-        this.dump('astc: 创建成功', data.url, out);
+        this.logger.d(MESSAGES.ASTC.CREATE_OK, data.url, out);
       } catch (e) {
         err = e as Error;
-        this.dump('❌ astc: 创建失败', data.url);
+        this.logger.e(MESSAGES.ASTC.CREATE_BAD, data.url);
       }
       onComplete(err, out);
     });
   }
 
   public createSpriteFrameByInfo(info: IMemoryImageSource | ImageAsset) {
-    this.dump('🖊 astc: 创建精灵帧', info);
     if (info instanceof ImageAsset) {
       return SpriteFrame.createWithImage(info);
     } else if (this.isFormatSupported(info.format) && info._data) {

@@ -1,4 +1,5 @@
-import { _decorator, sys, view, Widget } from 'cc';
+import { sys, view, _decorator, Widget } from 'cc';
+
 const { ccclass, property, menu } = _decorator;
 
 declare global {

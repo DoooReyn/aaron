@@ -1,4 +1,4 @@
-import { IRedDotData, IRedDotPool } from "../interfaces";
+import { IRedDotData, IRedDotPool } from '../interfaces';
 
 /**
  * 红点池实现

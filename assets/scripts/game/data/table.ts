@@ -1,4 +1,5 @@
 import { Table } from '../../aaron';
+
 /** Dialogue 配置表条目映射形式 */
 export interface ITblDialogue {
   id: number;

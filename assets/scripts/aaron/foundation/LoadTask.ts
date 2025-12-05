@@ -1,6 +1,7 @@
 import { Asset, Constructor } from 'cc';
+
 import { aaron } from '../core';
-import { ILoadTask, ILoadOptions } from '../interfaces';
+import { ILoadOptions, ILoadTask } from '../interfaces';
 
 /**
  * 加载任务

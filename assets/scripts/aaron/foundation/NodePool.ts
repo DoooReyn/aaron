@@ -1,4 +1,5 @@
-import { Prefab, instantiate } from 'cc';
+import { instantiate, Prefab } from 'cc';
+
 import { INodePool, IRecyclableNode, IRecyclableOptions } from '../interfaces';
 import { time } from '../utils';
 

@@ -1,6 +1,7 @@
-import { Color, Vec2, SpriteFrame, ImageAsset } from "cc";
+import { Color, ImageAsset, SpriteFrame, Vec2 } from 'cc';
+
+import { IAutoAtlas } from '../IAutoAtlas';
 import { IService } from '../IService';
-import { IAutoAtlas } from "../IAutoAtlas";
 
 /**
  * 富文本图集条目尺寸

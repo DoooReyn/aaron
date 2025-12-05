@@ -1,5 +1,5 @@
-import { lz4 } from './LZstring';
 import { json } from './Json';
+import { lz4 } from './LZstring';
 import { zlib } from './Zlib';
 
 /** 压制 json -> string(lzstring) */

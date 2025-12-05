@@ -1,6 +1,6 @@
-import { IService } from "../../IService";
-import { Constructor } from "../../../types";
-import { IRecyclableObject, IRecyclableOptions } from "./IRecyclable";
+import { Constructor } from '../../../types';
+import { IService } from '../../IService';
+import { IRecyclableObject, IRecyclableOptions } from './IRecyclable';
 
 /**
  * 对象池条目接口

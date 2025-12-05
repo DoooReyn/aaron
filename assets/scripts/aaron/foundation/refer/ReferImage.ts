@@ -1,4 +1,5 @@
 import { Sprite, SpriteFrame } from 'cc';
+
 import { ReferBase } from './ReferBase';
 
 /**

@@ -1,4 +1,5 @@
-import { Scene, Canvas, Camera, Node } from 'cc';
+import { Camera, Canvas, Node, Scene } from 'cc';
+
 import { IService } from '../IService';
 
 /**
@@ -15,6 +16,4 @@ export interface IAppLauncher extends IService {
   camera2D: Camera;
   /** 获取从后台返回前台耗时（开发者可以根据时长决定是否执行某些操作） */
   get elapsed(): number;
-  /** 初始化 */
-  initialize(): Promise<void>;
 }

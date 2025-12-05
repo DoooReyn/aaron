@@ -1,11 +1,11 @@
-import { SpriteFrame, ImageAsset } from 'cc';
+import { ImageAsset, SpriteFrame } from 'cc';
 
 /**
  * 自动图集接口
  */
 export interface IAutoAtlas {
   /** 图集标识 */
-  readonly flag: string;
+  readonly token: string;
   /**
    * 查询图像
    * @param uuid 标识

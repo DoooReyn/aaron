@@ -1,6 +1,17 @@
-import { Constructor, Node, Prefab, UITransform, Widget, instantiate } from 'cc';
+import { instantiate, Constructor, Node, Prefab, UITransform, Widget } from 'cc';
+
 import { aaron, Service } from '../core';
-import { Message } from '../macro';
+import {
+  GuiAlert,
+  GuiDrawer,
+  GuiGuide,
+  GuiMarquee,
+  GuiPage,
+  GuiPopup,
+  GuiScreen,
+  GuiToast,
+  GuiTop
+} from '../foundation';
 import {
   GuiConfig,
   IAppLauncher,
@@ -13,32 +24,21 @@ import {
   IGuiMarquee,
   IGuiPage,
   IGuiPopup,
-  IGuiRootLayers,
   IGuiScreen,
   IGuiToast,
   IGuiTop,
-  ILogger,
   IResCache,
-  IResLoader,
+  IResLoader
 } from '../interfaces';
-import {
-  GuiScreen,
-  GuiPage,
-  GuiPopup,
-  GuiAlert,
-  GuiToast,
-  GuiDrawer,
-  GuiMarquee,
-  GuiGuide,
-  GuiTop,
-} from '../foundation';
-import { SERVICES } from '../macro';
+import { MESSAGES, SERVICES } from '../macro';
 import { be, time } from '../utils';
 
 /**
  * 视图服务
  */
 export class Gui extends Service implements IGui {
+  readonly token: string = MESSAGES.GUI.CATEGORY;
+
   screen: IGuiScreen;
   page: IGuiPage;
   popup: IGuiPopup;
@@ -50,7 +50,6 @@ export class Gui extends Service implements IGui {
   top: IGuiTop;
 
   /** 缓存的服务引用 */
-  private _logger!: ILogger;
   private _resLoader!: IResLoader;
   private _resCache!: IResCache;
 
@@ -70,13 +69,20 @@ export class Gui extends Service implements IGui {
     this._lruReserves = Math.max(1, Math.min(size | 0, 10));
   }
 
-  initialize(): IGuiRootLayers {
+  initialize() {
     // 缓存常用服务引用
-    this._logger = this.resolve<ILogger>(SERVICES.LOGGER);
     this._resLoader = this.resolve<IResLoader>(SERVICES.RES_LOADER);
     this._resCache = this.resolve<IResCache>(SERVICES.RES_CACHE);
 
+    // 场景根节点
     const root = this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root;
+
+    // 创建并添加 GUI 根节点
+    const gui = new Node('gui');
+    this.createLayer(gui);
+    root.addChild(gui);
+    
+    // 创建并添加 GUI 分层
     this.screen = new GuiScreen('screen');
     this.page = new GuiPage('page');
     this.popup = new GuiPopup('popup');
@@ -86,8 +92,6 @@ export class Gui extends Service implements IGui {
     this.marquee = new GuiMarquee('marquee');
     this.guide = new GuiGuide('guide');
     this.top = new GuiTop('top');
-    const gui = new Node('gui');
-    this.createLayer(gui);
     gui.addChild(this.screen);
     gui.addChild(this.page);
     gui.addChild(this.popup);
@@ -97,19 +101,6 @@ export class Gui extends Service implements IGui {
     gui.addChild(this.marquee);
     gui.addChild(this.guide);
     gui.addChild(this.top);
-    root.addChild(gui);
-    return {
-      root: gui,
-      screen: this.screen,
-      page: this.page,
-      popup: this.popup,
-      alert: this.alert,
-      toast: this.toast,
-      drawer: this.drawer,
-      marquee: this.marquee,
-      guide: this.guide,
-      top: this.top,
-    };
   }
 
   register(config: GuiConfig): void {
@@ -137,7 +128,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this.logView('warn', Message.GUI.FETCH_CONFIG_INVALID);
+      this.logView('warn', MESSAGES.GUI.FETCH_CONFIG_INVALID);
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -149,7 +140,7 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this.logView('warn', Message.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
+      this.logView('warn', MESSAGES.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
     }
   }
 
@@ -176,7 +167,7 @@ export class Gui extends Service implements IGui {
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      this.logView('error', Message.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
+      this.logView('error', MESSAGES.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
       return undefined;
     }
 
@@ -290,7 +281,7 @@ export class Gui extends Service implements IGui {
   async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      this.logView('debug', Message.GUI.ANIMATION_ENTER, config.token, lib);
+      this.logView('debug', MESSAGES.GUI.ANIMATION_ENTER, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -298,7 +289,7 @@ export class Gui extends Service implements IGui {
   async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      this.logView('debug', Message.GUI.ANIMATION_EXIT, config.token, lib);
+      this.logView('debug', MESSAGES.GUI.ANIMATION_EXIT, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -416,19 +407,19 @@ export class Gui extends Service implements IGui {
    * @param args 参数
    */
   private logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
-    const fullMessage = Message.GUI.CATEGORY + message;
+    const fullMessage = MESSAGES.GUI.CATEGORY + message;
     switch (level) {
       case 'debug':
-        this._logger.df(fullMessage, ...args);
+        this.logger.df(fullMessage, ...args);
         break;
       case 'info':
-        this._logger.if(fullMessage, ...args);
+        this.logger.if(fullMessage, ...args);
         break;
       case 'warn':
-        this._logger.wf(fullMessage, ...args);
+        this.logger.wf(fullMessage, ...args);
         break;
       case 'error':
-        this._logger.ef(fullMessage, ...args);
+        this.logger.ef(fullMessage, ...args);
         break;
     }
   }
@@ -441,7 +432,7 @@ export class Gui extends Service implements IGui {
    */
   private validateParentNode(parent: Node, token: string): boolean {
     if (!parent || !parent.isValid) {
-      this.logView('error', Message.GUI.CREATE_PARENT_INVALID, token);
+      this.logView('error', MESSAGES.GUI.CREATE_PARENT_INVALID, token);
       return false;
     }
     return true;
@@ -454,7 +445,7 @@ export class Gui extends Service implements IGui {
    */
   private validateConfig(config: GuiConfig): boolean {
     if (!config || !config.token || !config.controller) {
-      this.logView('error', Message.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
+      this.logView('error', MESSAGES.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
       return false;
     }
     return true;
@@ -470,11 +461,11 @@ export class Gui extends Service implements IGui {
     token: string,
   ): void {
     const messages = {
-      cached: Message.GUI.INSTANCE_FROM_CACHE,
-      created: Message.GUI.INSTANCE_FROM_PREFAB,
-      closed: Message.GUI.INSTANCE_CLOSED,
-      registered: Message.GUI.REGISTERED,
-      unregistered: Message.GUI.UNREGISTERED,
+      cached: MESSAGES.GUI.INSTANCE_FROM_CACHE,
+      created: MESSAGES.GUI.INSTANCE_FROM_PREFAB,
+      closed: MESSAGES.GUI.INSTANCE_CLOSED,
+      registered: MESSAGES.GUI.REGISTERED,
+      unregistered: MESSAGES.GUI.UNREGISTERED,
     };
     this.logView('debug', messages[operation], token);
   }
@@ -486,9 +477,9 @@ export class Gui extends Service implements IGui {
    */
   private logViewRegister(type: 'duplicate' | 'replaced' | 'new', token: string): void {
     const messages = {
-      duplicate: Message.GUI.REGISTER_DUPLICATE,
-      replaced: Message.GUI.REGISTER_REPLACED,
-      new: Message.GUI.REGISTERED,
+      duplicate: MESSAGES.GUI.REGISTER_DUPLICATE,
+      replaced: MESSAGES.GUI.REGISTER_REPLACED,
+      new: MESSAGES.GUI.REGISTERED,
     };
     const level = type === 'duplicate' ? 'warn' : 'debug';
     this.logView(level, messages[type], token);

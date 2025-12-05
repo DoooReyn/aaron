@@ -1,9 +1,10 @@
-import { Color, Enum, EventMouse, EventTouch, Node, Vec3, _decorator } from 'cc';
-import { Atom } from './Atom';
+import { _decorator, Color, Enum, EventMouse, EventTouch, Node, Vec3 } from 'cc';
+
 import { aaron } from '../core';
 import { Triggers } from '../foundation';
-import { color } from '../utils';
 import { PRESET } from '../macro';
+import { color } from '../utils';
+import { Atom } from './Atom';
 
 const { ccclass, menu, property } = _decorator;
 

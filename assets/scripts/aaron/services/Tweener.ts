@@ -1,29 +1,30 @@
-import { Node, Tween, tween } from 'cc';
+import { tween, Node, Tween } from 'cc';
 
+import { Service } from '../core';
 import {
   BlurInTw,
   BlurOutTw,
-  PopupInTw,
-  PopupOutTw,
-  ShakeTw,
-  WaveTw,
-  VibrationTw,
-  ExplosionTw,
-  EarthquakeTw,
-  JellyTw,
-  ScrollNumberTw,
   DrawerInTw,
   DrawerOutTw,
-} from '../foundation/tweener';
-import { Service } from '../core';
-import { ITweener, ITweenEntry, type ITweenArgs, ILogger } from '../interfaces';
+  EarthquakeTw,
+  ExplosionTw,
+  JellyTw,
+  PopupInTw,
+  PopupOutTw,
+  ScrollNumberTw,
+  ShakeTw,
+  VibrationTw,
+  WaveTw
+} from '../foundation';
+import { ITweener, ITweenArgs, ITweenEntry } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { might } from '../utils';
-import { SERVICES } from '../macro';
 
 /**
  * Tweener 依赖实现
  */
 export class Tweener extends Service implements ITweener {
+  readonly token: string = MESSAGES.TWEENER.CATEGORY;
   /** 已注册的缓动库容器：lib -> entry */
   private _container: Map<string, ITweenEntry> = new Map();
   /** 运行时缓动表：node.uuid -> Map<lib, [Tween<Node>, ITweenArgs]> */
@@ -56,9 +57,9 @@ export class Tweener extends Service implements ITweener {
 
   register(entry: ITweenEntry): void {
     if (this._container.has(entry.lib)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('✅ 注册缓动: {0} 重复注册，使用最新版本', entry.lib);
+      this.logger.wf('✅ 注册缓动: {0} 重复注册，使用最新版本', entry.lib);
     } else {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 注册缓动: {0}', entry.lib);
+      this.logger.df('✅ 注册缓动: {0}', entry.lib);
     }
     this._container.set(entry.lib, entry);
   }
@@ -88,7 +89,7 @@ export class Tweener extends Service implements ITweener {
   async play(node: Node, lib: string, args?: ITweenArgs): Promise<void> {
     const [_, err] = await might.runAsync(this.internalPlay(node, lib, args));
     if (err) {
-      this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动执行异常: ${lib}`, err);
+      this.logger.e(`❌ 缓动执行异常: ${lib}`, err);
     }
   }
 
@@ -99,7 +100,7 @@ export class Tweener extends Service implements ITweener {
         const [twn, a] = tweens.get(lib)!;
         twn?.pause();
         const [, e] = might.runSync(() => a.onPause?.call(a.context, node));
-        if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动 onPause 回调异常: ${lib}`, e);
+        if (e) this.logger.e(`❌ 缓动 onPause 回调异常: ${lib}`, e);
       }
     }
   }
@@ -111,7 +112,7 @@ export class Tweener extends Service implements ITweener {
         const [twn, a] = tweens.get(lib)!;
         twn?.resume();
         const [, e] = might.runSync(() => a.onResume?.call(a.context, node));
-        if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动 onResume 回调异常: ${lib}`, e);
+        if (e) this.logger.e(`❌ 缓动 onResume 回调异常: ${lib}`, e);
       }
     }
   }
@@ -124,13 +125,13 @@ export class Tweener extends Service implements ITweener {
         twn?.stop();
         tweens.delete(lib);
         const [, e] = might.runSync(() => a.onStop?.call(a.context, node));
-        if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动 onStop 回调异常: ${lib}`, e);
+        if (e) this.logger.e(`❌ 缓动 onStop 回调异常: ${lib}`, e);
       }
     }
   }
 
   pauseAll(node?: Node): void {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
+    const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
         const tweens = this._runtime.get(node.uuid)!;
@@ -154,7 +155,7 @@ export class Tweener extends Service implements ITweener {
   }
 
   resumeAll(node?: Node): void {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
+    const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
         const tweens = this._runtime.get(node.uuid)!;
@@ -178,7 +179,7 @@ export class Tweener extends Service implements ITweener {
   }
 
   stopAll(node?: Node): void {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
+    const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
         const tweens = this._runtime.get(node.uuid)!;
@@ -217,7 +218,7 @@ export class Tweener extends Service implements ITweener {
     return new Promise<void>((resolve) => {
       const entry = this._container.get(lib);
       if (!entry) {
-        this.resolve<ILogger>(SERVICES.LOGGER).ef(`❌ 缓动未注册: {0}`, lib);
+        this.logger.ef(`❌ 缓动未注册: {0}`, lib);
         return resolve();
       }
 
@@ -232,14 +233,14 @@ export class Tweener extends Service implements ITweener {
         const tweens = this._runtime.get(node.uuid)!;
         if (tweens.has(lib)) {
           if (args.existencePolicy === 'skip') {
-            this.resolve<ILogger>(SERVICES.LOGGER).if(`🚀 缓动正在播放中，应用跳过策略: {0}`, lib);
+            this.logger.if(`🚀 缓动正在播放中，应用跳过策略: {0}`, lib);
             return resolve();
           } else {
-            this.resolve<ILogger>(SERVICES.LOGGER).if(`🚀 缓动正在播放中，应用替换策略: {0}`, lib);
+            this.logger.if(`🚀 缓动正在播放中，应用替换策略: {0}`, lib);
             tweens.get(lib)![0]?.stop();
             tweens.delete(lib);
             const [, e] = might.runSync(() => args.onStop?.call(args.context, node));
-            if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动: ${lib} onStop 回调异常`, e);
+            if (e) this.logger.e(`❌ 缓动: ${lib} onStop 回调异常`, e);
           }
         }
       } else {
@@ -248,12 +249,12 @@ export class Tweener extends Service implements ITweener {
 
       const t1 = tween(node).call(() => {
         const [, e] = might.runSync(() => args.onStart?.call(args.context, node));
-        if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动 onStart 回调异常: ${lib}`, e);
+        if (e) this.logger.e(`❌ 缓动 onStart 回调异常: ${lib}`, e);
         // ioc.logcat.tweener.i(`缓动动画: ${lib} 第一阶段播放结束`);
       });
       const [t2, createErr] = might.runSync(() => entry.create(node, args));
       if (createErr || !t2) {
-        this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动构建失败: ${lib}`, createErr);
+        this.logger.e(`❌ 缓动构建失败: ${lib}`, createErr);
         return resolve();
       }
       // t2.call(() => {
@@ -263,7 +264,7 @@ export class Tweener extends Service implements ITweener {
         const map = this._runtime.get(node.uuid);
         map?.delete(lib);
         const [, e] = might.runSync(() => args.onEnd?.call(args.context, node));
-        if (e) this.resolve<ILogger>(SERVICES.LOGGER).e(`❌ 缓动 onEnd 回调异常: ${lib}`, e);
+        if (e) this.logger.e(`❌ 缓动 onEnd 回调异常: ${lib}`, e);
         // ioc.logcat.tweener.i(`缓动动画: ${lib} 第三阶段播放结束`);
         resolve();
       });

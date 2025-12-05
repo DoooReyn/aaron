@@ -1,6 +1,6 @@
+import { Dict } from '../types';
 import { isObject } from './Be';
 import { random, randomInteger, randomOp } from './Random';
-import { Dict } from '../types';
 
 /**
  * 向列表中添加唯一元素

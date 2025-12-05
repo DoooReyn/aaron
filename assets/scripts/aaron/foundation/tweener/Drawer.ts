@@ -1,5 +1,6 @@
+import { tween, view, Node } from 'cc';
+
 import { ITweenArgs, ITweenEntry } from '../../interfaces';
-import { tween, Node, view } from 'cc';
 
 /** 抽屉入场动画 */
 export const DrawerInTw: ITweenEntry = {

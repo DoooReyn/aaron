@@ -1,7 +1,8 @@
-import { Label, _decorator } from 'cc';
+import { _decorator, Label } from 'cc';
 import { EDITOR } from 'cc/env';
-import { literal } from '../utils';
+
 import { aaron } from '../core';
+import { literal } from '../utils';
 
 const { ccclass, property, menu } = _decorator;
 

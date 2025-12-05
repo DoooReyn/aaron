@@ -1,4 +1,5 @@
-import { Button, Label, _decorator } from 'cc';
+import { _decorator, Button, Label } from 'cc';
+
 import { aaron, GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
 import { SettingsController } from './SettingsController';
 

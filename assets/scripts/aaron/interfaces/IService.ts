@@ -1,12 +1,11 @@
-
-/** 服务基类接口 */
-
-import { Constructor } from "../types";
+import { Constructor } from '../types';
 
 /**
  * 服务接口
  */
 export interface IService {
+  /** 初始化 */
+  initialize(...args: any[]): void | Promise<void>;
   /**
    * 解析服务
    * @param token 服务标识符
@@ -57,4 +56,3 @@ export interface IServiceContainer {
     services: string[];
   };
 }
-

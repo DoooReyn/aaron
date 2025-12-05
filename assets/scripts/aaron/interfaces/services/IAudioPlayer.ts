@@ -1,7 +1,8 @@
-import { IService } from '../IService';
 import { AudioSource } from 'cc';
-import { IRecyclableNode } from './pool';
+
+import { IService } from '../IService';
 import { ILoadOptions } from './IResLoader';
+import { IRecyclableNode } from './pool';
 
 /**
  * 音频播放服务接口

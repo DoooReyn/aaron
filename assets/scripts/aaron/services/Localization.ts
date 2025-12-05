@@ -1,4 +1,5 @@
 import { sys } from 'cc';
+
 import { Service } from '../core';
 import {
   IEventBus,
@@ -6,15 +7,16 @@ import {
   IStoreContainer,
   IStoreEntryOfLang,
   Language,
-  LanguageDictionary,
+  LanguageDictionary
 } from '../interfaces';
-import { EVENTS, SERVICES, STORE } from '../macro';
+import { EVENTS, MESSAGES, SERVICES, STORE } from '../macro';
 import { literal } from '../utils';
 
 /**
  * 国际化工具
  */
 export class Localization extends Service implements ILocalization {
+  readonly token: string = MESSAGES.LOCALIZATION.CATEGORY;
   /** 当前语言 */
   private _current: Language = sys.Language.CHINESE;
 
@@ -38,6 +40,9 @@ export class Localization extends Service implements ILocalization {
         }
       }
     }
+
+    this.logger.wf(MESSAGES.LOCALIZATION.ID_NOT_FOUND, id);
+
     return 'xxx@' + id;
   }
 
@@ -58,6 +63,9 @@ export class Localization extends Service implements ILocalization {
         }
       }
     }
+
+    this.logger.wf(MESSAGES.LOCALIZATION.ID_NOT_FOUND_IN_DICT, name, id);
+
     return name + '@' + id;
   }
 
@@ -89,14 +97,17 @@ export class Localization extends Service implements ILocalization {
     if (preset) {
       // 使用缓存语言
       this.language = preset.data!.language;
+      this.logger.df(MESSAGES.LOCALIZATION.USE_CACHE, this.language);
     } else {
       const lang = sys.language;
       if (this._supported.has(lang)) {
         // 使用系统语言
         this.language = lang;
+        this.logger.df(MESSAGES.LOCALIZATION.USE_SYSTEM, this.language);
       } else {
         // 使用传入语言
         this.language = options.language;
+        this.logger.df(MESSAGES.LOCALIZATION.USE_PASS_IN, this.language);
       }
     }
   }
@@ -123,10 +134,12 @@ export class Localization extends Service implements ILocalization {
     if (this._container.has(language)) {
       const dictionaries = this._container.get(language)!;
       dictionaries.set(name, dictionary);
+      this.logger.wf(MESSAGES.LOCALIZATION.UPDATE_DICT, name);
     } else {
       const dictionaries = new Map();
       this._container.set(language, dictionaries);
       dictionaries.set(name, dictionary);
+      this.logger.df(MESSAGES.LOCALIZATION.ADD_DICT, name);
     }
   }
 
@@ -134,6 +147,7 @@ export class Localization extends Service implements ILocalization {
     if (this._container.has(language)) {
       const dictionary = this._container.get(language)!;
       dictionary.delete(name);
+      this.logger.df(MESSAGES.LOCALIZATION.DEL_DICT, name);
       if (dictionary.size === 0) {
         this._container.delete(language);
       }

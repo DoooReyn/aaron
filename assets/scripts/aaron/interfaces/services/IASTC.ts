@@ -1,6 +1,7 @@
 import { gfx, ImageAsset, SpriteFrame } from 'cc';
-import { IService } from '../IService';
+
 import { IMemoryImageSource } from '../../types';
+import { IService } from '../IService';
 
 /** 允许的 ASTC 格式 */
 export type ASTC_FORMAT =
@@ -23,8 +24,6 @@ export type ASTC_FORMAT =
  * ASTC 压缩纹理支持
  */
 export interface IAstc extends IService {
-  /** 日志开关 */
-  logEnabled: boolean;
   /** 目标纹理格式 */
   targetFormat: ASTC_FORMAT;
   /** 初始化 */

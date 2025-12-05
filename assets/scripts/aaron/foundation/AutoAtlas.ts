@@ -1,7 +1,8 @@
-import { MaxRectsPacker } from 'maxrects-packer';
 import { gfx, warnID, ImageAsset, Rect, SpriteFrame, Texture2D } from 'cc';
+import { MaxRectsPacker } from 'maxrects-packer';
+
+import { IAutoAtlas, IAutoAtlasOptions } from '../interfaces';
 import { list } from '../utils';
-import { IAutoAtlasOptions } from '../interfaces';
 
 /**
  * 动态纹理
@@ -51,7 +52,7 @@ export class AutoTexture extends Texture2D {
 /**
  * 自动图集
  */
-export class AutoAtlas {
+export class AutoAtlas implements IAutoAtlas {
   /** 分页列表 */
   private _pages: AutoTexture[];
   /** 图像与区域映射 */
@@ -63,10 +64,10 @@ export class AutoAtlas {
 
   /**
    * 自动图集构造
-   * @param flag 图集标识
+   * @param token 图集标识
    * @param options 配置
    */
-  public constructor(public readonly flag: string, options: Partial<IAutoAtlasOptions>) {
+  public constructor(public readonly token: string, options: Partial<IAutoAtlasOptions>) {
     options = {
       width: 1024,
       height: 1024,

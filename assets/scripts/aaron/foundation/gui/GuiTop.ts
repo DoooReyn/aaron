@@ -1,6 +1,7 @@
-import { Node, EventTouch, UITransform, view } from 'cc';
-import { IGuiTop } from '../../interfaces';
+import { EventTouch, Node } from 'cc';
+
 import { aaron } from '../../core';
+import { IGuiTop } from '../../interfaces';
 import { Triggers } from '../Trigger';
 
 /**

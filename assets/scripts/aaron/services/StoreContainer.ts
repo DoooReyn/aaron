@@ -1,14 +1,15 @@
 import { Service } from '../core';
 import { StoreEntry } from '../foundation';
 import { IArgParser, IPlatform, IStoreContainer, IStoreModem } from '../interfaces';
-import { SERVICES } from '../macro';
+import { MESSAGES, SERVICES } from '../macro';
 import { Dict } from '../types';
-import { lz4, zson, json } from '../utils';
+import { json, lz4, zson } from '../utils';
 
 /**
  * 本地存储容器服务
  */
 export class StoreContainer extends Service implements IStoreContainer {
+  readonly token: string = MESSAGES.STORE.CATEGORY;
   /** 存储条目容器 */
   private readonly _container: Map<string, StoreEntry<Dict>> = new Map();
 

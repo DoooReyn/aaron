@@ -1,4 +1,5 @@
-import { Vec3, tween, v3, Node } from 'cc';
+import { tween, v3, Node, Vec3 } from 'cc';
+
 import { ITweenArgs, ITweenEntry } from '../../interfaces';
 import { random } from '../../utils';
 import { Noise } from '../Noise';

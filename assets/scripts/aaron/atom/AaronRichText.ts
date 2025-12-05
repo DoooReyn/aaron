@@ -1,9 +1,7 @@
-import { Color, Enum, EventTouch, Node, Sprite, TTFFont, Tween, UITransform, Vec2, _decorator, tween } from 'cc';
-import { Atom } from './Atom';
+import { tween, _decorator, Color, Enum, EventTouch, Node, Sprite, Tween, TTFFont, UITransform, Vec2 } from 'cc';
+
 import { aaron } from '../core';
 import { Triggers } from '../foundation';
-import { COLOR } from '../macro';
-import { color, grapheme } from '../utils';
 import {
   AtlasLevel,
   HorizontalAlign,
@@ -11,8 +9,11 @@ import {
   IRichGlyph,
   IRichTextStyle,
   RichTextAtlasLevel,
-  VerticalAlign,
+  VerticalAlign
 } from '../interfaces';
+import { COLOR } from '../macro';
+import { color, grapheme } from '../utils';
+import { Atom } from './Atom';
 
 const { property, ccclass, menu } = _decorator;
 

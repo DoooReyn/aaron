@@ -1,11 +1,9 @@
-import { Component, _decorator } from 'cc';
-
-const { ccclass } = _decorator;
+import { Component } from 'cc';
 
 /**
  * 原子组件接口
  * @description 定义了原子组件的生命周期方法，所有原子组件都必须实现这些方法。
- * @note 所有生命周期方法都必须是 protected 类型，以确保只能在 Atom 类中调用。
+ * @note 原子组件已经对 Component 的生命周期做了代理，因此应该去派生 Atom 而非 Component 的生命周期。
  */
 export interface IAtom extends Component {
   /** 生命周期：初始化 */

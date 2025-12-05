@@ -8,32 +8,32 @@ import {
   IAppLauncher,
   IArgParser,
   IAscendingId,
+  IAstc,
+  IAudioPlayer,
   ICatcher,
+  IEventBus,
   IGlobalAdapter,
-  ILogger,
+  IGui,
+  ILocalization,
   INodePoolContainer,
   IObjectPoolContainer,
   IPlatform,
   IProfiler,
-  IRichTextAtlas,
-  IStoreContainer,
-  IService,
-  IEventBus,
-  ILocalization,
-  ITimer,
-  ISensitives,
+  IRedDotContainer,
   IResCache,
   IResLoader,
-  IAstc,
-  IRedDotContainer,
+  IRichTextAtlas,
+  ISensitives,
+  IService,
+  IStoreContainer,
   ITableQuery,
-  IGui,
-  IAudioPlayer,
-  ITweener,
+  ITimer,
+  ITweener
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
-import { Service, ServiceContainer } from './ServiceContainer';
+import { Logger } from './Logger';
+import { ServiceContainer } from './ServiceContainer';
 
 /**
  * Aaron 框架
@@ -44,6 +44,9 @@ export class Aaron {
     // @ts-ignore
     return (Aaron._instance ??= new Aaron());
   }
+
+  /** 日志容器 */
+  public readonly logger: Logger = new Logger('Aaron');
 
   /**
    * 服务注册回调
@@ -58,7 +61,7 @@ export class Aaron {
    * @param token 服务标识符
    * @returns 服务实例
    */
-  serviceOf<T extends Service>(token: string): T {
+  serviceOf<T extends IService>(token: string): T {
     return ServiceContainer.Shared.get<T>(token);
   }
 
@@ -88,11 +91,6 @@ export class Aaron {
   /** 递增ID生成服务 */
   get ascendingId() {
     return this.serviceOf<IAscendingId>(SERVICES.ASCENDING_ID);
-  }
-
-  /** 日志服务 */
-  get logger() {
-    return this.serviceOf<ILogger>(SERVICES.LOGGER);
   }
 
   /** 全局对象适配服务 */

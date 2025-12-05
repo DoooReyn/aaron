@@ -1,7 +1,8 @@
 import { BufferAsset } from 'cc';
-import { ReferBase } from './ReferBase';
+
 import { aaron } from '../../core';
 import { ILoadOptions } from '../../interfaces';
+import { ReferBase } from './ReferBase';
 
 /**
  * 配置表内容容器

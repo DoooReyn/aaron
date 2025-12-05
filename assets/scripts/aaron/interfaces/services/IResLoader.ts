@@ -18,8 +18,9 @@ import {
   TextAsset,
   TiledMapAsset,
   TTFFont,
-  VideoClip,
+  VideoClip
 } from 'cc';
+
 import { Constructor, IMemoryImageSource } from '../../types';
 import { IService } from '../IService';
 

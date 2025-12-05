@@ -1,6 +1,6 @@
 import { Service } from '../core';
-import { ILogger, IQuery, ITableEntry, ITableQuery, Table } from '../interfaces';
-import { SERVICES } from '../macro';
+import { IQuery, ITableEntry, ITableQuery, Table } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { Key } from '../types';
 import { dict, lzj } from '../utils';
 
@@ -24,6 +24,7 @@ import { dict, lzj } from '../utils';
  * ```
  */
 export class TableQuery extends Service implements ITableQuery {
+  readonly token: string = MESSAGES.TABLE_QUERY.CATEGORY;
   /** 配置表容器 */
   private _tables: Map<string, Table<unknown, unknown>> = new Map();
   /** 配置表查询缓存 */
@@ -73,7 +74,7 @@ export class TableQuery extends Service implements ITableQuery {
       });
       table.listings = listings;
       table.mappings = mappings;
-      this.resolve<ILogger>(SERVICES.LOGGER).d(`✅ 配置表：${token} 解析完成`);
+      this.logger.d(`✅ 配置表：${token} 解析完成`);
 
       resolve(table as Table<R, I>);
     });
@@ -81,7 +82,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   one<T extends ITableEntry>(token: string, id: string | number): T | undefined {
     if (!this._tables.has(token)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 配置表: {0} 未注册', token);
+      this.logger.ef('❌ 配置表: {0} 未注册', token);
       return undefined;
     }
 
@@ -92,7 +93,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('🈳 配置表: {0} 无数据', token);
+      this.logger.ef('🈳 配置表: {0} 无数据', token);
       return undefined;
     }
 
@@ -132,7 +133,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
     if (!this._tables.has(token)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 配置表: {0} 未注册', token);
+      this.logger.ef('❌ 配置表: {0} 未注册', token);
       return [];
     }
 
@@ -152,7 +153,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('🈳 配置表: {0} 无数据', token);
+      this.logger.ef('🈳 配置表: {0} 无数据', token);
       return [];
     }
 

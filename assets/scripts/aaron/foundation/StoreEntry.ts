@@ -1,8 +1,9 @@
 import { sys } from 'cc';
-import { Triggers } from './Trigger';
+
+import { IStoreModem } from '../interfaces';
 import { Dict } from '../types';
 import { dict } from '../utils';
-import { IStoreModem } from '../interfaces';
+import { Triggers } from './Trigger';
 
 /**
  * 本地存储条目

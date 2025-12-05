@@ -1,6 +1,6 @@
-import { IService } from "../IService";
-import { ITriggers } from "../ITrigger";
-import { IObjectEntry } from "./pool";
+import { IService } from '../IService';
+import { ITriggers } from '../ITrigger';
+import { IObjectEntry } from './pool';
 
 /**
  * 计数器接口

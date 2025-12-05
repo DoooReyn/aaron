@@ -1,9 +1,10 @@
-import { Node, UITransform, Graphics } from 'cc';
+import { Graphics, Node, UITransform } from 'cc';
+
 import { aaron } from '../../core';
-import { COLOR, EVENTS } from '../../macro';
-import { GuiStack } from './GuiStack';
-import { color, time } from '../../utils';
 import { GuiConfig } from '../../interfaces';
+import { COLOR, EVENTS } from '../../macro';
+import { color, time } from '../../utils';
+import { GuiStack } from './GuiStack';
 
 /**
  * Alert 警示弹窗层

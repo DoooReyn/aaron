@@ -1,4 +1,5 @@
 import { tween, Node, Vec3 } from 'cc';
+
 import { ITweenArgs, ITweenEntry } from '../../interfaces';
 
 /**

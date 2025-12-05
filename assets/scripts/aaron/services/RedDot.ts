@@ -1,21 +1,21 @@
 import { Service } from '../core';
 import { RedDotPool } from '../foundation';
 import {
-  IRedDotConfig,
-  IRedDotData,
-  IRedDotChangeEvent,
-  IRedDotPool,
-  ILogger,
-  IRedDotContainer,
-  IStoreContainer,
   IEventBus,
+  IRedDotChangeEvent,
+  IRedDotConfig,
+  IRedDotContainer,
+  IRedDotData,
+  IRedDotPool,
+  IStoreContainer
 } from '../interfaces';
-import { EVENTS, SERVICES } from '../macro';
+import { EVENTS, MESSAGES, SERVICES } from '../macro';
 
 /**
  * 红点服务
  */
 export class RedDotContainer extends Service implements IRedDotContainer {
+  readonly token: string = MESSAGES.RED_DOT.CATEGORY;
   /** 红点配置映射 */
   private _configs: Map<string, IRedDotConfig> = new Map();
   /** 红点数据映射 */
@@ -35,7 +35,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    */
   register(config: IRedDotConfig): void {
     if (this._configs.has(config.id)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 已存在，无法重复注册', config.id);
+      this.logger.ef(MESSAGES.RED_DOT.REGISTER_BAD_EXISTED, config.id);
       return;
     }
 
@@ -47,7 +47,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
 
     // 如果支持持久化，尝试恢复本地数据
     if (config.persistent) {
-      this.__loadFromStorage(config.id, redDot);
+      this.loadFromStorage(config.id, redDot);
     }
 
     this._redDots.set(config.id, redDot);
@@ -65,7 +65,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       }
     }
 
-    this.resolve<ILogger>(SERVICES.LOGGER).df('红点 {0} 注册成功', config.id);
+    this.logger.df(MESSAGES.RED_DOT.REGISTER_OK, config.id);
   }
 
   /**
@@ -76,13 +76,13 @@ export class RedDotContainer extends Service implements IRedDotContainer {
   updateData(id: string, data: any): void {
     const config = this._configs.get(id);
     if (!config) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 未注册，无法更新数据', id);
+      this.logger.ef(MESSAGES.RED_DOT.UPDATE_BAD_NOT_REGISTERED, id);
       return;
     }
 
     const redDot = this._redDots.get(id);
     if (!redDot) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 数据不存在', id);
+      this.logger.ef(MESSAGES.RED_DOT.UPDATE_BAD_EMPTY_DATA, id);
       return;
     }
 
@@ -97,14 +97,14 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       redDot.visible = newVisible;
 
       // 触发状态变化事件
-      this.__emitChangeEvent(id, newVisible, data);
+      this.emitChangeEvent(id, newVisible, data);
 
       // 更新父红点状态
-      this.__updateParentState(id);
+      this.updateParentState(id);
 
       // 持久化处理
       if (config.persistent) {
-        this.__saveToStorage(id, redDot);
+        this.saveToStorage(id, redDot);
       }
     }
   }
@@ -177,13 +177,13 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       updates.forEach((update) => {
         const config = this._configs.get(update.id);
         if (!config) {
-          this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 未注册，无法更新数据', update.id);
+          this.logger.ef(MESSAGES.RED_DOT.UPDATE_BAD_NOT_REGISTERED, update.id);
           return;
         }
 
         const redDot = this._redDots.get(update.id);
         if (!redDot) {
-          this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 数据不存在', update.id);
+          this.logger.ef(MESSAGES.RED_DOT.UPDATE_BAD_EMPTY_DATA, update.id);
           return;
         }
 
@@ -207,20 +207,20 @@ export class RedDotContainer extends Service implements IRedDotContainer {
 
           // 持久化处理
           if (config.persistent) {
-            this.__saveToStorage(update.id, redDot);
+            this.saveToStorage(update.id, redDot);
           }
         }
       });
 
       // 批量更新父红点状态
       parentIdsToUpdate.forEach((parentId) => {
-        this.__updateParentState(parentId);
+        this.updateParentState(parentId);
       });
 
       // 批量触发状态变化事件
       changedEvents.forEach((event) => {
         this.__notifyListeners(event);
-        this.__notifyEventBus(event);
+        this.notifyEventBus(event);
       });
     } finally {
       this._isBatching = false;
@@ -233,10 +233,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    */
   clear(id: string): void {
     const config = this._configs.get(id);
-    if (!config) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 未注册，无法清除', id);
-      return;
-    }
+    if (!config) return;
 
     const redDot = this._redDots.get(id);
     if (!redDot) {
@@ -248,14 +245,14 @@ export class RedDotContainer extends Service implements IRedDotContainer {
     redDot.updateTime = Date.now();
 
     // 触发状态变化事件
-    this.__emitChangeEvent(id, false, undefined);
+    this.emitChangeEvent(id, false, undefined);
 
     // 更新父红点状态
-    this.__updateParentState(id);
+    this.updateParentState(id);
 
     // 持久化处理
     if (config.persistent) {
-      this.__saveToStorage(id, redDot);
+      this.saveToStorage(id, redDot);
     }
   }
 
@@ -266,7 +263,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
   onClick(id: string): void {
     const config = this._configs.get(id);
     if (!config) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 未注册', id);
+      this.logger.ef(MESSAGES.RED_DOT.TRIGGER_BAD_NOT_REGISTERED, id);
       return;
     }
 
@@ -341,7 +338,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
     // 删除配置
     this._configs.delete(id);
 
-    this.resolve<ILogger>(SERVICES.LOGGER).wf('红点 {0} 注销成功', id);
+    this.logger.wf(MESSAGES.RED_DOT.UN_REGISTER_OK, id);
   }
 
   /**
@@ -350,13 +347,13 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    * @param visible 是否可见
    * @param data 红点数据
    */
-  private __emitChangeEvent(id: string, visible: boolean, data?: any): void {
+  private emitChangeEvent(id: string, visible: boolean, data?: any): void {
     const event: IRedDotChangeEvent = { id, visible, data };
 
     // 如果不是批量更新模式，立即触发事件
     if (!this._isBatching) {
       this.__notifyListeners(event);
-      this.__notifyEventBus(event);
+      this.notifyEventBus(event);
     }
   }
 
@@ -371,7 +368,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
         try {
           callback(event);
         } catch (error) {
-          this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 状态变化回调执行失败: {1}', event.id, error);
+          this.logger.e(MESSAGES.RED_DOT.EXECUTE_BAD_IN_STATE_CHANGED, event.id, error);
         }
       });
     }
@@ -381,7 +378,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    * 通知事件总线
    * @param event 状态变化事件
    */
-  private __notifyEventBus(event: IRedDotChangeEvent): void {
+  private notifyEventBus(event: IRedDotChangeEvent): void {
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).red.emit(EVENTS.GUI.RED_DOT_CHANGED + event.id, event);
   }
 
@@ -389,7 +386,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    * 更新父红点状态
    * @param childId 子红点ID
    */
-  private __updateParentState(childId: string): void {
+  private updateParentState(childId: string): void {
     const config = this._configs.get(childId);
     if (!config || !config.parent) {
       return;
@@ -416,10 +413,10 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       parentRedDot.updateTime = Date.now();
 
       // 触发父红点状态变化事件
-      this.__emitChangeEvent(config.parent, parentVisible, parentRedDot.data);
+      this.emitChangeEvent(config.parent, parentVisible, parentRedDot.data);
 
       // 递归更新祖父红点
-      this.__updateParentState(config.parent);
+      this.updateParentState(config.parent);
     }
   }
 
@@ -428,7 +425,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    * @param id 红点ID
    * @param redDot 红点数据对象
    */
-  private __loadFromStorage(id: string, redDot: IRedDotData): void {
+  private loadFromStorage(id: string, redDot: IRedDotData): void {
     const store = this.resolve<IStoreContainer>(SERVICES.STORE);
     try {
       const key = `redDot:${id}`;
@@ -436,10 +433,10 @@ export class RedDotContainer extends Service implements IRedDotContainer {
       const storeItem = store.itemOf(key);
       if (storeItem && storeItem.data) {
         this.updateData(id, storeItem.data);
-        this.resolve<ILogger>(SERVICES.LOGGER).df('红点 {0} 持久化数据恢复成功', id);
+        this.logger.df(MESSAGES.RED_DOT.RESTORE_OK, id);
       }
     } catch (error) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 持久化数据加载失败: {1}', id, error);
+      this.logger.ef(MESSAGES.RED_DOT.RESTORE_BAD, id, error);
     }
   }
 
@@ -448,7 +445,7 @@ export class RedDotContainer extends Service implements IRedDotContainer {
    * @param id 红点ID
    * @param redDot 红点数据
    */
-  private __saveToStorage(id: string, redDot: IRedDotData): void {
+  private saveToStorage(id: string, redDot: IRedDotData): void {
     try {
       const storeItem = this.resolve<IStoreContainer>(SERVICES.STORE).itemOf(`redDot:${id}`);
       if (storeItem) {
@@ -456,9 +453,10 @@ export class RedDotContainer extends Service implements IRedDotContainer {
         storeItem.data.data = redDot.data;
         storeItem.data.updateTime = redDot.updateTime;
         storeItem.save();
+        this.logger.df(MESSAGES.RED_DOT.PERSIST_OK, id);
       }
     } catch (error) {
-      this.resolve<ILogger>(SERVICES.LOGGER).ef('红点 {0} 持久化失败: {1}', id, error);
+      this.logger.ef(MESSAGES.RED_DOT.PERSIST_BAD, id, error);
     }
   }
 
@@ -467,6 +465,5 @@ export class RedDotContainer extends Service implements IRedDotContainer {
     this._redDots.clear();
     this._listeners.clear();
     this._batchQueue.length = 0;
-    this.resolve<ILogger>(SERVICES.LOGGER).d('红点管理系统已清理');
   }
 }

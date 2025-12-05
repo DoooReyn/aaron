@@ -1,6 +1,6 @@
-import { IService } from '../IService';
 import { StoreEntry } from '../../foundation';
 import { Dict } from '../../types';
+import { IService } from '../IService';
 
 /**
  * 本地存储条目调制解调器

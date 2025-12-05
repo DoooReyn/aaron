@@ -1,4 +1,4 @@
-import { IObjectEntry } from "./services";
+import { IObjectEntry } from './services';
 
 /**
  * 触发器接口

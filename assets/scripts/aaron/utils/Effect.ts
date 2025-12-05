@@ -1,4 +1,4 @@
-import { builtinResMgr, Material, UIRenderer, Node } from 'cc';
+import { builtinResMgr, Material, Node, UIRenderer } from 'cc';
 
 /**
  * 设置节点材质（包括子节点）

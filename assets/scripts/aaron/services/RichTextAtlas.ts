@@ -1,9 +1,17 @@
-import { Label, Node, Texture2D, SpriteFrame, ImageAsset } from 'cc';
-import { AutoAtlas } from '../foundation';
-import { IRichTextStyle, IRichTextAtlas, RichTextAtlasLevel, IRichAtlasInfo, IProfiler, IAppLauncher, ILogger } from '../interfaces';
-import { be } from '../utils';
+import { ImageAsset, Label, Node, SpriteFrame, Texture2D } from 'cc';
+
 import { Service } from '../core';
-import { PRESET, SERVICES } from '../macro';
+import { AutoAtlas } from '../foundation';
+import {
+  IAppLauncher,
+  IProfiler,
+  IRichAtlasInfo,
+  IRichTextAtlas,
+  IRichTextStyle,
+  RichTextAtlasLevel
+} from '../interfaces';
+import { MESSAGES, PRESET, SERVICES } from '../macro';
+import { be } from '../utils';
 
 /**
  * 富文本模板
@@ -63,6 +71,7 @@ class RichTextTemplate extends Node {
  * 富文本图集服务
  */
 export class RichTextAtlas extends Service implements IRichTextAtlas {
+  public readonly token: string = MESSAGES.RICH_TEXT_ATLAS.CATEGORY;
   /** atlasKey -> 图集信息 */
   private _atlases: Map<string, IRichAtlasInfo> = new Map();
 
@@ -80,18 +89,17 @@ export class RichTextAtlas extends Service implements IRichTextAtlas {
 
     this.configureAtlas(PRESET.RICH_TEXT_ATLAS, RichTextAtlasLevel.XLarge);
     this._template = new RichTextTemplate();
-    this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root.insertChild(this._template, 2);
+    this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).root.addChild(this._template);
   }
 
   configureAtlas(atlasKey: string, level: RichTextAtlasLevel): void {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     if (this._atlasLevels.has(atlasKey)) {
       const oldLevel = RichTextAtlasLevel[this._atlasLevels.get(atlasKey)];
-      logger.w(`📚 富文本图集：${atlasKey} 已配置为 ${oldLevel}，请注意合理分配图集标识和等级`);
+      this.logger.w(`📚 富文本图集：${atlasKey} 已配置为 ${oldLevel}，请注意合理分配图集标识和等级`);
       return;
     }
     this._atlasLevels.set(atlasKey, level);
-    logger.i(`📚 添加富文本图集: ${atlasKey} ${RichTextAtlasLevel[level]}`);
+    this.logger.i(`📚 添加富文本图集: ${atlasKey} ${RichTextAtlasLevel[level]}`);
   }
 
   destroy() {

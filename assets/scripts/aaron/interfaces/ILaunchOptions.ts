@@ -1,4 +1,5 @@
 import { __private } from 'cc';
+
 import { LogLevel } from './services';
 
 /** 应用启动参数 */

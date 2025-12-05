@@ -1,4 +1,4 @@
-import { FSMKey, FSMConfig, IFSM, TransitionTable, FSMCallbacks, FSMStateLocalCallbacks } from '../interfaces';
+import { FSMCallbacks, FSMConfig, FSMKey, FSMStateLocalCallbacks, IFSM, TransitionTable } from '../interfaces';
 import { dict, time } from '../utils';
 
 /**

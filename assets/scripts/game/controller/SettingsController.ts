@@ -1,4 +1,5 @@
-import { Label, Button, _decorator } from 'cc';
+import { _decorator, Button, Label } from 'cc';
+
 import { GuiBindingMap, GuiConfig, GuiController } from '../../aaron';
 
 const { ccclass } = _decorator;

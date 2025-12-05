@@ -4,7 +4,6 @@
 export const SERVICES = {
   ASCENDING_ID: 'AscendingId',
   GLOBAL_ADAPTER: 'GlobalAdapter',
-  LOGGER: 'Logger',
   ARG_PARSER: 'ArgParser',
   PLATFORM: 'Platform',
   CATCHER: 'Catcher',

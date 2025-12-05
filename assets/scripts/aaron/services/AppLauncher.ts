@@ -1,13 +1,16 @@
-import { director, Director, Camera, Canvas, Scene, Node, game, Game, screen, EventTouch, view } from 'cc';
+import { director, game, screen, view, Camera, Canvas, Director, EventTouch, Game, Node, Scene } from 'cc';
+
 import { Service } from '../core';
-import { IAppLauncher, IEventBus, ILogger, ITimer } from '../interfaces';
-import { EVENTS, PRESET, SERVICES } from '../macro';
+import { IAppLauncher, IEventBus, ITimer } from '../interfaces';
+import { EVENTS, MESSAGES, PRESET, SERVICES } from '../macro';
 import { digit, misc, time } from '../utils';
 
 /**
  * 应用启动器服务
  */
 export class AppLauncher extends Service implements IAppLauncher {
+  readonly token: string = MESSAGES.APP_LAUNCHER.CATEGORY;
+
   scene: Scene;
   stage: Canvas;
   root: Node;
@@ -29,25 +32,25 @@ export class AppLauncher extends Service implements IAppLauncher {
           // 根节点： PRESET.ROOT
           this.root = scene.getChildByName(PRESET.ROOT);
           if (!this.root) {
-            reject('启动场景根节点未正确配置');
+            reject(MESSAGES.APP_LAUNCHER.INVALID_ROOT);
           }
 
           // 舞台
           this.stage = this.root.getComponent(Canvas);
           if (!this.stage) {
-            reject('根节点下必须挂载 Canvas');
+            reject(MESSAGES.APP_LAUNCHER.CANVAS_NEEDED);
           }
 
           // 2D相机: PRESET.CAMERA_2D
           const camera2D = this.root.getChildByName(PRESET.CAMERA_2D);
           if (!camera2D) {
-            reject('2D相机节点未正确配置');
+            reject(MESSAGES.APP_LAUNCHER.INVALID_2D_CAMERA);
           }
 
           // 2D相机组件
           this.camera2D = camera2D?.getComponent(Camera);
           if (!this.camera2D) {
-            reject('2D相机节点下必须挂载 Camera');
+            reject(MESSAGES.APP_LAUNCHER.CAMERA_NEEDED);
           }
 
           // 代理窗口尺寸变换事件
@@ -61,12 +64,12 @@ export class AppLauncher extends Service implements IAppLauncher {
           screen.on(EVENTS.APP.SCREEN_SIZE_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
-          director.on(Director.EVENT_AFTER_UPDATE, this.onTick, this);
+          director.on(Director.EVENT_AFTER_UPDATE, this.onUpdate, this);
           this.root.on(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
 
           resolve();
         },
-        this,
+        this
       );
     });
   }
@@ -83,14 +86,14 @@ export class AppLauncher extends Service implements IAppLauncher {
   private onEnterFG(): void {
     this._timeEnterFG = time.now();
     const diff = digit.keepBits((this._timeEnterFG - this._timeEnterBG) / 1000, 2);
-    this.resolve<ILogger>(SERVICES.LOGGER).df('应用: 回到前台，耗时: {0} 秒', diff);
+    this.logger.df(MESSAGES.APP_LAUNCHER.ENTER_FOREGROUND, diff);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_FOREGROUND);
   }
 
   /** 进入后台  */
   private onEnterBG(): void {
     this._timeEnterBG = time.now();
-    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 进入后台');
+    this.logger.d(MESSAGES.APP_LAUNCHER.ENTER_BACKGROUND);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.ENTER_BACKGROUND);
   }
 
@@ -112,14 +115,14 @@ export class AppLauncher extends Service implements IAppLauncher {
 
   /** 内存警告 */
   private onLowMemory(): void {
-    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 内存不足');
+    this.logger.d(MESSAGES.APP_LAUNCHER.OUT_OF_MEMORY);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.LOW_MEMORY);
   }
 
   /** 窗口尺寸变化 */
   private onScreenSizeChanged(): void {
     const size = view.getVisibleSize();
-    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕尺寸改变', size.toString());
+    this.logger.d(MESSAGES.APP_LAUNCHER.SCREEN_SIZE_CHANGED, size.toString());
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_SIZE_CHANGED, size);
   }
 
@@ -128,21 +131,26 @@ export class AppLauncher extends Service implements IAppLauncher {
 
   /** 屏幕朝向变化 */
   private onScreenOrientationChanged(orientation: number): void {
-    this.resolve<ILogger>(SERVICES.LOGGER).d('应用: 屏幕方向改变', orientation);
+    this.logger.d(MESSAGES.APP_LAUNCHER.SCREEN_ORIENTATION_CHANGED, orientation);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, orientation);
   }
 
   /**
    * 屏幕被点击
-   * @param touch
+   * @param touch 触摸事件
    */
   private onScreenTapped(touch: EventTouch): void {
-    if (this.root._uiProps.uiTransformComp.hitTest(touch.getLocation())) {
+    const loc = touch.getLocation();
+    if (this.root._uiProps.uiTransformComp.hitTest(loc)) {
+      this.logger.df(MESSAGES.APP_LAUNCHER.SCREEN_TAPPED, loc.x, loc.y);
       this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.GUI.SCREEN_TAPPED, touch);
     }
   }
 
-  private onTick() {
+  /**
+   * 系统定时器更新
+   */
+  private onUpdate() {
     this.resolve<ITimer>(SERVICES.TIMER).update(game.deltaTime);
   }
 }

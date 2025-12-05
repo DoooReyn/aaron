@@ -5,80 +5,160 @@
  *
  * 使用方式：
  * ```typescript
- * import { Message } from '../macro/Message';
+ * import { MESSAGES } from '../macro/Message';
  *
  * // 在 GUI 服务中使用
  * export class Gui {
  *   private _logView(message: string, ...args: any[]) {
- *     console.log(Message.GUI.CATEGORY + message, ...args);
+ *     console.log(MESSAGES.GUI.CATEGORY + message, ...args);
  *   }
  * }
  * ```
  */
-
-export namespace Message {
-  /** GUI 服务相关消息 */
-  export const GUI = {
-    // 消息类别前缀
-    CATEGORY: '📷 视图: ',
-
-    // 注册相关消息
+export const MESSAGES = {
+  SERVICE: {
+    CATEGORY: '🛎️ 服务容器:',
+    FACTORY_EXISTED: '工厂方法 {0} 已存在，将被覆盖',
+    FACTORY_REGISTERED: '注册工厂方法 {0}',
+    INSTANCE_EXISTED: '实例对象 {0} 已存在，将被覆盖',
+    INSTANCE_REGISTERED: '注册实例对象 {0}',
+    NOT_REGISTERED: '该工厂方法或实例对象未注册 {0}',
+    CREATE_INSTANCE: '创建实例对象 {0}',
+  },
+  APP_LAUNCHER: {
+    CATEGORY: '🚀 启动器:',
+    INVALID_ROOT: '根节点未正确配置',
+    INVALID_2D_CAMERA: '2D相机节点未正确配置',
+    CAMERA_NEEDED: '2D相机节点下必须挂载 Camera',
+    CANVAS_NEEDED: '根节点下必须挂载 Canvas',
+    ENTER_FOREGROUND: '回到前台，耗时: {0} 秒',
+    ENTER_BACKGROUND: '进入后台',
+    SCREEN_SIZE_CHANGED: '屏幕尺寸改变',
+    SCREEN_ORIENTATION_CHANGED: '屏幕方向改变',
+    SCREEN_TAPPED: '点击屏幕 {0},{1}',
+    OUT_OF_MEMORY: '内存不足',
+  },
+  ARG_PARSER: {
+    CATEGORY: '🔓 参数解析器:',
+    APP_ARGS: '应用参数',
+  },
+  ASCENDING_ID: {
+    CATEGORY: '🆔 编号:',
+    CREATED: '第一次创建 {0} -> {1}',
+  },
+  ASTC: {
+    CATEGORY: '🧩 ASTC:',
+    DOWNLOAD_OK: '下载成功',
+    DOWNLOAD_BAD: '下载失败',
+    PARSE_OK: '解析成功',
+    PARSE_BAD: '解析失败',
+    CREATE_OK: '创建成功',
+    CREATE_BAD: '创建失败',
+  },
+  AUDIO_PLAYER: {
+    CATEGORY: '🔊 音频:',
+  },
+  CATCHER: {
+    CATEGORY: '🪰 异常捕获:',
+    ASYNC_ERROR: '异步错误',
+    SYNC_ERROR: '同步错误',
+  },
+  EVENT_BUS: {
+    CATEGORY: '🚌 事件总线:',
+  },
+  GLOBAL_ADAPTER: {
+    CATEGORY: '⚽ 全局对象:',
+    REPLACE: '替换属性 {0}，请注意影响范围',
+    ADD: '添加属性 {0}',
+    DELETE: '删除属性 {0}',
+  },
+  GUI: {
+    CATEGORY: '📷 视图:',
     REGISTERED: '{0} 已经注册',
     REGISTER_DUPLICATE: '{0} 重复注册, 已跳过',
     REGISTER_REPLACED: '{0} 已经注册, 已替换',
     UNREGISTERED: '{0} 未注册',
-
-    // 实例创建相关消息
     CREATE_PARENT_INVALID: '{0} 创建实例失败，父节点无效',
     CREATE_CONFIG_INVALID: '{0} 创建实例失败，配置无效',
     CREATE_PREFAB_INVALID: '{0} <{1}> 创建实例失败，未能正确识别预制体',
-
-    // 实例操作消息
     INSTANCE_FROM_CACHE: '{0} 从缓存创建',
     INSTANCE_FROM_PREFAB: '{0} 从实例创建',
     INSTANCE_CLOSED: '{0} 关闭',
-
-    // 动画相关消息
     ANIMATION_ENTER: '{0} 播放进入动画 {1}',
     ANIMATION_EXIT: '{0} 播放退出动画 {1}',
-
-    // 参数验证消息
-    FETCH_CONFIG_INVALID: 'fetchConfig 参数无效',
-    FETCH_CONFIG_TYPE_UNSUPPORTED: 'fetchConfig 不支持的参数类型: {0}',
-  } as const;
-
-  /** 资源管理相关消息 */
-  export const RESOURCE = {
-    CATEGORY: '📦 资源: ',
-  } as const;
-
-  /** 音频管理相关消息 */
-  export const AUDIO = {
-    CATEGORY: '🔊 音频: ',
-  } as const;
-
-  /** 网络相关消息 */
-  export const NETWORK = {
-    CATEGORY: '🌐 网络: ',
-  } as const;
-
-  /** 数据管理相关消息 */
-  export const DATA = {
-    CATEGORY: '💾 数据: ',
-  } as const;
-
-  /** 计时器相关消息 */
-  export const TIMER = {
-    CATEGORY: '⏰ 计时器: ',
-  } as const;
-
-  /** 工具相关消息 */
-  export const UTIL = {
-    CATEGORY: '🛠️ 工具: ',
-  } as const;
-
-  /** 应用程序相关消息 */
-  export const APP = {
-    CATEGORY: '🚀 应用: ',
-  } as const;
-}
+    FETCH_CONFIG_INVALID: '参数无效',
+    FETCH_CONFIG_TYPE_UNSUPPORTED: '不支持的参数类型: {0}',
+  },
+  LOCALIZATION: {
+    CATEGORY: '🌏 国际化:',
+    ID_NOT_FOUND: '未找到文本编号 {0}',
+    ID_NOT_FOUND_IN_DICT: '在字典 {0} 中未找到文本编号 {1}',
+    USE_CACHE: '使用本地缓存的语言 {0}',
+    USE_SYSTEM: '使用系统默认的语言 {0}',
+    USE_PASS_IN: '使用用户传入的语言 {0}',
+    ADD_DICT: '添加语言包 {0}',
+    UPDATE_DICT: '更新语言包 {0}',
+    DEL_DICT: '删除语言包 {1}',
+  },
+  NODE_POOL: {
+    CATEGORY: '🫙 节点池：',
+    REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
+    REGISTER_BAD_DISMATCHED: '注册失败，目标实例不符合条件 {0}',
+    QUERY_BAD_NOT_FOUND: '查询失败，目标不存在 {0}',
+    RECYCLE_BAD_NOT_FOUND: '回收失败，目标不存在 {0}',
+    RECYCLE_OK: '回收节点到池子 {0}',
+  },
+  OBJECT_POOL: {
+    CATEGORY: '🍺 对象池:',
+    REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
+    UN_REGISTER_OK: '注销成功 {0}',
+    NOT_REGISTERED: '目标未注册 {0}',
+    RECYCLE_OK: '回收对象到池子 {0}',
+  },
+  PLATFORM: {
+    CATEGORY: '💻 平台:',
+  },
+  PROFILER: {
+    CATEGORY: '📊 性能分析器:',
+    TEXTURE_DETAILS: '纹理日志',
+    MEMORY_OCCUPY: '占用内存 {0}M',
+  },
+  RED_DOT: {
+    CATEGORY: '🔴 红点:',
+    REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
+    REGISTER_OK: '注册成功 {0}',
+    UPDATE_BAD_NOT_REGISTERED: '更新失败，目标未注册 {0}',
+    UPDATE_BAD_EMPTY_DATA: '更新失败，数据不存在 {0}',
+    TRIGGER_BAD_NOT_REGISTERED: '触发失败，目标未注册 {0}',
+    UN_REGISTER_OK: '目标注销成功 {0}',
+    EXECUTE_BAD_IN_STATE_CHANGED: '目标状态变化回调执行失败',
+    RESTORE_OK: '目标持久化恢复成功 {0}',
+    RESTORE_BAD: '目标持久化恢复失败 {0}:{1}',
+    PERSIST_OK: '目标持久化失败 {0}',
+    PERSIST_BAD: '目标持久化失败 {0}:{1}',
+  },
+  RES_CACHE: {
+    CATEGORY: '🗄️资源缓存:',
+  },
+  RES_LOADER: {
+    CATEGORY: '🏃‍♂️‍➡️ 资源加载:',
+  },
+  RICH_TEXT_ATLAS: {
+    CATEGORY: '📔 富文本图集:',
+  },
+  SENSITIVES: {
+    CATEGORY: '🔞 敏感词:',
+  },
+  STORE: {
+    CATEGORY: '💾 持久化:',
+  },
+  TABLE_QUERY: {
+    CATEGORY: '📰 表格:',
+  },
+  TIMER: {
+    CATEGORY: '🕰️ 计时器:',
+  },
+  TWEENER: {
+    CATEGORY: '🖼️ 缓动:',
+  },
+} as const;

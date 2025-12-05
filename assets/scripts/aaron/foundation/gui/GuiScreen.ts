@@ -1,6 +1,7 @@
 import { Node } from 'cc';
-import { GuiConfig, IGuiInstance, IGuiScreen } from '../../interfaces';
+
 import { aaron } from '../../core';
+import { GuiConfig, IGuiInstance, IGuiScreen } from '../../interfaces';
 
 /**
  * Screen

@@ -1,5 +1,6 @@
 import { Service } from '../core';
 import { ISensitives } from '../interfaces';
+import { MESSAGES } from '../macro';
 
 /** 默认干扰词 */
 const DEFAULT_NOISE_WORDS =
@@ -87,6 +88,7 @@ function isWordEnd(point: IWordMap): boolean {
  * ```
  */
 export class Sensitives extends Service implements ISensitives {
+  readonly token: string = MESSAGES.SENSITIVES.CATEGORY;
   /** 敏感词Trie树映射表 */
   private _map: IWordMap = {};
   /** 干扰字符映射表 */

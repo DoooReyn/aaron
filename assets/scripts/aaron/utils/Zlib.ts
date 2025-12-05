@@ -1,4 +1,4 @@
-import { inflate, Data, deflate } from 'pako';
+import { deflate, inflate, Data } from 'pako';
 
 /** 压制 string -> string(zlib) */
 function encode(data: string) {

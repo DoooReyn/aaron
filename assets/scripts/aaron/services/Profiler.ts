@@ -1,13 +1,15 @@
-import { Texture2D, director, Director, profiler, DynamicAtlasManager, game } from 'cc';
+import { director, game, profiler, Director, DynamicAtlasManager, Texture2D } from 'cc';
+
 import { Service } from '../core';
-import { IArgParser, ILogger, IPlatform, IProfiler } from '../interfaces';
+import { IArgParser, IPlatform, IProfiler } from '../interfaces';
+import { MESSAGES, SERVICES } from '../macro';
 import { misc } from '../utils';
-import { SERVICES } from '../macro';
 
 /**
  * 性能分析器
  */
 export class Profiler extends Service implements IProfiler {
+  readonly token: string = MESSAGES.PROFILER.CATEGORY;
   /** 当前纹理映射 */
   private _texturesMap: Map<number, Texture2D> = new Map();
   /** 纹理日志记录 */
@@ -131,8 +133,8 @@ export class Profiler extends Service implements IProfiler {
     }
 
     if (this._texturesLog.has(hash)) {
-      const logger = this.resolve<ILogger>(SERVICES.LOGGER);
-      this._texturesLog.get(hash)!.forEach((v) => logger.d(v));
+      this.logger.d(MESSAGES.PROFILER.TEXTURE_DETAILS, hash);
+      console.table(this._texturesLog.get(hash)!);
     }
   }
 
@@ -154,7 +156,7 @@ export class Profiler extends Service implements IProfiler {
         });
         totalMemory += memory / 1024;
       });
-      this.resolve<ILogger>(SERVICES.LOGGER).d(`💻 占用内存: ${totalMemory.toFixed(2)}M`);
+      this.logger.d(MESSAGES.PROFILER.MEMORY_OCCUPY, totalMemory.toFixed(2));
       console.table(
         textures.sort((a, b) => b.width * b.height - a.width * a.height),
         ['hash', 'width', 'height', 'memoryUsage']

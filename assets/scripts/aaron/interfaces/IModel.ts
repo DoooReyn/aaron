@@ -1,7 +1,8 @@
-import { Pair } from "../types";
+import { Pair } from '../types';
 
 /** 数据传输对象 */
 export interface Dto {}
+
 /** 数据属性变化回调 */
 export type OnPropertyChanged = (path: string, value: any) => void;
 

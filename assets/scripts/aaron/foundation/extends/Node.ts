@@ -1,4 +1,5 @@
 import {
+  isValid,
   js,
   sp,
   v3,
@@ -27,11 +28,10 @@ import {
   UIRenderer,
   UITransform,
   Vec2,
+  Vec3,
   VideoPlayer,
   WebView,
-  Widget,
-  Vec3,
-  isValid,
+  Widget
 } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 

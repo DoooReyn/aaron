@@ -1,28 +1,29 @@
 import {
   assetManager,
-  AssetManager,
-  Asset,
-  Constructor,
   js,
-  ImageAsset,
-  Texture2D,
-  SpriteFrame,
-  SpriteAtlas,
-  Prefab,
-  TextAsset,
-  JsonAsset,
   sp,
-  Font,
-  BitmapFont,
-  AudioClip,
-  ParticleAsset,
-  TiledMapAsset,
-  BufferAsset,
-  VideoClip,
   AnimationClip,
+  Asset,
+  AssetManager,
+  AudioClip,
+  BitmapFont,
+  BufferAsset,
+  Constructor,
+  Font,
+  ImageAsset,
+  JsonAsset,
+  ParticleAsset,
+  Prefab,
+  SpriteAtlas,
+  SpriteFrame,
+  Texture2D,
+  TextAsset,
+  TiledMapAsset,
+  VideoClip
 } from 'cc';
-import { ILocalContainer } from '../interfaces';
+
 import { aaron } from '../core/Aaron';
+import { ILocalContainer } from '../interfaces';
 
 /**
  * 本地资源容器

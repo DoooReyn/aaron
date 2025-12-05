@@ -1,7 +1,8 @@
 import { Node } from 'cc';
+
 import { aaron } from '../../core';
-import { be, literal } from '../../utils';
 import { GuiConfig, IGuiInstance, IGuiStack } from '../../interfaces';
+import { be, literal } from '../../utils';
 
 /**
  * 拥栈层

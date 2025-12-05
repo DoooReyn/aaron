@@ -3,60 +3,58 @@
  * @description Init 作为 Aaron 框架的初始化入口，负责内置服务的装配。
  */
 import { aaron } from './core';
-import { FRAMEWORK, OBJECT_POOL, PRESET, SERVICES, TIME_SEC, VERSION } from './macro';
+import { Counter, Model, Option, Trigger } from './foundation';
 import {
-  IGlobalAdapter,
-  ILogger,
   IArgParser,
-  ICatcher,
-  IPlatform,
-  IPartialLaunchOptions,
-  IEventBus,
-  IObjectPoolContainer,
-  INodePoolContainer,
-  IStoreContainer,
-  ILocalization,
-  IProfiler,
-  IRichTextAtlas,
   IAscendingId,
-  ITimer,
-  ISensitives,
+  IAstc,
+  IAudioPlayer,
+  ICatcher,
+  IEventBus,
+  IGlobalAdapter,
+  IGui,
+  ILocalization,
+  INodePoolContainer,
+  IObjectPoolContainer,
+  IPartialLaunchOptions,
+  IPlatform,
+  IProfiler,
+  IRedDotContainer,
   IResCache,
   IResLoader,
-  IAstc,
-  IRedDotContainer,
+  IRichTextAtlas,
+  ISensitives,
+  IStoreContainer,
   ITableQuery,
-  IGui,
-  IAudioPlayer,
-  ITweener,
+  ITimer,
+  ITweener
 } from './interfaces';
+import { FRAMEWORK, OBJECT_POOL, PRESET, SERVICES, VERSION } from './macro';
 import {
-  Logger,
-  GlobalAdapter,
-  ArgParser,
-  Catcher,
-  Platform,
-  EventBus,
-  AscendingId,
-  ObjectPoolContainer,
-  NodePoolContainer,
-  Profiler,
-  RichTextAtlas,
   AppLauncher,
-  StoreContainer,
+  ArgParser,
+  AscendingId,
+  Astc,
+  AudioPlayer,
+  Catcher,
+  EventBus,
+  GlobalAdapter,
+  Gui,
   Localization,
-  Timer,
-  Sensitives,
+  NodePoolContainer,
+  ObjectPoolContainer,
+  Platform,
+  Profiler,
+  RedDotContainer,
   ResCache,
   ResLoader,
-  Astc,
-  RedDotContainer,
+  RichTextAtlas,
+  Sensitives,
+  StoreContainer,
   TableQuery,
-  Gui,
-  AudioPlayer,
-  Tweener,
+  Timer,
+  Tweener
 } from './services';
-import { Option, Trigger, Counter, Model } from './foundation';
 
 /**
  * 框架初始化函数
@@ -71,10 +69,6 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
 
   // 注册递增ID生成器服务
   aaron.registerServiceFactory<IAscendingId>(SERVICES.ASCENDING_ID, AscendingId);
-
-  // 注册日志服务
-  aaron.registerServiceFactory<ILogger>(SERVICES.LOGGER, Logger);
-  aaron.logger.setLevel(args.logLevel);
 
   // 注册全局对象服务
   aaron.registerServiceFactory<IGlobalAdapter>(SERVICES.GLOBAL_ADAPTER, GlobalAdapter);

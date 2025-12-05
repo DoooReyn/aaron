@@ -1,6 +1,28 @@
-import { assetManager, __private, ImageAsset, Rect, Asset, path, AudioClip, BufferAsset, SpriteFrame, sys, TTFFont, BitmapFont, JsonAsset, sp, Texture2D, SpriteAtlas, TextAsset, VideoClip, Constructor, js } from "cc";
-import { IRemoteContainer, CacheSource } from "../interfaces";
-import { aaron } from "../core";
+import {
+  assetManager,
+  js,
+  path,
+  sp,
+  sys,
+  __private,
+  Asset,
+  AudioClip,
+  BitmapFont,
+  BufferAsset,
+  Constructor,
+  ImageAsset,
+  JsonAsset,
+  Rect,
+  SpriteAtlas,
+  SpriteFrame,
+  Texture2D,
+  TextAsset,
+  TTFFont,
+  VideoClip
+} from 'cc';
+
+import { aaron } from '../core';
+import { CacheSource, IRemoteContainer } from '../interfaces';
 
 /**
  * 远程资源容器

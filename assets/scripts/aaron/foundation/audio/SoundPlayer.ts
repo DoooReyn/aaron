@@ -1,8 +1,9 @@
 import { Node } from 'cc';
+
 import { aaron } from '../../core';
-import { digit } from '../../utils';
 import { IAudioEntry, ILoadOptions, ISoundOptions, ISoundPlayer } from '../../interfaces';
 import { PRESET } from '../../macro';
+import { digit } from '../../utils';
 
 /**
  * 音效播放服务

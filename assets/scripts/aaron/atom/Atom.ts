@@ -1,4 +1,5 @@
 import { _decorator, Component } from 'cc';
+
 import { IAtom } from '../interfaces';
 
 const { ccclass } = _decorator;

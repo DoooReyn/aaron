@@ -1,13 +1,12 @@
-import { Constructor } from 'cc';
 import {
   sp,
-  __private,
   AnimationClip,
   Asset,
   AssetManager,
   AudioClip,
   BitmapFont,
   BufferAsset,
+  Constructor,
   Font,
   ImageAsset,
   JsonAsset,
@@ -18,28 +17,21 @@ import {
   Texture2D,
   TextAsset,
   TiledMapAsset,
-  VideoClip,
+  VideoClip
 } from 'cc';
-import {
-  CacheSource,
-  PreloadItem,
-  ILoadOptions,
-  LoadItem,
-  ILoadTask,
-  IResLoader,
-  IResCache,
-  ILogger,
-} from '../interfaces';
-import { PRESET, SERVICES } from '../macro';
-import { list } from '../utils';
+
 import { Service } from '../core';
 import { LoadTask, ResLocal, ResRemote } from '../foundation';
+import { CacheSource, ILoadOptions, ILoadTask, IResCache, IResLoader, LoadItem, PreloadItem } from '../interfaces';
+import { MESSAGES, PRESET, SERVICES } from '../macro';
+import { list } from '../utils';
 
 /**
  * 资源加载服务
  * @description 统一管理本地和远程资源的加载，自动处理缓存
  */
 export class ResLoader extends Service implements IResLoader {
+  readonly token: string = MESSAGES.RES_LOADER.CATEGORY;
   readonly local: ResLocal = new ResLocal();
   readonly remote: ResRemote = new ResRemote();
 
@@ -86,14 +78,13 @@ export class ResLoader extends Service implements IResLoader {
     // 卸载资源包
     this.local.unloadAB(bundle, releaseAll);
 
-    this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 资源加载器: 卸载资源包 {0}', bundle);
+    this.logger.df('⛔ 资源加载器: 卸载资源包 {0}', bundle);
   }
 
   async preload(
     items: PreloadItem[],
-    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void,
+    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void
   ): Promise<void> {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     const total = items.length;
     let finished = 0;
 
@@ -110,25 +101,25 @@ export class ResLoader extends Service implements IResLoader {
       }
 
       if (!loaded) {
-        logger.ef('❌ 资源加载器: 预加载失败 {0}', path);
+        this.logger.ef('❌ 资源加载器: 预加载失败 {0}', path);
       }
     }
 
-    logger.df('✅ 资源加载器: 预加载完成 {0}/{1}', finished, total);
+    this.logger.df('✅ 资源加载器: 预加载完成 {0}/{1}', finished, total);
   }
 
   async load<T extends Asset>(type: Constructor<T>, options: ILoadOptions): Promise<T | null> {
     const { path, cacheExpires = PRESET.ASSET_EXPIRES_MS } = options;
     const [source, key, raw] = this.parsePath(path);
     if (source == CacheSource.Unknown) {
-      this.resolve<ILogger>(SERVICES.LOGGER).wf('⚠️ 资源加载器: 跳过无效路径 {0}', path);
+      this.logger.wf('⚠️ 资源加载器: 跳过无效路径 {0}', path);
       return null;
     }
 
     // 检查缓存
     const cache = this.resolve<IResCache>(SERVICES.RES_CACHE);
     if (cache.has(key)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 资源加载器: 命中缓存 {0}', key);
+      this.logger.df('✅ 资源加载器: 命中缓存 {0}', key);
       return cache.get<T>(key);
     }
 
@@ -150,7 +141,7 @@ export class ResLoader extends Service implements IResLoader {
         refCount: 0,
       });
 
-      this.resolve<ILogger>(SERVICES.LOGGER).df('✅ 资源加载器: 加载并缓存 {0}', key);
+      this.logger.df('✅ 资源加载器: 加载并缓存 {0}', key);
     }
 
     return asset;
@@ -224,15 +215,14 @@ export class ResLoader extends Service implements IResLoader {
     const [source, key] = this.parsePath(path);
     if (source !== CacheSource.Unknown) {
       this.resolve<IResCache>(SERVICES.RES_CACHE).delete(key, true);
-      this.resolve<ILogger>(SERVICES.LOGGER).df('⛔ 资源加载器: 释放资源 {0}', key);
+      this.logger.df('⛔ 资源加载器: 释放资源 {0}', key);
     }
   }
 
   async loadMany(
     items: LoadItem[],
-    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void,
+    onProgress?: (finished: number, total: number, path?: string, loaded?: boolean) => void
   ): Promise<void> {
-    const logger = this.resolve<ILogger>(SERVICES.LOGGER);
     const total = items.length;
     let finished = 0;
     let finishedList = [];
@@ -247,7 +237,7 @@ export class ResLoader extends Service implements IResLoader {
         finishedList.push('✅ ' + url);
       } else {
         finishedList.push('❌ ' + url);
-        logger.ef('❌ 资源加载器: 加载失败 {0}', url);
+        this.logger.ef('❌ 资源加载器: 加载失败 {0}', url);
       }
 
       if (onProgress) {
@@ -255,7 +245,7 @@ export class ResLoader extends Service implements IResLoader {
       }
     }
 
-    logger.df('✅ 资源加载器: 加载完成 {0}/{1} 资源列表:\n {2}', finished, total, finishedList.join('\n '));
+    this.logger.df('✅ 资源加载器: 加载完成 {0}/{1} 资源列表:\n {2}', finished, total, finishedList.join('\n '));
   }
 
   loadBatch(items: LoadItem[]) {
@@ -265,7 +255,7 @@ export class ResLoader extends Service implements IResLoader {
   loadSequence(
     tasks: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
-    onComplete?: (finished: number, total: number) => void | Promise<void>,
+    onComplete?: (finished: number, total: number) => void | Promise<void>
   ): () => void {
     const total = tasks.length;
     let index = 0;
@@ -297,7 +287,7 @@ export class ResLoader extends Service implements IResLoader {
         }
 
         if (!asset) {
-          this.resolve<ILogger>(SERVICES.LOGGER).ef('资源加载器: 加载失败 {0}', url);
+          this.logger.ef('资源加载器: 加载失败 {0}', url);
         }
 
         next();
@@ -320,7 +310,7 @@ export class ResLoader extends Service implements IResLoader {
     items: LoadItem[],
     onProgress?: (finished: number, total: number, path: string, success: boolean) => void,
     onComplete?: (finished: number, total: number) => void,
-    concurrency: number = 0,
+    concurrency: number = 0
   ) {
     let finished = 0;
     let total = items.length;
@@ -344,9 +334,9 @@ export class ResLoader extends Service implements IResLoader {
             }
 
             if (!asset) {
-              this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
+              this.logger.ef('❌ 资源加载器: 加载失败 {0}', url);
             }
-          }),
+          })
       );
       tasks.forEach((task) => task.load());
 
@@ -374,9 +364,9 @@ export class ResLoader extends Service implements IResLoader {
             }
 
             if (!asset) {
-              this.resolve<ILogger>(SERVICES.LOGGER).ef('❌ 资源加载器: 加载失败 {0}', url);
+              this.logger.ef('❌ 资源加载器: 加载失败 {0}', url);
             }
-          }),
+          })
       );
 
       const queue = list.split(tasks, concurrency);

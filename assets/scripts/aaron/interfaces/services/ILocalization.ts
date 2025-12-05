@@ -1,4 +1,5 @@
 import { __private } from 'cc';
+
 import { IService } from '../IService';
 
 /** 语言类型 */

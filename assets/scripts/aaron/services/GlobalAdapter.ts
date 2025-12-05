@@ -1,12 +1,13 @@
 import { Service } from '../core';
-import { IGlobalAdapter, ILogger } from '../interfaces';
-import { SERVICES } from '../macro';
+import { IGlobalAdapter } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { Global } from '../types';
 
 /**
  * 全局对象适配服务
  */
 export class GlobalAdapter extends Service implements IGlobalAdapter {
+  public readonly token: string;
   /** 全局对象 */
   // @ts-ignore
   private _env: Global = globalThis ?? window ?? self ?? frames ?? GameGlobal ?? {};
@@ -17,12 +18,11 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   set<T>(key: string, value: T): void {
     if (this.has(key)) {
-      this.resolve<ILogger>(SERVICES.LOGGER).w(`⚠ 替换全局属性: ${key}，请注意影响`);
-      this._env[key] = value;
+      this.logger.w(MESSAGES.GLOBAL_ADAPTER.REPLACE, key);
     } else {
-      this._env[key] = value;
-      this.resolve<ILogger>(SERVICES.LOGGER).d(`➕ 添加全局属性: ${key}`);
+      this.logger.d(MESSAGES.GLOBAL_ADAPTER.ADD, key);
     }
+    this._env[key] = value;
   }
 
   has(key: string): boolean {
@@ -30,7 +30,8 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
   }
 
   unset(key: string): void {
-    delete this._env[key];
-    this.resolve<ILogger>(SERVICES.LOGGER).d(`➖ 删除全局属性: ${key}`);
+    if (delete this._env[key]) {
+      this.logger.d(MESSAGES.GLOBAL_ADAPTER.DELETE, key);
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { encode as b64enc, decode as b64dec } from 'js-base64';
+import { decode as b64dec, encode as b64enc } from 'js-base64';
 
 /** 压制 string -> string(base64) */
 function encode(data: string) {

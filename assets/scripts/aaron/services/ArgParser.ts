@@ -1,12 +1,14 @@
 import { Service } from '../core';
-import { IArgParser, ILaunchOptions, type IGlobalAdapter } from '../interfaces';
-import { DEFAULT_LAUNCH_OPTIONS, SERVICES } from '../macro';
+import { IArgParser, IGlobalAdapter, ILaunchOptions } from '../interfaces';
+import { DEFAULT_LAUNCH_OPTIONS, MESSAGES, SERVICES } from '../macro';
 import { Dict } from '../types';
 
 /**
  * 参数解析器服务
  */
 export class ArgParser extends Service implements IArgParser {
+  readonly token: string = MESSAGES.ARG_PARSER.CATEGORY;
+
   /** 参数 */
   public args: ILaunchOptions = { ...DEFAULT_LAUNCH_OPTIONS };
 
@@ -27,6 +29,8 @@ export class ArgParser extends Service implements IArgParser {
     if (args !== undefined) {
       this.args = { ...this.args, ...args };
     }
+
+    this.logger.d(MESSAGES.ARG_PARSER.APP_ARGS, this.args);
   }
 
   isEnv(env: ILaunchOptions['env']) {

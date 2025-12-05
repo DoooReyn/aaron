@@ -1,4 +1,4 @@
-import { Dto, IModel, Subscription, OnPropertyChanged } from '../interfaces';
+import { Dto, IModel, OnPropertyChanged, Subscription } from '../interfaces';
 import { list } from '../utils';
 import { DeepProxy } from './DeepProxy';
 import { ObjectEntry } from './ObjectEntry';

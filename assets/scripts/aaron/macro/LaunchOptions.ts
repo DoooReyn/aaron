@@ -1,4 +1,5 @@
 import { sys } from 'cc';
+
 import { ILaunchOptions, LogLevel } from '../interfaces';
 
 /**

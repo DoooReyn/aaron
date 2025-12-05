@@ -1,9 +1,10 @@
 import { Component, Node } from 'cc';
+
 import { Constructor } from '../../types';
 import { IAtom } from '../IAtom';
 import { IService } from '../IService';
-import { ITweenArgs } from './ITweener';
 import { ITriggers } from '../ITrigger';
+import { ITweenArgs } from './ITweener';
 
 /**
  * GUI 界面类型
@@ -472,7 +473,7 @@ export interface IGui extends IService {
   /** LRU 实例保留数量，限制1~10之间，默认为3 */
   lruReserves: number;
   /** 初始化或获取 UIRoot 及各层级节点 */
-  initialize(): IGuiRootLayers;
+  initialize(): void;
   /** 注册单个视图配置 */
   register(config: GuiConfig): void;
   /** 批量注册视图配置 */

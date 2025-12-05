@@ -1,4 +1,5 @@
 import { Asset } from 'cc';
+
 import { IService } from '../IService';
 
 /**

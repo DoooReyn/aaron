@@ -1,4 +1,5 @@
 import { Node } from 'cc';
+
 import { aaron } from '../../core';
 import { IAudioEntry, ILoadOptions, IMusicOptions, IMusicPlayer } from '../../interfaces';
 import { PRESET } from '../../macro';

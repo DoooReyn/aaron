@@ -1,4 +1,5 @@
 import { DEV } from 'cc/env';
+
 import { Key } from '../types';
 
 /**

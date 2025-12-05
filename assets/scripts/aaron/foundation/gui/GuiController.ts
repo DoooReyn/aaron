@@ -1,7 +1,8 @@
-import { Node, Component, EventTouch, _decorator } from 'cc';
-import { GuiBindingMap, GuiBindingRefs, GuiBindingSpec, GuiBindingType, IGuiController } from '../../interfaces';
-import { aaron } from '../../core';
+import { _decorator, Component, EventTouch, Node } from 'cc';
+
 import { Atom } from '../../atom';
+import { aaron } from '../../core';
+import { GuiBindingMap, GuiBindingRefs, GuiBindingSpec, GuiBindingType, IGuiController } from '../../interfaces';
 import { be } from '../../utils';
 
 const { ccclass } = _decorator;

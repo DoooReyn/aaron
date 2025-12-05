@@ -1,6 +1,7 @@
-import { AudioClip, AudioSource, Node, tween, macro } from 'cc';
-import { IAudioEntry, ILoadOptions, IMusicOptions, ISoundOptions } from '../../interfaces';
+import { macro, tween, AudioClip, AudioSource, Node } from 'cc';
+
 import { aaron } from '../../core';
+import { IAudioEntry, ILoadOptions, IMusicOptions, ISoundOptions } from '../../interfaces';
 
 /**
  * 音频资源条目

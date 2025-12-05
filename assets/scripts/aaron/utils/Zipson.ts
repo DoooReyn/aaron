@@ -1,4 +1,5 @@
 import { parse, stringify } from 'zipson';
+
 import { runSync } from './Might';
 
 /** 压制 object -> string */
