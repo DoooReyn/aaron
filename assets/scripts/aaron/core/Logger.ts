@@ -38,7 +38,7 @@ export class Logger {
    */
   d(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {
-      console.debug(this.token, message, ...args);
+      console.debug('『D』', this.token, message, ...args);
     }
   }
 
@@ -49,7 +49,7 @@ export class Logger {
    */
   df(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.DEBUG) {
-      console.debug(this.token, literal.fmt(message, ...args));
+      console.debug('『D』', this.token, literal.fmt(message, ...args));
     }
   }
 
@@ -60,7 +60,7 @@ export class Logger {
    */
   i(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.INFO) {
-      console.info(this.token, message, ...args);
+      console.info('『I』', this.token, message, ...args);
     }
   }
 
@@ -71,7 +71,7 @@ export class Logger {
    */
   if(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.INFO) {
-      console.info(this.token, literal.fmt(message, ...args));
+      console.info('『I』', this.token, literal.fmt(message, ...args));
     }
   }
 
@@ -82,7 +82,7 @@ export class Logger {
    */
   w(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.WARN) {
-      console.warn(this.token, message, ...args);
+      console.warn('『W』', this.token, message, ...args);
     }
   }
 
@@ -93,7 +93,7 @@ export class Logger {
    */
   wf(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.WARN) {
-      console.warn(this.token, literal.fmt(message, ...args));
+      console.warn('『W』', this.token, literal.fmt(message, ...args));
     }
   }
 
@@ -104,7 +104,7 @@ export class Logger {
    */
   e(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.ERROR) {
-      console.error(this.token, message, ...args);
+      console.error('『E』', this.token, message, ...args);
     }
   }
 
@@ -115,7 +115,7 @@ export class Logger {
    */
   ef(message: string, ...args: any[]): void {
     if (this._level <= LogLevel.ERROR) {
-      console.error(this.token, literal.fmt(message, ...args));
+      console.error('『E』', this.token, literal.fmt(message, ...args));
     }
   }
 }

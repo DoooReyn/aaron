@@ -62,8 +62,8 @@ import {
  * @param args 启动参数
  */
 export async function init(args: IPartialLaunchOptions): Promise<void> {
-  console.log(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
-  console.log(`📋 架构模式: ${FRAMEWORK.architecture}`);
+  aaron.logger.i(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
+  aaron.logger.i(`📋 架构模式: ${FRAMEWORK.architecture}`);
 
   // ------------------------------ 注册服务 ------------------------------//
 
