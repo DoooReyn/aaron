@@ -83,15 +83,15 @@ async function main() {
   fk.aaron.audioPlayer.music.play(ResPath.Audio.Msc1, {
     volume: 0.5,
     onStart: (id: number, url: string) => {
-      fk.aaron.logger.df('✅ 背景音乐播放开始，ID: {0}, URL: {1}', id, url);
+      fk.aaron.logger.df('✅ 背景音乐播放开始，编号#{0}，路径@{1}', id, url);
     },
     onRepeat(id: number, url: string, round: number) {
-      fk.aaron.logger.df('✅ 背景音乐播放重复，ID: {0}, URL: {1}, 轮次: {2}', id, url, round);
+      fk.aaron.logger.df('✅ 背景音乐播放重复，编号#{0}，路径@{1}，轮次~{2}', id, url, round);
     },
   });
 
   // 弹窗
-  fk.aaron.gui.open(UserInfoController.Config, { input: '我是一只鱼' });
+  fk.aaron.gui.open(UserInfoController.Config);
 }
 
 /**
