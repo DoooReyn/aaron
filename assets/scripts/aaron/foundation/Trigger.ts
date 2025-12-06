@@ -1,5 +1,6 @@
 import { aaron } from '../core';
 import { ITrigger, ITriggers } from '../interfaces';
+import { MESSAGES } from '../macro';
 import { might, misc } from '../utils';
 import { ObjectEntry } from './ObjectEntry';
 
@@ -63,7 +64,7 @@ export class Trigger extends ObjectEntry implements ITrigger {
     if (this.isValid) {
       const [, err] = might.runSync(this._handle!, this._ctx!, this._args);
       if (err) {
-        aaron.logger.e('❌ 触发器: 运行时错误', err);
+        aaron.logger.ef(MESSAGES.TRIGGER.RUNTIME_ERROR, err);
       }
       if (this._once) {
         aaron.objectPool.recycle(this);
@@ -79,7 +80,7 @@ export class Trigger extends ObjectEntry implements ITrigger {
     if (this.isValid) {
       const [, err] = might.runSync(this._handle!, this._ctx!, args.concat(this._args));
       if (err) {
-        aaron.logger.e('❌ 触发器: 运行时错误', err);
+        aaron.logger.ef(MESSAGES.TRIGGER.RUNTIME_ERROR, err);
       }
       if (this._once) {
         aaron.objectPool.recycle(this);

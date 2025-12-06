@@ -2,7 +2,7 @@ import { Graphics, Node, UITransform } from 'cc';
 
 import { aaron } from '../../core';
 import { GuiConfig } from '../../interfaces';
-import { COLOR, EVENTS } from '../../macro';
+import { COLOR, EVENTS, MESSAGES } from '../../macro';
 import { color, time } from '../../utils';
 import { GuiStack } from './GuiStack';
 
@@ -26,7 +26,7 @@ export class GuiAlert extends GuiStack {
     this._mask = mask;
   }
 
-  protected internalInpsect(config: GuiConfig) {
+  protected internalInspect(config: GuiConfig) {
     return config.interface === 'Alert';
   }
 
@@ -53,7 +53,7 @@ export class GuiAlert extends GuiStack {
     const now = time.now();
     if (this.depth > 0 && now - this._lastClickAt > 1_000) {
       this._lastClickAt = now;
-      console.log('Alert Mask Clicked');
+      aaron.gui.logger.df(MESSAGES.GUI.CLICK_AT_MASK, this.name);
       const top = this.$instances[this.depth - 1];
       aaron.eventBus.app.emit(EVENTS.GUI.ALERT_MASK_CLICKED, top.config.token);
     }

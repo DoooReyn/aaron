@@ -1,4 +1,4 @@
-import { director, game, screen, view, Camera, Canvas, Director, EventTouch, Game, Node, Scene } from 'cc';
+import { director, game, screen, view, Camera, Canvas, Director, Game, Node, Scene } from 'cc';
 
 import { Service } from '../core';
 import { IAppLauncher, IEventBus, ITimer } from '../interfaces';
@@ -65,7 +65,6 @@ export class AppLauncher extends Service implements IAppLauncher {
           screen.on(EVENTS.APP.SCREEN_FULL_CHANGED, this.onScreenSizeChangedMock, this);
           screen.on(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, this.onScreenOrientationChanged, this);
           director.on(Director.EVENT_AFTER_UPDATE, this.onUpdate, this);
-          this.root.on(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
 
           resolve();
         },
@@ -100,7 +99,6 @@ export class AppLauncher extends Service implements IAppLauncher {
   /** 关闭应用 */
   private onEnded(): void {
     this.resolve<ITimer>(SERVICES.TIMER)?.stop();
-    this.root.off(Node.EventType.TOUCH_END, this.onScreenTapped, this, true);
     game.off(Game.EVENT_SHOW, this.onEnterFG, this);
     game.off(Game.EVENT_HIDE, this.onEnterBG, this);
     game.off(Game.EVENT_CLOSE, this.onEnded, this);
@@ -133,18 +131,6 @@ export class AppLauncher extends Service implements IAppLauncher {
   private onScreenOrientationChanged(orientation: number): void {
     this.logger.d(MESSAGES.APP_LAUNCHER.SCREEN_ORIENTATION_CHANGED, orientation);
     this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.APP.SCREEN_ORIENTATION_CHANGED, orientation);
-  }
-
-  /**
-   * 屏幕被点击
-   * @param touch 触摸事件
-   */
-  private onScreenTapped(touch: EventTouch): void {
-    const loc = touch.getLocation();
-    if (this.root._uiProps.uiTransformComp.hitTest(loc)) {
-      this.logger.df(MESSAGES.APP_LAUNCHER.SCREEN_TAPPED, loc.x, loc.y);
-      this.resolve<IEventBus>(SERVICES.EVENT_BUS).app.emit(EVENTS.GUI.SCREEN_TAPPED, touch);
-    }
   }
 
   /**

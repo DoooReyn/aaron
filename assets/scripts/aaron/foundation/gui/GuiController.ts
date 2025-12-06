@@ -3,6 +3,7 @@ import { _decorator, Component, EventTouch, Node } from 'cc';
 import { Atom } from '../../atom';
 import { aaron } from '../../core';
 import { GuiBindingMap, GuiBindingRefs, GuiBindingSpec, GuiBindingType, IGuiController } from '../../interfaces';
+import { MESSAGES } from '../../macro';
 import { be } from '../../utils';
 
 const { ccclass } = _decorator;
@@ -63,7 +64,7 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
           const parentNode = this.resolveNode(root, parentPath);
           if (!parentNode) {
             if (required) {
-              aaron.logger.w(`视图:解析绑定配置,索引节点未找到, key=${key}, path=${conf.path}`);
+              aaron.gui.logger.wf(MESSAGES.GUI.PARSE_BIND_1, key, conf.path);
             }
             result[key] = [];
             continue;
@@ -80,7 +81,7 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
       if (!node) {
         if (required) {
           // 必需但未找到：给出警告，方便调试
-          aaron.logger.w(`视图:解析绑定配置,节点未找到, key=${key}, path=${conf.path}`);
+          aaron.gui.logger.wf(MESSAGES.GUI.PARSE_BIND_1, key, conf.path);
         }
         // 根据 kind 返回 null 或空数组
         result[key] = conf.kind === 'components' || conf.kind === 'nodes' ? [] : null;
@@ -100,14 +101,14 @@ export class GuiController<M extends GuiBindingMap = {}> extends Atom implements
         case 'component': {
           result[key] = node.getComponent(conf.component) ?? null;
           if (result[key] == null && required) {
-            aaron.logger.w(`视图:解析绑定配置,组件未找到, key=${key}, path=${conf.path}`);
+            aaron.gui.logger.wf(MESSAGES.GUI.PARSE_BIND_2, key, conf.path);
           }
           break;
         }
         case 'components': {
           result[key] = node.getComponents(conf.component);
           if ((result[key] as Component[]).length === 0 && required) {
-            aaron.logger.w(`视图:解析绑定配置,组件未找到, key=${key}, path=${conf.path}`);
+            aaron.gui.logger.wf(MESSAGES.GUI.PARSE_BIND_2, key, conf.path);
           }
           break;
         }

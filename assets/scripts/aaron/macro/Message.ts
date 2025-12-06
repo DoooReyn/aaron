@@ -57,6 +57,7 @@ export const MESSAGES = {
   },
   AUDIO_PLAYER: {
     CATEGORY: '🔊 音频:',
+    MUSIC_PLAYING: '🎵 音乐正在播放中 {0}',
   },
   CATCHER: {
     CATEGORY: '🪰 异常捕获:',
@@ -88,6 +89,18 @@ export const MESSAGES = {
     ANIMATION_EXIT: '{0} 播放退出动画 {1}',
     FETCH_CONFIG_INVALID: '参数无效',
     FETCH_CONFIG_TYPE_UNSUPPORTED: '不支持的参数类型: {0}',
+    CLICK_AT_MASK: '点击到 {0} 遮罩',
+    CHECK_OWN_LAYER: '{0} 层级不符 {1} != {2}，请检查',
+    OPEN_YET: '已经打开,请勿重复操作 {0}',
+    CLOSE_BAD_NOT_FOUND: '关闭无效,未找到指定视图 {0}',
+    CLOSE_BAD_INVALID_CONFIG: '关闭无效,请检查参数',
+    CLOSE_BAD_UNDER_DEPTH: '关闭无效，深度小于 0',
+    CLOSE_BAD_OVER_DEPTH: '关闭无效，深度大于栈内深度',
+    CLOSE_BAD_EMPTY_STACK: '关闭无效，栈内已无视图',
+    CLOSE_BAD_NOT_EXISTED: '关闭无效，视图不存在，深度 {0}',
+    FORCE_CLOSE_SCREEN_TIP: 'Screen 栈内仅剩最后一个实例，如果坚持关闭，请使用 close(true)',
+    PARSE_BIND_1: '解析绑定配置，索引节点未找到， key={0}, path={1}',
+    PARSE_BIND_2: '解析绑定配置，索引组件未找到， key={0}, path={1}',
   },
   LOCALIZATION: {
     CATEGORY: '🌏 国际化:',
@@ -162,11 +175,16 @@ export const MESSAGES = {
     LOAD_AND_CACHE: '加载并缓存 {0}',
     LOAD_BAD: '加载失败 {0}',
     LOAD_DONE: '加载完成 {0}/{1} 资源列表:\n {2}',
+    LOAD_BAD_2: '资源包不存在 {0}',
+    LOAD_BAD_3: '资源包加载失败 => {0}',
+    LOAD_BAD_4: '加载失败 {0}@{1}',
+    LOAD_BAD_5: '不支持的远程资源类型 {0}',
   },
   RICH_TEXT_ATLAS: {
     CATEGORY: '📔 富文本图集:',
     EXISTED: '{0} 已配置为 {1}，请注意合理分配图集标识和等级',
     ADD: '添加 {0} => {1}',
+    CLICK_LINK: '点击到链接: {0}',
   },
   SENSITIVES: {
     CATEGORY: '🔞 敏感词:',
@@ -198,5 +216,8 @@ export const MESSAGES = {
     BUILD_BAD: '构建失败 {0} => {1}',
     IS_PLAYING_SKIP: '正在播放中，应用跳过策略 {0}',
     IS_PLAYING_REPLACE: '正在播放中，应用替换策略 {0}',
+  },
+  TRIGGER: {
+    RUNTIME_ERROR: '❌ 触发器: 运行时错误 => {0}',
   },
 } as const;

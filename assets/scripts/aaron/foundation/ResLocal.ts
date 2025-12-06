@@ -24,6 +24,7 @@ import {
 
 import { aaron } from '../core/Aaron';
 import { ILocalContainer } from '../interfaces';
+import { MESSAGES } from '../macro';
 
 /**
  * 本地资源容器
@@ -76,7 +77,7 @@ export class ResLocal implements ILocalContainer {
   loadAB(ab: string) {
     return new Promise<AssetManager.Bundle | null>((resolve) => {
       if (!this.hasAB(ab)) {
-        aaron.logger.ef('资源: AB 包不存在 {0}', ab);
+        aaron.resLoader.logger.ef(MESSAGES.RES_LOADER.LOAD_BAD_2, ab);
         resolve(null);
       } else {
         const bun = assetManager.getBundle(ab);
@@ -85,7 +86,7 @@ export class ResLocal implements ILocalContainer {
         } else {
           assetManager.loadBundle(ab, (err, bun) => {
             if (err) {
-              aaron.logger.ef('资源: AB 包加载失败 {0}', err);
+              aaron.resLoader.logger.ef(MESSAGES.RES_LOADER.LOAD_BAD_3, err);
               resolve(null);
             } else {
               resolve(bun);
@@ -156,14 +157,14 @@ export class ResLocal implements ILocalContainer {
         if (info) {
           bun.load(url, type, (err, res) => {
             if (err) {
-              aaron.logger.ef('资源: 加载失败 {0}@{1}', ab, url);
+              aaron.resLoader.logger.ef(MESSAGES.RES_LOADER.LOAD_BAD_4, ab, url);
               resolve(null);
             } else {
               resolve(res);
             }
           });
         } else {
-          aaron.logger.ef('资源: 加载失败 {0}@{1}', ab, url);
+          aaron.resLoader.logger.ef(MESSAGES.RES_LOADER.LOAD_BAD_4, ab, url);
           resolve(null);
         }
       } else {

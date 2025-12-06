@@ -287,7 +287,7 @@ export class ResCache extends Service implements IResCache {
     }
 
     if (count > 0) {
-      this.logger.df('🗑️ 缓存: 清理 {0} 资源 {1} 个', source, count);
+      this.logger.df(MESSAGES.RES_CACHE.CLEAN_SOURCE, source, count);
     }
 
     return count;

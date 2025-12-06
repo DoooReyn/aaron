@@ -372,7 +372,7 @@ export class Gui extends Service implements IGui {
       ` popup  (${s3.length}) -> ${s3.join(',')}`,
       ` alert  (${s4.length}) -> ${s4.join(',')}`,
     ].join('\n');
-    aaron.logger.d(output);
+    aaron.gui.logger.d(output);
   }
 
   focus() {

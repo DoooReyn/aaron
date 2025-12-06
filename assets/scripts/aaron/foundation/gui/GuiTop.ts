@@ -2,6 +2,7 @@ import { EventTouch, Node } from 'cc';
 
 import { aaron } from '../../core';
 import { IGuiTop } from '../../interfaces';
+import { EVENTS, MESSAGES } from '../../macro';
 import { Triggers } from '../Trigger';
 
 /**
@@ -39,6 +40,9 @@ export class GuiTop extends Node implements IGuiTop {
   }
 
   private onTouchStart(event: EventTouch) {
+    const loc = event.getLocation();
+    aaron.gui.logger.df(MESSAGES.APP_LAUNCHER.SCREEN_TAPPED, loc.x, loc.y);
+    aaron.eventBus.app.emit(EVENTS.GUI.SCREEN_TAPPED, event);
     event.propagationStopped = !this._touchAllowed;
     event.propagationImmediateStopped = !this._touchAllowed;
     event.preventSwallow = this._touchAllowed;

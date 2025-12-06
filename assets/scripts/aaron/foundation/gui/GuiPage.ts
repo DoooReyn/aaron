@@ -6,7 +6,7 @@ import { GuiStack } from './GuiStack';
  * @description 二级页面（一般为全屏带返回按钮的页面）
  */
 export class GuiPage extends GuiStack {
-  protected internalInpsect(config: GuiConfig) {
+  protected internalInspect(config: GuiConfig) {
     return config.interface === 'Page';
   }
 }

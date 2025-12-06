@@ -11,7 +11,7 @@ import {
   RichTextAtlasLevel,
   VerticalAlign
 } from '../interfaces';
-import { COLOR } from '../macro';
+import { COLOR, MESSAGES } from '../macro';
 import { color, grapheme } from '../utils';
 import { Atom } from './Atom';
 
@@ -209,7 +209,7 @@ export class AaronRichText extends Atom {
 
       const style = (glyphNode as Node & { _richStyle?: IRichTextStyle })._richStyle;
       if (style && style.linkId && glyphNode.uiTransform.hitTest(pos)) {
-        aaron.logger.i('🖱 点击链接: ' + style.linkId);
+        aaron.richTextAtlas.logger.if(MESSAGES.RICH_TEXT_ATLAS.CLICK_LINK, style.linkId);
         this.onLinkClick.runWith(style.linkId);
         break;
       }

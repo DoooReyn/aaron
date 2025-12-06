@@ -2,6 +2,7 @@ import { Node } from 'cc';
 
 import { aaron } from '../../core';
 import { GuiConfig, IGuiInstance, IGuiScreen } from '../../interfaces';
+import { MESSAGES } from '../../macro';
 
 /**
  * Screen
@@ -23,13 +24,13 @@ export class GuiScreen extends Node implements IGuiScreen {
     if (config === undefined) return;
 
     if (config.interface !== 'Screen') {
-      aaron.logger.wf('📷 视图: {0} 层级不符 Screen != {1}，请检查', config.token, config.interface);
+      aaron.gui.logger.wf(MESSAGES.GUI.CHECK_OWN_LAYER, config.token, 'screen', config.interface);
       return;
     }
 
     // 检测是否已打开
     if (this._current && this._current.config.token === config.token) {
-      aaron.logger.wf('📷 视图: {0} 已经打开，请勿重复操作', config.token);
+      aaron.gui.logger.wf(MESSAGES.GUI.OPEN_YET, config.token);
       return;
     }
 
@@ -61,10 +62,7 @@ export class GuiScreen extends Node implements IGuiScreen {
         aaron.gui.closeInstance(this._current);
         this._current = null;
       } else {
-        aaron.logger.df(
-          '📷 视图: Screen栈内仅剩最后一个实例，如果坚持关闭，请使用 close(true)',
-          this._current.config.token,
-        );
+        aaron.gui.logger.df(MESSAGES.GUI.FORCE_CLOSE_SCREEN_TIP, this._current.config.token);
       }
     }
   }

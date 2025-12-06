@@ -2,7 +2,7 @@ import { Node } from 'cc';
 
 import { aaron } from '../../core';
 import { IAudioEntry, ILoadOptions, IMusicOptions, IMusicPlayer } from '../../interfaces';
-import { PRESET } from '../../macro';
+import { MESSAGES, PRESET } from '../../macro';
 
 /**
  * 音乐播放服务
@@ -101,7 +101,7 @@ export class MusicPlayer extends Node implements IMusicPlayer {
 
     // 音乐同时只能有一份实例，因此如果正在播放相同的音乐，直接返回当前ID
     if (this._entry && this._entry.url === arg.path) {
-      aaron.logger.if('🎵 音乐正在播放中 {0}', arg.path);
+      aaron.audioPlayer.logger.if(MESSAGES.AUDIO_PLAYER.MUSIC_PLAYING, arg.path);
       return this._current;
     }
 

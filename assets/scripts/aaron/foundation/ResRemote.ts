@@ -23,6 +23,7 @@ import {
 
 import { aaron } from '../core';
 import { CacheSource, IRemoteContainer } from '../interfaces';
+import { MESSAGES } from '../macro';
 
 /**
  * 远程资源容器
@@ -499,7 +500,7 @@ export class ResRemote implements IRemoteContainer {
       case 'cc.VideoClip':
         return (await this.loadVideo(path)) as unknown as T | null;
       default:
-        aaron.logger.wf('⚠️ 资源加载器: 不支持的远程资源类型 {0}', typeName);
+        aaron.resLoader.logger.wf(MESSAGES.RES_LOADER.LOAD_BAD_5, typeName);
         return null;
     }
   }

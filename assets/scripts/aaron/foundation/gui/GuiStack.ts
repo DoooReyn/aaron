@@ -2,6 +2,7 @@ import { Node } from 'cc';
 
 import { aaron } from '../../core';
 import { GuiConfig, IGuiInstance, IGuiStack } from '../../interfaces';
+import { MESSAGES } from '../../macro';
 import { be, literal } from '../../utils';
 
 /**
@@ -31,7 +32,7 @@ export class GuiStack extends Node implements IGuiStack {
   private async closeOne(index: number, skipAnimation: boolean): Promise<void> {
     const page = this.$instances[index];
     if (!page) {
-      aaron.logger.wf('📷 视图: 关闭无效,视图不存在,深度 {0}', index);
+      aaron.gui.logger.wf(MESSAGES.GUI.CLOSE_BAD_NOT_EXISTED, index);
       return Promise.resolve();
     }
 
@@ -58,15 +59,15 @@ export class GuiStack extends Node implements IGuiStack {
   private async closeToDepth(index: number): Promise<void> {
     if (index < 0 || index >= this.$instances.length) {
       if (index < 0) {
-        aaron.logger.w('📷 视图: 关闭无效,深度小于0');
+        aaron.gui.logger.w(MESSAGES.GUI.CLOSE_BAD_UNDER_DEPTH);
       } else {
-        aaron.logger.w('📷 视图: 关闭无效,深度大于栈内深度');
+        aaron.gui.logger.w(MESSAGES.GUI.CLOSE_BAD_OVER_DEPTH);
       }
       return Promise.resolve();
     }
 
     if (this.$instances.length === 0) {
-      aaron.logger.w('📷 视图: 关闭无效,栈内已无视图');
+      aaron.gui.logger.w(MESSAGES.GUI.CLOSE_BAD_EMPTY_STACK);
       return Promise.resolve();
     }
 
@@ -81,7 +82,7 @@ export class GuiStack extends Node implements IGuiStack {
    * @param cfg Gui 配置
    * @returns
    */
-  protected internalInpsect(cfg: GuiConfig): boolean {
+  protected internalInspect(cfg: GuiConfig): boolean {
     return false;
   }
 
@@ -90,13 +91,8 @@ export class GuiStack extends Node implements IGuiStack {
     const cfg: GuiConfig = aaron.gui.inspect(config);
     if (cfg === undefined) return;
 
-    if (!this.internalInpsect(cfg)) {
-      aaron.logger.wf(
-        '📷 视图: {0} 层级不符 {1} != {2}，请检查',
-        cfg.token,
-        literal.capitalize(this.name),
-        cfg.interface,
-      );
+    if (!this.internalInspect(cfg)) {
+      aaron.gui.logger.wf(MESSAGES.GUI.CHECK_OWN_LAYER, cfg.token, literal.capitalize(this.name), cfg.interface);
       return;
     }
 
@@ -109,7 +105,7 @@ export class GuiStack extends Node implements IGuiStack {
     if (this.$instances.length > 0) {
       const top = this.$instances[this.$instances.length - 1];
       if (top.config.token === cfg.token) {
-        aaron.logger.wf('📷 视图: {0} 已经打开,请勿重复操作', cfg.token);
+        aaron.gui.logger.wf(MESSAGES.GUI.OPEN_YET, cfg.token);
         return;
       }
     }
@@ -160,7 +156,7 @@ export class GuiStack extends Node implements IGuiStack {
       if (index > -1) {
         await this.close(index);
       } else {
-        aaron.logger.w('📷 视图: 关闭无效,未找到指定视图', config);
+        aaron.gui.logger.wf(MESSAGES.GUI.CLOSE_BAD_NOT_FOUND, config);
       }
     } else if (be.isObject(config) && (config as GuiConfig).token) {
       // 关闭到指定视图
@@ -169,10 +165,10 @@ export class GuiStack extends Node implements IGuiStack {
       if (index > -1) {
         await this.close(index);
       } else {
-        aaron.logger.w('📷 视图: 关闭无效,未找到指定视图', config);
+        aaron.gui.logger.wf(MESSAGES.GUI.CLOSE_BAD_NOT_FOUND, token);
       }
     } else {
-      aaron.logger.w('📷 视图: 关闭无效,请检查参数', config);
+      aaron.gui.logger.w(MESSAGES.GUI.CLOSE_BAD_INVALID_CONFIG, config);
     }
   }
 

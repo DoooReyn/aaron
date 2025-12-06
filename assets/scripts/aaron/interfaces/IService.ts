@@ -1,3 +1,4 @@
+import { Logger } from '../core';
 import { Constructor } from '../types';
 
 /**
@@ -11,6 +12,9 @@ export interface IService {
    * @param token 服务标识符
    */
   resolve<T extends IService>(token: string): T | undefined;
+
+  /** 日志 */
+  get logger(): Logger;
 }
 
 /**

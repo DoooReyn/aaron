@@ -156,7 +156,7 @@ export class Profiler extends Service implements IProfiler {
         });
         totalMemory += memory / 1024;
       });
-      this.logger.d(MESSAGES.PROFILER.MEMORY_OCCUPY, totalMemory.toFixed(2));
+      this.logger.df(MESSAGES.PROFILER.MEMORY_OCCUPY, totalMemory.toFixed(2));
       console.table(
         textures.sort((a, b) => b.width * b.height - a.width * a.height),
         ['hash', 'width', 'height', 'memoryUsage']

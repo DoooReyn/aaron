@@ -2,7 +2,7 @@ import { Graphics, Node, UITransform } from 'cc';
 
 import { aaron } from '../../core';
 import { GuiConfig, IGuiPopup } from '../../interfaces';
-import { COLOR, EVENTS } from '../../macro';
+import { COLOR, EVENTS, MESSAGES } from '../../macro';
 import { color, time } from '../../utils';
 import { GuiStack } from './GuiStack';
 
@@ -27,7 +27,7 @@ export class GuiPopup extends GuiStack implements IGuiPopup {
     this._mask = mask;
   }
 
-  protected internalInpsect(config: GuiConfig) {
+  protected internalInspect(config: GuiConfig) {
     return config.interface === 'Popup';
   }
 
@@ -54,7 +54,7 @@ export class GuiPopup extends GuiStack implements IGuiPopup {
     const now = time.now();
     if (this.depth > 0 && now - this._lastClickAt > 1_000) {
       this._lastClickAt = now;
-      console.log('Popup Mask Clicked');
+      aaron.gui.logger.df(MESSAGES.GUI.CLICK_AT_MASK, this.name);
       const top = this.$instances[this.depth - 1];
       if (top.config.closeOnMaskClick) {
         top.controller.close();
