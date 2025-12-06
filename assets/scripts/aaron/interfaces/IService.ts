@@ -1,5 +1,5 @@
-import { Logger } from '../core';
 import { Constructor } from '../types';
+import { ILogger } from './services/ILogger';
 
 /**
  * 服务接口
@@ -14,7 +14,7 @@ export interface IService {
   resolve<T extends IService>(token: string): T | undefined;
 
   /** 日志 */
-  get logger(): Logger;
+  get logger(): ILogger;
 }
 
 /**

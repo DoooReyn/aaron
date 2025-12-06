@@ -1,4 +1,4 @@
-import { LogLevel } from '../interfaces';
+import { ILogger, LogLevel } from '../interfaces';
 import { literal } from '../utils';
 
 /**
@@ -6,7 +6,7 @@ import { literal } from '../utils';
  *
  * 提供统一的日志记录功能，支持不同级别的日志输出
  */
-export class Logger {
+export class Logger implements ILogger {
   /**
    * 日志构造
    * @param token 日志标识
