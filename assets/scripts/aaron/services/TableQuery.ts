@@ -2,7 +2,7 @@ import { Service } from '../core';
 import { IQuery, ITableEntry, ITableQuery, Table } from '../interfaces';
 import { MESSAGES } from '../macro';
 import { Key } from '../types';
-import { dict, lzj } from '../utils';
+import { dict, literal, lzj } from '../utils';
 
 /**
  * 配置表数据注册与查询服务
@@ -61,7 +61,7 @@ export class TableQuery extends Service implements ITableQuery {
   async parse<R = [], I = object>(token: string, input: string | Uint8Array) {
     return new Promise<Table<R, I>>((resolve, reject) => {
       if (!this._tables.has(token)) {
-        reject(`配置表: ${token} 未注册`);
+        return reject(literal.fmt(MESSAGES.TABLE_QUERY.PARSE_BAD, token));
       }
 
       const table = this._tables.get(token)!;
@@ -74,7 +74,7 @@ export class TableQuery extends Service implements ITableQuery {
       });
       table.listings = listings;
       table.mappings = mappings;
-      this.logger.d(`✅ 配置表：${token} 解析完成`);
+      this.logger.df(MESSAGES.TABLE_QUERY.PARSE_OK, token);
 
       resolve(table as Table<R, I>);
     });
@@ -82,7 +82,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   one<T extends ITableEntry>(token: string, id: string | number): T | undefined {
     if (!this._tables.has(token)) {
-      this.logger.ef('❌ 配置表: {0} 未注册', token);
+      this.logger.ef(MESSAGES.TABLE_QUERY.QUERY_BAD_NOT_REGISTERED, token);
       return undefined;
     }
 
@@ -93,7 +93,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.logger.ef('🈳 配置表: {0} 无数据', token);
+      this.logger.ef(MESSAGES.TABLE_QUERY.QUERY_BAD_NO_DATA, token);
       return undefined;
     }
 
@@ -133,7 +133,7 @@ export class TableQuery extends Service implements ITableQuery {
 
   query<T extends ITableEntry>(token: string, query: IQuery<T>): T[] {
     if (!this._tables.has(token)) {
-      this.logger.ef('❌ 配置表: {0} 未注册', token);
+      this.logger.ef(MESSAGES.TABLE_QUERY.QUERY_BAD_NOT_REGISTERED, token);
       return [];
     }
 
@@ -153,7 +153,7 @@ export class TableQuery extends Service implements ITableQuery {
 
     const table = this._tables.get(token)!;
     if (table.mappings == undefined) {
-      this.logger.ef('🈳 配置表: {0} 无数据', token);
+      this.logger.ef(MESSAGES.TABLE_QUERY.QUERY_BAD_NO_DATA, token);
       return [];
     }
 

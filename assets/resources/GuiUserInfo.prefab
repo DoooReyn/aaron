@@ -1412,7 +1412,7 @@
     "__prefab": {
       "__id__": 54
     },
-    "interactMode": 1,
+    "interactMode": 2,
     "tapInterval": 300,
     "holdDelay": 300,
     "holdInterval": 50,

@@ -57,9 +57,9 @@ export class Tweener extends Service implements ITweener {
 
   register(entry: ITweenEntry): void {
     if (this._container.has(entry.lib)) {
-      this.logger.wf('✅ 注册缓动: {0} 重复注册，使用最新版本', entry.lib);
+      this.logger.wf(MESSAGES.TWEENER.REGISTER_REPLACE, entry.lib);
     } else {
-      this.logger.df('✅ 注册缓动: {0}', entry.lib);
+      this.logger.df(MESSAGES.TWEENER.REGISTER_NEW, entry.lib);
     }
     this._container.set(entry.lib, entry);
   }
@@ -78,9 +78,9 @@ export class Tweener extends Service implements ITweener {
 
   isPlaying(node: Node, lib: string): boolean {
     if (this._runtime.has(node.uuid)) {
-      const tweens = this._runtime.get(node.uuid)!;
-      if (tweens.has(lib)) {
-        return !!tweens.get(lib)![0]?.running;
+      const entries = this._runtime.get(node.uuid)!;
+      if (entries.has(lib)) {
+        return !!entries.get(lib)![0]?.running;
       }
     }
     return false;
@@ -89,43 +89,43 @@ export class Tweener extends Service implements ITweener {
   async play(node: Node, lib: string, args?: ITweenArgs): Promise<void> {
     const [_, err] = await might.runAsync(this.internalPlay(node, lib, args));
     if (err) {
-      this.logger.e(`❌ 缓动执行异常: ${lib}`, err);
+      this.logger.ef(MESSAGES.TWEENER.EXECUTE_BAD, lib, err);
     }
   }
 
   pause(node: Node, lib: string): void {
     if (this._runtime.has(node.uuid)) {
-      const tweens = this._runtime.get(node.uuid)!;
-      if (tweens.has(lib)) {
-        const [twn, a] = tweens.get(lib)!;
+      const entries = this._runtime.get(node.uuid)!;
+      if (entries.has(lib)) {
+        const [twn, a] = entries.get(lib)!;
         twn?.pause();
         const [, e] = might.runSync(() => a.onPause?.call(a.context, node));
-        if (e) this.logger.e(`❌ 缓动 onPause 回调异常: ${lib}`, e);
+        if (e) this.logger.ef(MESSAGES.TWEENER.ON_PAUSE_BAD, lib, e);
       }
     }
   }
 
   resume(node: Node, lib: string): void {
     if (this._runtime.has(node.uuid)) {
-      const tweens = this._runtime.get(node.uuid)!;
-      if (tweens.has(lib)) {
-        const [twn, a] = tweens.get(lib)!;
+      const entries = this._runtime.get(node.uuid)!;
+      if (entries.has(lib)) {
+        const [twn, a] = entries.get(lib)!;
         twn?.resume();
         const [, e] = might.runSync(() => a.onResume?.call(a.context, node));
-        if (e) this.logger.e(`❌ 缓动 onResume 回调异常: ${lib}`, e);
+        if (e) this.logger.ef(MESSAGES.TWEENER.ON_RESUME_BAD, lib, e);
       }
     }
   }
 
   stop(node: Node, lib: string): void {
     if (this._runtime.has(node.uuid)) {
-      const tweens = this._runtime.get(node.uuid)!;
-      if (tweens.has(lib)) {
-        const [twn, a] = tweens.get(lib)!;
+      const entries = this._runtime.get(node.uuid)!;
+      if (entries.has(lib)) {
+        const [twn, a] = entries.get(lib)!;
         twn?.stop();
-        tweens.delete(lib);
+        entries.delete(lib);
         const [, e] = might.runSync(() => a.onStop?.call(a.context, node));
-        if (e) this.logger.e(`❌ 缓动 onStop 回调异常: ${lib}`, e);
+        if (e) this.logger.ef(MESSAGES.TWEENER.ON_STOP_BAD, lib, e);
       }
     }
   }
@@ -134,21 +134,21 @@ export class Tweener extends Service implements ITweener {
     const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
-        const tweens = this._runtime.get(node.uuid)!;
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+        const entries = this._runtime.get(node.uuid)!;
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.pause();
           const [, e] = might.runSync(() => args.onPause?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onPause 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_PAUSE_BAD, lib, e);
         });
       }
     } else {
-      this._runtime.forEach((tweens) => {
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+      this._runtime.forEach((entries) => {
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.pause();
           const [, e] = might.runSync(() => args.onPause?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onPause 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_PAUSE_BAD, lib, e);
         });
       });
     }
@@ -158,21 +158,21 @@ export class Tweener extends Service implements ITweener {
     const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
-        const tweens = this._runtime.get(node.uuid)!;
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+        const entries = this._runtime.get(node.uuid)!;
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.resume();
           const [, e] = might.runSync(() => args.onResume?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onResume 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_RESUME_BAD, lib, e);
         });
       }
     } else {
-      this._runtime.forEach((tweens) => {
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+      this._runtime.forEach((entries) => {
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.resume();
           const [, e] = might.runSync(() => args.onResume?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onResume 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_RESUME_BAD, lib, e);
         });
       });
     }
@@ -182,26 +182,26 @@ export class Tweener extends Service implements ITweener {
     const logger = this.logger;
     if (node) {
       if (this._runtime.has(node.uuid)) {
-        const tweens = this._runtime.get(node.uuid)!;
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+        const entries = this._runtime.get(node.uuid)!;
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.stop();
-          tweens.delete(lib);
+          entries.delete(lib);
           const [, e] = might.runSync(() => args.onStop?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onStop 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_STOP_BAD, lib, e);
         });
-        tweens.clear();
+        entries.clear();
       }
     } else {
-      this._runtime.forEach((tweens) => {
-        tweens.forEach((tween, lib) => {
-          const [twn, args] = tween;
+      this._runtime.forEach((entries) => {
+        entries.forEach((entry, lib) => {
+          const [twn, args] = entry;
           twn.stop();
-          tweens.delete(lib);
+          entries.delete(lib);
           const [, e] = might.runSync(() => args.onStop?.call(args.context, node));
-          if (e) logger.e(`❌ 缓动 onStop 回调异常: ${lib}`, e);
+          if (e) logger.ef(MESSAGES.TWEENER.ON_STOP_BAD, lib, e);
         });
-        tweens.clear();
+        entries.clear();
       });
       this._runtime.clear();
     }
@@ -218,7 +218,7 @@ export class Tweener extends Service implements ITweener {
     return new Promise<void>((resolve) => {
       const entry = this._container.get(lib);
       if (!entry) {
-        this.logger.ef(`❌ 缓动未注册: {0}`, lib);
+        this.logger.ef(MESSAGES.TWEENER.NOT_REGISTERED, lib);
         return resolve();
       }
 
@@ -230,17 +230,17 @@ export class Tweener extends Service implements ITweener {
       args.existencePolicy ??= 'override';
 
       if (this._runtime.has(node.uuid)) {
-        const tweens = this._runtime.get(node.uuid)!;
-        if (tweens.has(lib)) {
+        const entries = this._runtime.get(node.uuid)!;
+        if (entries.has(lib)) {
           if (args.existencePolicy === 'skip') {
-            this.logger.if(`🚀 缓动正在播放中，应用跳过策略: {0}`, lib);
+            this.logger.if(MESSAGES.TWEENER.IS_PLAYING_SKIP, lib);
             return resolve();
           } else {
-            this.logger.if(`🚀 缓动正在播放中，应用替换策略: {0}`, lib);
-            tweens.get(lib)![0]?.stop();
-            tweens.delete(lib);
+            this.logger.if(MESSAGES.TWEENER.IS_PLAYING_REPLACE, lib);
+            entries.get(lib)![0]?.stop();
+            entries.delete(lib);
             const [, e] = might.runSync(() => args.onStop?.call(args.context, node));
-            if (e) this.logger.e(`❌ 缓动: ${lib} onStop 回调异常`, e);
+            if (e) this.logger.ef(MESSAGES.TWEENER.ON_STOP_BAD, lib, e);
           }
         }
       } else {
@@ -249,12 +249,12 @@ export class Tweener extends Service implements ITweener {
 
       const t1 = tween(node).call(() => {
         const [, e] = might.runSync(() => args.onStart?.call(args.context, node));
-        if (e) this.logger.e(`❌ 缓动 onStart 回调异常: ${lib}`, e);
+        if (e) this.logger.ef(MESSAGES.TWEENER.ON_START_BAD, lib, e);
         // ioc.logcat.tweener.i(`缓动动画: ${lib} 第一阶段播放结束`);
       });
       const [t2, createErr] = might.runSync(() => entry.create(node, args));
       if (createErr || !t2) {
-        this.logger.e(`❌ 缓动构建失败: ${lib}`, createErr);
+        this.logger.ef(MESSAGES.TWEENER.BUILD_BAD, lib, createErr);
         return resolve();
       }
       // t2.call(() => {
@@ -264,7 +264,7 @@ export class Tweener extends Service implements ITweener {
         const map = this._runtime.get(node.uuid);
         map?.delete(lib);
         const [, e] = might.runSync(() => args.onEnd?.call(args.context, node));
-        if (e) this.logger.e(`❌ 缓动 onEnd 回调异常: ${lib}`, e);
+        if (e) this.logger.ef(MESSAGES.TWEENER.ON_END_BAD, lib, e);
         // ioc.logcat.tweener.i(`缓动动画: ${lib} 第三阶段播放结束`);
         resolve();
       });

@@ -7,7 +7,7 @@ import { Global } from '../types';
  * 全局对象适配服务
  */
 export class GlobalAdapter extends Service implements IGlobalAdapter {
-  public readonly token: string;
+  public readonly token: string = MESSAGES.GLOBAL_ADAPTER.CATEGORY;
   /** 全局对象 */
   // @ts-ignore
   private _env: Global = globalThis ?? window ?? self ?? frames ?? GameGlobal ?? {};
@@ -18,9 +18,9 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   set<T>(key: string, value: T): void {
     if (this.has(key)) {
-      this.logger.w(MESSAGES.GLOBAL_ADAPTER.REPLACE, key);
+      this.logger.wf(MESSAGES.GLOBAL_ADAPTER.REPLACE, key);
     } else {
-      this.logger.d(MESSAGES.GLOBAL_ADAPTER.ADD, key);
+      this.logger.df(MESSAGES.GLOBAL_ADAPTER.ADD, key);
     }
     this._env[key] = value;
   }
@@ -31,7 +31,7 @@ export class GlobalAdapter extends Service implements IGlobalAdapter {
 
   unset(key: string): void {
     if (delete this._env[key]) {
-      this.logger.d(MESSAGES.GLOBAL_ADAPTER.DELETE, key);
+      this.logger.df(MESSAGES.GLOBAL_ADAPTER.DELETE, key);
     }
   }
 }

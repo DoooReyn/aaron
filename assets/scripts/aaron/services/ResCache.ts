@@ -22,7 +22,7 @@ export class ResCache extends Service implements IResCache {
     const { key, asset, source, expires = 0, refCount = 0 } = options;
 
     if (!asset || !asset.isValid) {
-      this.logger.wf('❌ 缓存: 资源无效，无法缓存 {0}', key);
+      this.logger.wf(MESSAGES.RES_CACHE.CACHE_BAD, key);
       return;
     }
 
@@ -39,7 +39,7 @@ export class ResCache extends Service implements IResCache {
     };
 
     this._container.set(key, entry);
-    this.logger.df('✅ 缓存: 资源 {0}，预设 {1}s 后过期', key, expires / 1000);
+    this.logger.df(MESSAGES.RES_CACHE.CACHE_OK, key, expires / 1000);
   }
 
   /**
@@ -51,21 +51,21 @@ export class ResCache extends Service implements IResCache {
     const entry = this._container.get(key);
 
     if (!entry) {
-      this.logger.wf('❌ 缓存: 资源未缓存 {0}', key);
+      this.logger.wf(MESSAGES.RES_CACHE.ACQUIRE_BAD_NOT_CACHED, key);
       return null;
     }
 
     // 检查资源是否有效
     if (!entry.asset.isValid) {
-      this.logger.wf('❌ 缓存: 资源已失效 {0}', key);
+      this.logger.wf(MESSAGES.RES_CACHE.ACQUIRE_BAD_INVALID, key);
       this._container.delete(key);
       return null;
     }
 
-    // 检查是否过期
-    if (entry.expiresAt > 0 && entry.expiresAt < time.now()) {
-      this.logger.df('❌ 缓存: 资源已过期 {0}', key);
-      this._container.delete(key);
+    // 检查是否未使用且已过期
+    if (entry.refCount <= 0 && entry.expiresAt > 0 && entry.expiresAt < time.now()) {
+      this.logger.wf(MESSAGES.RES_CACHE.ACQUIRE_BAD_HAS_EXPIRED, key);
+      this.delete(key);
       return null;
     }
 
@@ -90,9 +90,9 @@ export class ResCache extends Service implements IResCache {
       return false;
     }
 
-    // 检查是否过期
-    if (entry.expiresAt > 0 && entry.expiresAt < time.now()) {
-      this._container.delete(key);
+    // 检查是否未使用且已过期
+    if (entry.refCount <= 0 && entry.expiresAt > 0 && entry.expiresAt < time.now()) {
+      this.delete(key);
       return false;
     }
 
@@ -102,22 +102,27 @@ export class ResCache extends Service implements IResCache {
   /**
    * 删除缓存
    * @param key 资源键值
-   * @param release 是否释放资源
    * @returns 是否删除成功
    */
-  delete(key: string, release: boolean = false): boolean {
+  delete(key: string): boolean {
     const entry = this._container.get(key);
-    if (!entry) return false;
 
-    if (release && entry.asset.isValid) {
-      entry.asset.decRef();
-      this.logger.df('⛔ 缓存: 释放资源 {0}', key);
+    if (entry) {
+      if (!entry.asset.isValid) {
+        this._container.delete(key);
+        this.logger.df(MESSAGES.RES_CACHE.DELETE, key);
+        return true;
+      }
+
+      if (entry.refCount <= 0) {
+        entry.asset.destroy();
+        this._container.delete(key);
+        this.logger.df(MESSAGES.RES_CACHE.DELETE, key);
+        return true;
+      }
     }
 
-    this._container.delete(key);
-    this.logger.df('🗑️ 缓存: 删除资源 {0}', key);
-
-    return true;
+    return false;
   }
 
   /**
@@ -132,7 +137,7 @@ export class ResCache extends Service implements IResCache {
     entry.refCount++;
     // entry.asset.addRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
     entry.expiresAt = entry.expires > 0 ? time.now() + entry.expires : 0;
-    this.logger.df('➕ 缓存: 增持 {0} 计数:{1}', key, entry.refCount);
+    this.logger.df(MESSAGES.RES_CACHE.ADD_REF, key, entry.refCount);
 
     return entry.refCount;
   }
@@ -150,11 +155,11 @@ export class ResCache extends Service implements IResCache {
 
     entry.refCount = Math.max(0, entry.refCount - 1);
     // entry.asset.decRef(); // 注释掉的原因是想用新的计数接管原生计数,否则原生计数为0时资源会被自动释放,不符合缓存设计
-    this.logger.df('➖ 缓存: 减持 {0} 计数:{1}', key, entry.refCount);
+    this.logger.df(MESSAGES.RES_CACHE.DEC_REF, key, entry.refCount);
 
     // 自动释放
     if (autoRelease && entry.refCount === 0) {
-      this.delete(key, true);
+      this.delete(key);
     }
 
     return entry.refCount;
@@ -170,19 +175,14 @@ export class ResCache extends Service implements IResCache {
     let deleted: string[] = [];
 
     for (const [key, entry] of this._container) {
-      // 清理无效资源
       if (!entry.asset.isValid) {
+        // 清理无效资源
         this._container.delete(key);
         deleted.push(key);
         count++;
-        continue;
-      }
-
-      // 清理过期资源
-      if (entry.expiresAt > 0 && entry.expiresAt < now && entry.refCount <= 0) {
-        if (entry.asset.isValid) {
-          entry.asset.decRef();
-        }
+      } else if (entry.expiresAt > 0 && entry.expiresAt < now && entry.refCount <= 0) {
+        // 清理过期资源
+        entry.asset.decRef(true);
         this._container.delete(key);
         deleted.push(key);
         count++;
@@ -190,7 +190,7 @@ export class ResCache extends Service implements IResCache {
     }
 
     if (count > 0) {
-      this.logger.d(`🗑️ 缓存: 清理过期资源 ${count} 个`, deleted.join());
+      this.logger.df(MESSAGES.RES_CACHE.CLEAN_UNUSED, count, deleted.join());
     }
 
     return count;
@@ -198,14 +198,12 @@ export class ResCache extends Service implements IResCache {
 
   /**
    * 清空所有缓存
-   * @param release 是否释放资源
+   * @note 清空容器并释放引用为0的资源
    */
-  clear(release: boolean = false): void {
-    if (release) {
-      for (const [_, entry] of this._container) {
-        if (entry.asset.isValid) {
-          entry.asset.decRef();
-        }
+  clear(): void {
+    for (const [_, entry] of this._container) {
+      if (entry.asset.isValid && entry.refCount <= 0) {
+        entry.asset.destroy();
       }
     }
 
@@ -213,7 +211,7 @@ export class ResCache extends Service implements IResCache {
     this._container.clear();
 
     if (count > 0) {
-      this.logger.df('🗑️ 缓存: 清空所有缓存 {0} 个', count);
+      this.logger.df(MESSAGES.RES_CACHE.CLEAN_CACHE, count);
     }
   }
 
@@ -271,17 +269,17 @@ export class ResCache extends Service implements IResCache {
 
   /**
    * 清理指定来源的缓存
+   * @note 清理指定来源的缓存并释放引用为0的资源
    * @param source 资源来源
-   * @param release 是否释放资源
    * @returns 清理的数量
    */
-  clearBySource(source: CacheSource, release: boolean = false): number {
+  clearBySource(source: CacheSource): number {
     let count = 0;
 
     for (const [key, entry] of this._container) {
       if (entry.source === source) {
-        if (release && entry.asset.isValid) {
-          entry.asset.decRef();
+        if (entry.asset.isValid && entry.refCount <= 0) {
+          entry.asset.destroy();
         }
         this._container.delete(key);
         count++;

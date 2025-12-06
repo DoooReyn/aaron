@@ -95,11 +95,11 @@ export class RichTextAtlas extends Service implements IRichTextAtlas {
   configureAtlas(atlasKey: string, level: RichTextAtlasLevel): void {
     if (this._atlasLevels.has(atlasKey)) {
       const oldLevel = RichTextAtlasLevel[this._atlasLevels.get(atlasKey)];
-      this.logger.w(`📚 富文本图集：${atlasKey} 已配置为 ${oldLevel}，请注意合理分配图集标识和等级`);
+      this.logger.wf(MESSAGES.RICH_TEXT_ATLAS.EXISTED, atlasKey, oldLevel);
       return;
     }
     this._atlasLevels.set(atlasKey, level);
-    this.logger.i(`📚 添加富文本图集: ${atlasKey} ${RichTextAtlasLevel[level]}`);
+    this.logger.if(MESSAGES.RICH_TEXT_ATLAS.ADD, atlasKey, RichTextAtlasLevel[level]);
   }
 
   destroy() {
