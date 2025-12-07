@@ -72,7 +72,7 @@ function capitalize(str: string) {
  * @param str 输入字符串
  * @returns 转换后的字符串
  */
-function uncapitalize(str: string) {
+function unCapitalize(str: string) {
   if (!str || str.length === 0) {
     return str;
   }
@@ -161,4 +161,4 @@ function splitWords(text: string) {
   return result;
 }
 
-export { fmt, isBlank, isLiteral, truncate, capitalize, uncapitalize, isChinese, isDigit, isEnglish, splitWords };
+export { fmt, isBlank, isLiteral, truncate, capitalize, unCapitalize, isChinese, isDigit, isEnglish, splitWords };

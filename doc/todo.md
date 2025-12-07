@@ -6,5 +6,3 @@
   - Drawer
   - Marquee
   - Guide
-- MESSAGES 替换
-- 移除非服务项的接口，比如：atom/foundation
