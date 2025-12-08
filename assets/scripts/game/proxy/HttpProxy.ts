@@ -235,5 +235,3 @@ export class HttpProxy {
     }
   }
 }
-
-(<any>window).hp = HttpProxy;
