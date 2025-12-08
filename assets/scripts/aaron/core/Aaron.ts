@@ -14,6 +14,7 @@ import {
   IEventBus,
   IGlobalAdapter,
   IGui,
+  IHttpService,
   ILocalization,
   INodePoolContainer,
   IObjectPoolContainer,
@@ -201,6 +202,11 @@ export class Aaron {
   /** 缓动动画服务 */
   get tweener() {
     return this.serviceOf<ITweener>(SERVICES.TWEENER);
+  }
+
+  /** HTTP 请求服务 */
+  get http() {
+    return this.serviceOf<IHttpService>(SERVICES.HTTP_CLIENT);
   }
 }
 

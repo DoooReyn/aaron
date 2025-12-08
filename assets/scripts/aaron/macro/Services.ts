@@ -24,5 +24,6 @@ export const SERVICES = {
   TABLE_QUERY: 'TableQuery',
   GUI: 'Gui',
   AUDIO_PLAYER: 'AudioPlayer',
+  HTTP_CLIENT: 'HttpClient',
   TWEENER: 'Tweener',
 } as const;

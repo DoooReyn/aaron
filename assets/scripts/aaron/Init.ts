@@ -13,6 +13,7 @@ import {
   IEventBus,
   IGlobalAdapter,
   IGui,
+  IHttpService,
   ILocalization,
   INodePoolContainer,
   IObjectPoolContainer,
@@ -55,6 +56,7 @@ import {
   Timer,
   Tweener
 } from './services';
+import { HttpClient } from './services/HttpClient';
 
 /**
  * 框架初始化函数
@@ -143,6 +145,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
   // 注册 GUI 服务
   aaron.registerServiceFactory<IGui>(SERVICES.GUI, Gui);
 
+  // 注册 HTTP 服务
+  aaron.registerServiceFactory<IHttpService>(SERVICES.HTTP_CLIENT, HttpClient);
+
   // 最后注册应用启动器服务
   aaron.registerServiceInstance(SERVICES.APP_LAUNCHER, new AppLauncher());
 
@@ -181,7 +186,7 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
       aaron.resCache.clearUnused();
       aaron.gui.clearUnused();
     },
-    this,
+    this
   );
 
   aaron.logger.i('✅ Aaron Framework 初始化完成');

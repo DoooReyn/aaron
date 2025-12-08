@@ -102,6 +102,17 @@ export const MESSAGES = {
     PARSE_BIND_1: '解析绑定配置，索引节点未找到， key={0}, path={1}',
     PARSE_BIND_2: '解析绑定配置，索引组件未找到， key={0}, path={1}',
   },
+  HTTP: {
+    CATEGORY: '🏄 Http:',
+    QUEUED: '请求进入队列: {0}',
+    RETRYING: '请求重试 ({0}/{1}): {2}',
+    NETWORK_ERROR: '网络错误',
+    TIMEOUT: '请求超时',
+    CANCELLED: '请求已取消',
+    PARSE_ERROR: '响应解析错误',
+    SEND_ERROR: '请求发送失败',
+    CONCURRENCY_LIMIT_EXCEEDED: '请求队列已满',
+  },
   LOCALIZATION: {
     CATEGORY: '🌏 国际化:',
     ID_NOT_FOUND: '未找到文本编号 {0}',
