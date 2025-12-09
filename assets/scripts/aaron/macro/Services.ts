@@ -26,4 +26,5 @@ export const SERVICES = {
   AUDIO_PLAYER: 'AudioPlayer',
   HTTP_CLIENT: 'HttpClient',
   TWEENER: 'Tweener',
+  WEBSOCKET_CLIENT: 'WebsocketClient',
 } as const;

@@ -29,7 +29,8 @@ import {
   IStoreContainer,
   ITableQuery,
   ITimer,
-  ITweener
+  ITweener,
+  IWebsocket
 } from '../interfaces';
 import { SERVICES } from '../macro';
 import { Constructor } from '../types';
@@ -207,6 +208,11 @@ export class Aaron {
   /** HTTP 请求服务 */
   get http() {
     return this.serviceOf<IHttpService>(SERVICES.HTTP_CLIENT);
+  }
+
+  /** Websocket 服务 */
+  get wsc() {
+    return this.serviceOf<IWebsocket>(SERVICES.WEBSOCKET_CLIENT);
   }
 }
 
