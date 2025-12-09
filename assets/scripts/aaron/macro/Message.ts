@@ -268,5 +268,7 @@ export const MESSAGES = {
     ERROR_CODE_10: '心跳超时',
     ERROR_CODE_11: '发送心跳失败',
     ERROR_CODE_12: '事件 "{0}" 监听器执行失败',
+    PROTOCOL_NOT_FOUND: '协议未注册 {0}',
+    PROTOCOL_RESP_UNEXPECTED: '协议解码器未注册或该请求不需要响应但被意外响应了 {0}',
   },
 } as const;

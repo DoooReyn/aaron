@@ -1,3 +1,4 @@
+import { HeartBeatReq, HeartBeatResp, MessageFns, MsgId } from '../../game/data/proto/game';
 import { Service } from '../core';
 import {
   IEventBus,
@@ -13,16 +14,87 @@ import {
   WSRequestTask,
   WSResponse,
   WSResponseInterceptor,
-  WSState
+  WSState,
 } from '../interfaces';
 import { EVENTS, MESSAGES, SERVICES } from '../macro';
 import { literal } from '../utils';
 
-/**
- * 简单的消息 ID 生成器
- */
-function generateMessageId(): string {
-  return `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+export class PBParser {
+  private static readonly headLength: number = 6;
+
+  /** 协议映射，存储命令和对应的请求和响应处理函数 */
+  private static readonly protocols: Map<number, [MessageFns<unknown>, MessageFns<unknown> | undefined]> = new Map();
+
+  /**
+   * 注册协议
+   * - 将命令和对应的请求和响应处理函数存储到协议映射中
+   * - 用于后续编码和解码消息
+   * @template T 消息类型
+   * @param cmd 命令
+   * @param req 请求处理函数
+   * @param resp 响应处理函数
+   */
+  public static register<Req, Resp>(cmd: number, req: MessageFns<Req>, resp?: MessageFns<Resp>) {
+    if (!this.protocols.has(cmd)) {
+      this.protocols.set(cmd, [req, resp]);
+    }
+  }
+
+  /**
+   * 编码
+   * @param data 数据
+   * @returns
+   */
+  public static encode(data: WSMessage): Uint8Array<ArrayBuffer> {
+    const cmd = data.cmd;
+    if (!this.protocols.has(cmd)) {
+      throw new Error(literal.fmt(MESSAGES.WEBSOCKET.PROTOCOL_NOT_FOUND, cmd));
+    }
+
+    const rid = data.id;
+    const req: MessageFns<unknown> = this.protocols.get(cmd)[0];
+    let length = this.headLength;
+    const abHead = new ArrayBuffer(length);
+    const dvHead = new DataView(abHead);
+    const bytes = req.encode(data.data).finish();
+    dvHead.setUint16(0, cmd, true);
+    dvHead.setUint16(2, rid, true);
+    dvHead.setUint16(4, bytes.length, true);
+    length += bytes.length;
+    const u8head = new Uint8Array(abHead);
+    const buffer = new Uint8Array(length);
+    buffer.set(u8head, 0);
+    buffer.set(bytes, this.headLength);
+    return buffer;
+  }
+
+  /**
+   * 解码
+   * @param msg 数据
+   * @returns
+   */
+  public static decode(msg: ArrayBuffer): WSMessage {
+    const dv = new DataView(msg);
+    const cmd = dv.getInt16(0, true);
+    if (!this.protocols.has(cmd)) {
+      throw new Error(literal.fmt(MESSAGES.WEBSOCKET.PROTOCOL_NOT_FOUND, cmd));
+    }
+
+    const resp: MessageFns<unknown> = this.protocols.get(cmd)[1];
+    if (resp == undefined) {
+      throw new Error(literal.fmt(MESSAGES.WEBSOCKET.PROTOCOL_RESP_UNEXPECTED, cmd));
+    }
+
+    const rid = dv.getInt16(2, true);
+    const bytes = new Uint8Array(msg, this.headLength, msg.byteLength - this.headLength);
+    const data = resp.decode(bytes, bytes.byteLength);
+    return {
+      cmd: cmd,
+      id: rid,
+      data: data,
+      timestamp: Date.now(),
+    };
+  }
 }
 
 /**
@@ -47,7 +119,7 @@ export class WebsocketClient extends Service implements IWebsocket {
   private _eventListeners: Map<keyof WSEventMap, Set<Function>> = new Map();
 
   /** 待处理的请求映射 */
-  private _pendingRequests: Map<string, WSRequestTask> = new Map();
+  private _pendingRequests: Map<number, WSRequestTask> = new Map();
 
   /** 请求队列（用于并发限制） */
   private _requestQueue: WSRequestTask[] = [];
@@ -65,13 +137,13 @@ export class WebsocketClient extends Service implements IWebsocket {
   private _errorInterceptors: WSErrorInterceptor[] = [];
 
   /** 重连计时器 */
-  private _reconnectTimer?: number;
+  private _reconnectTimer?: number | NodeJS.Timeout;
 
   /** 心跳计时器 */
-  private _heartbeatTimer?: number;
+  private _heartbeatTimer?: number | NodeJS.Timeout;
 
   /** 心跳超时计时器 */
-  private _heartbeatTimeoutTimer?: number;
+  private _heartbeatTimeoutTimer?: number | NodeJS.Timeout;
 
   /** 当前重连次数 */
   private _reconnectAttempts: number = 0;
@@ -87,6 +159,9 @@ export class WebsocketClient extends Service implements IWebsocket {
 
   /** 进入后台前的连接状态 */
   private _connectionStateBeforeBackground: boolean = false;
+
+  /** 请求 id */
+  private _reqId: number = 0;
 
   /** 获取当前连接状态 */
   get state(): WSState {
@@ -131,6 +206,11 @@ export class WebsocketClient extends Service implements IWebsocket {
       ...options,
       url,
     };
+
+    if (this._options.parser) {
+      this._options.parser = PBParser;
+      PBParser.register(MsgId.HeartBeat, HeartBeatReq, HeartBeatResp);
+    }
 
     await this.internalConnect();
   }
@@ -212,9 +292,10 @@ export class WebsocketClient extends Service implements IWebsocket {
     }
 
     try {
-      const data = this._options?.parser?.stringify(message) || JSON.stringify(message);
+      message.id = this.nextReqId();
+      const data = this._options?.parser?.encode(message) || JSON.stringify(message);
       this._ws!.send(data);
-      this.logger.df(MESSAGES.WEBSOCKET.SEND_ONE_WAY, message.type);
+      this.logger.df(MESSAGES.WEBSOCKET.SEND_ONE_WAY, message.cmd);
     } catch (error) {
       throw new WSError(WSErrorCodes.NETWORK_ERROR, MESSAGES.WEBSOCKET.ERROR_CODE_5, error);
     }
@@ -335,10 +416,19 @@ export class WebsocketClient extends Service implements IWebsocket {
   }
 
   /**
+   * 请求编号自增长
+   * @returns 当前请求编号
+   */
+  private nextReqId() {
+    this._reqId = (this._reqId < 5000 ? this._reqId : 0) + 1;
+    return this._reqId;
+  }
+
+  /**
    * 创建请求任务
    */
   private createRequestTask(config: WSRequestConfig): WSRequestTask {
-    const id = generateMessageId();
+    const id = this.nextReqId();
     const task: WSRequestTask = {
       id,
       config,
@@ -365,7 +455,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       const message = { ...config.message, id: task.id, timestamp: Date.now() };
 
       // 发送消息
-      const data = this._options?.parser?.stringify(message) || JSON.stringify(message);
+      const data = this._options?.parser?.encode(message) || JSON.stringify(message);
       this._ws!.send(data);
 
       this.logger.df(MESSAGES.WEBSOCKET.SEND_MESSAGE, task.id);
@@ -479,6 +569,7 @@ export class WebsocketClient extends Service implements IWebsocket {
         const finalProtocols = protocols.length > 0 ? protocols : undefined;
 
         this._ws = new WebSocket(this._url!, finalProtocols);
+        this._ws.binaryType = 'arraybuffer';
 
         const connectTimeout = setTimeout(() => {
           this._state = WSState.CLOSED;
@@ -598,18 +689,20 @@ export class WebsocketClient extends Service implements IWebsocket {
    */
   private async handleMessage(event: MessageEvent): Promise<void> {
     try {
-      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE, event.data);
+      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE);
 
       // 解析消息
       let message: WSMessage;
       if (this._options?.parser) {
-        message = this._options.parser.parse(event.data);
+        message = this._options.parser.decode(event.data);
       } else {
         message = JSON.parse(event.data);
       }
 
+      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE, message.cmd);
+
       // 处理心跳响应
-      if (message.type === 'heartbeat') {
+      if (message.cmd === 0) {
         this.handleHeartbeatResponse(message);
         return;
       }
@@ -669,7 +762,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       if (this.isConnected) {
         this._lastHeartbeatTimestamp = Date.now();
         const heartbeatMessage: WSMessage = {
-          type: 'heartbeat',
+          cmd: 0,
           data: { timestamp: this._lastHeartbeatTimestamp },
         };
 
@@ -677,16 +770,16 @@ export class WebsocketClient extends Service implements IWebsocket {
           this.sendOneWay(heartbeatMessage);
           this.logger.d(MESSAGES.WEBSOCKET.HEARTBEAT_SENT);
 
-          // 设置心跳超时
+          // 设置心跳超时，如果超时则关闭连接
           this._heartbeatTimeoutTimer = setTimeout(() => {
-            this.logger.w(MESSAGES.WEBSOCKET.HEARTBEAT_TIMEOUT);
+            this.logger.e(MESSAGES.WEBSOCKET.HEARTBEAT_TIMEOUT);
             this._ws?.close(1000, MESSAGES.WEBSOCKET.ERROR_CODE_10);
-          }, this._options?.heartbeatTimeout || 5000);
+          }, this._options.heartbeatTimeout);
         } catch (error) {
           this.logger.e(MESSAGES.WEBSOCKET.ERROR_CODE_11, error);
         }
       }
-    }, this._options?.heartbeatInterval || 30000);
+    }, this._options.heartbeatInterval);
   }
 
   /**
@@ -895,11 +988,11 @@ export class WebsocketClient extends Service implements IWebsocket {
 
       // 创建一个特殊的 ping 消息
       const pingMessage: WSMessage = {
-        type: 'ping',
-        data: { timestamp: Date.now() },
+        cmd: MsgId.Ping,
+        data: {},
       };
 
-      const data = this._options?.parser?.stringify?.(pingMessage) || JSON.stringify(pingMessage);
+      const data = this._options?.parser?.encode?.(pingMessage) || JSON.stringify(pingMessage);
 
       this._ws.send(data);
 
@@ -908,12 +1001,12 @@ export class WebsocketClient extends Service implements IWebsocket {
         try {
           let message: WSMessage;
           if (this._options?.parser) {
-            message = this._options.parser.parse(event.data);
+            message = this._options.parser.decode(event.data);
           } else {
             message = JSON.parse(event.data);
           }
 
-          if (message.type === 'pong' && message.data.timestamp === pingMessage.data.timestamp) {
+          if (message.cmd === 0 && message.data.timestamp === pingMessage.data.timestamp) {
             clearTimeout(pingTimeout);
             this._ws?.removeEventListener('message', onMessage);
             this.logger.i('连接活性检测成功');

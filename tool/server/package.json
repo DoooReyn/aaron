@@ -1,0 +1,45 @@
+{
+  "name": "aaron-websocket-server",
+  "version": "1.0.0",
+  "description": "Aaron Framework WebSocket Server with ts-proto support",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run build:proto && npm run build:ts",
+    "build:proto": "convert.bat",
+    "build:ts": "tsc",
+    "dev": "ts-node index.ts",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist src/proto",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest"
+  },
+  "keywords": [
+    "websocket",
+    "protobuf",
+    "ts-proto",
+    "server",
+    "game",
+    "realtime"
+  ],
+  "author": "Aaron Framework",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.2",
+    "protobufjs": "^7.2.5",
+    "@types/ws": "^8.5.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.7",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "eslint": "^8.52.0",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1",
+    "ts-proto": "^1.179.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

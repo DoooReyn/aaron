@@ -5,9 +5,9 @@ import { IService } from '../IService';
  */
 export interface WSMessage {
   /** 消息ID，用于请求响应匹配 */
-  id?: string;
-  /** 消息类型 */
-  type: string;
+  id?: number;
+  /** 消息类型（消息编号） */
+  cmd: number;
   /** 消息数据 */
   data: any;
   /** 时间戳 */
@@ -37,7 +37,7 @@ export interface WSRequestConfig {
  */
 export interface WSResponse<T = any> {
   /** 请求ID */
-  requestId: string;
+  requestId: number;
   /** 响应数据 */
   data: T;
   /** 是否成功 */
@@ -95,11 +95,7 @@ export interface WSErrorInterceptor {
  * WebSocket 错误类型
  */
 export class WSError extends Error {
-  constructor(
-    public code: string,
-    message: string,
-    public originalError?: any
-  ) {
+  constructor(public code: string, message: string, public originalError?: any) {
     super(message);
     this.name = 'WSError';
   }
@@ -178,9 +174,9 @@ export interface WSOptions {
   /** 自定义消息解析器 */
   parser?: {
     /** 序列化消息 */
-    stringify: (message: WSMessage) => string;
+    encode: (message: WSMessage) => any;
     /** 反序列化消息 */
-    parse: (data: string) => WSMessage;
+    decode: (data: any) => WSMessage;
   };
 }
 
@@ -189,7 +185,7 @@ export interface WSOptions {
  */
 export interface WSRequestTask {
   /** 请求ID */
-  id: string;
+  id: number;
   /** 请求配置 */
   config: WSRequestConfig;
   /** 请求时间戳 */

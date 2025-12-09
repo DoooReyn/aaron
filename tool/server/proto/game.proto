@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+// 生成 proto 文件所在包路径
+package proto.game;
+
+// 消息号
+enum MsgId {
+  HeartBeat = 0; // 心跳
+  Ping = 1;
+  Pong = 2;
+}
+
+// 错误码
+enum ErrCode {
+  SUCCESS = 0;
+  FAIL = 1;
+}
+
+// 响应码
+message RespCode {
+  required ErrCode errCode = 1;
+  optional string msg = 2;
+}
+
+// 心跳请求(速率: 10秒/1次 )
+message HeartBeatReq {
+}
+
+// 心跳响应
+message HeartBeatResp {
+  required RespCode respCode = 1;
+}
+
+// Ping
+message PingReq {}
+
+// Pong
+message PongResp {}
