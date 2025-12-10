@@ -1,6 +1,8 @@
-import { HeartBeatReq, HeartBeatResp, MessageFns, MsgId, PingReq, PongResp } from '../../game/data/proto/game';
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+
 import { Service } from '../core';
 import {
+  IAppLauncher,
   IEventBus,
   IWebsocket,
   WSError,
@@ -19,6 +21,27 @@ import {
 import { EVENTS, MESSAGES, SERVICES } from '../macro';
 import { literal } from '../utils';
 
+/** 消息调制解调器 */
+interface MessageFns<T> {
+  encode(message: T, writer?: BinaryWriter): BinaryWriter;
+  decode(input: BinaryReader | Uint8Array, length?: number): T;
+}
+
+/** 消息号（至少包含这几个消息） */
+enum MsgId {
+  /** 未识别 */
+  UNRECOGNIZED = -1,
+  /** 心跳 */
+  HEART_BEAT = 0,
+  /** Ping */
+  PING = 1,
+  /** Pong */
+  PONG = 2,
+}
+
+/**
+ * ProtocolBuffers 协议解析助手
+ */
 export class PBParser {
   private static readonly headLength: number = 6;
 
@@ -198,6 +221,8 @@ export class WebsocketClient extends Service implements IWebsocket {
       reconnectDelay: 1000,
       heartbeatInterval: 30000,
       heartbeatTimeout: 5000,
+      timeToPing: 5000,
+      timeToPong: 3000,
       connectTimeout: 10000,
       autoReconnect: true,
       retainPendingRequests: true,
@@ -206,13 +231,6 @@ export class WebsocketClient extends Service implements IWebsocket {
       ...options,
       url,
     };
-
-    if (!this._options.parser) {
-      this._options.parser = PBParser;
-      PBParser.register(MsgId.HEART_BEAT, HeartBeatReq, HeartBeatResp);
-      PBParser.register(MsgId.PING, PingReq, PongResp);
-      PBParser.register(MsgId.PONG, undefined, PongResp);
-    }
 
     await this.internalConnect();
   }
@@ -509,7 +527,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       const timeout = setTimeout(() => {
         this._pendingRequests.delete(task.id);
         reject(new WSError(WSErrorCodes.REQUEST_TIMEOUT, MESSAGES.WEBSOCKET.ERROR_CODE_7));
-      }, config.timeout || 5000);
+      }, config.timeout);
 
       // 保存取消函数
       task.cancel = () => {
@@ -639,9 +657,9 @@ export class WebsocketClient extends Service implements IWebsocket {
     // 处理请求队列中的请求（因并发限制未发送的）
     if (!this._options?.retainPendingRequests) {
       // 如果不保留未发送的请求，清空队列并拒绝所有请求
-      this.rejectQueuedRequests(new WSError(WSErrorCodes.CONNECTION_CLOSED, '连接已关闭，未发送的请求已丢弃'));
+      this.rejectQueuedRequests(new WSError(WSErrorCodes.CONNECTION_CLOSED, MESSAGES.WEBSOCKET.ERROR_CODE_15));
     } else {
-      this.logger.df(`保留 ${this._requestQueue.length} 个未发送的请求，等待重连后重发`);
+      this.logger.df(MESSAGES.WEBSOCKET.RETAIN_PENDING_REQUESTS, this._requestQueue.length);
     }
 
     // 检查是否需要自动重连
@@ -888,8 +906,6 @@ export class WebsocketClient extends Service implements IWebsocket {
    * 初始化服务
    */
   initialize(): void {
-    this.logger.i('WebSocket 服务已初始化');
-
     // 监听应用生命周期事件
     this.setupLifecycleListeners();
   }
@@ -898,16 +914,12 @@ export class WebsocketClient extends Service implements IWebsocket {
    * 设置生命周期监听器
    */
   private setupLifecycleListeners(): void {
-    try {
-      const eventBus = this.resolve<IEventBus>(SERVICES.EVENT_BUS);
-      if (eventBus && eventBus.app) {
-        // 监听进入后台事件
-        eventBus.app.on(EVENTS.APP.ENTER_BACKGROUND, this.onEnterBackground, this);
-        // 监听返回前台事件
-        eventBus.app.on(EVENTS.APP.ENTER_FOREGROUND, this.onEnterForeground, this);
-      }
-    } catch (error) {
-      this.logger.wf('无法注册生命周期监听器:', error);
+    const eventBus = this.resolve<IEventBus>(SERVICES.EVENT_BUS);
+    if (eventBus && eventBus.app) {
+      // 监听进入后台事件
+      eventBus.app.on(EVENTS.APP.ENTER_BACKGROUND, this.onEnterBackground, this);
+      // 监听返回前台事件
+      eventBus.app.on(EVENTS.APP.ENTER_FOREGROUND, this.onEnterForeground, this);
     }
   }
 
@@ -921,18 +933,15 @@ export class WebsocketClient extends Service implements IWebsocket {
     // 清理心跳计时器（节省资源）
     this.clearHeartbeatTimer();
     this.clearHeartbeatTimeoutTimer();
-
-    this.logger.i('应用进入后台，WebSocket 连接状态已记录');
   }
 
   /**
    * 返回前台时的处理
    */
   private onEnterForeground(): void {
-    this.logger.i('应用返回前台，开始检测 WebSocket 连接状态');
-
-    // 如果之前是连接状态，则检测连接是否仍然有效
-    if (this._connectionStateBeforeBackground) {
+    const diff = this.resolve<IAppLauncher>(SERVICES.APP_LAUNCHER).elapsed;
+    // 如果之前是连接状态，且驻留后台时长超过指定时间，则检测连接是否仍然有效
+    if (diff >= this._options.timeToPing && this._connectionStateBeforeBackground) {
       this.checkConnectionOnForeground();
     }
   }
@@ -951,16 +960,14 @@ export class WebsocketClient extends Service implements IWebsocket {
     try {
       // 如果 WebSocket 已经关闭或不存在，尝试重连
       if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-        this.logger.w('WebSocket 连接已断开，尝试重连...');
+        this.logger.w(MESSAGES.WEBSOCKET.ERROR_CODE_16);
         await this.reconnectIfNeeded();
         return;
       }
-
       // 如果连接仍然打开，发送一个轻量级的心跳来验证连接活性
       await this.pingConnection();
     } catch (error) {
-      this.logger.ef('检测连接时发生错误:', error);
-
+      this.logger.e(MESSAGES.WEBSOCKET.ERROR_CODE_17, error);
       // 检测失败，尝试重连
       await this.reconnectIfNeeded();
     } finally {
@@ -974,13 +981,14 @@ export class WebsocketClient extends Service implements IWebsocket {
   private async pingConnection(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-        reject(new WSError(WSErrorCodes.CONNECTION_CLOSED, '连接未打开'));
+        reject(new WSError(WSErrorCodes.CONNECTION_CLOSED, MESSAGES.WEBSOCKET.ERROR_CODE_13));
         return;
       }
 
+      // 如果 3 秒内没有收到 pong，认为连接无效
       const pingTimeout = setTimeout(() => {
-        reject(new WSError(WSErrorCodes.REQUEST_TIMEOUT, 'Ping 超时'));
-      }, 3000);
+        reject(new WSError(WSErrorCodes.REQUEST_TIMEOUT, MESSAGES.WEBSOCKET.ERROR_CODE_14));
+      }, this._options.timeToPong);
 
       // 创建一个特殊的 ping 消息
       const pingMessage: WSMessage = {
@@ -992,7 +1000,6 @@ export class WebsocketClient extends Service implements IWebsocket {
       };
 
       const data = this._options?.parser?.encode?.(pingMessage);
-
       this._ws.send(data);
 
       // 监听 pong 响应
@@ -1003,8 +1010,10 @@ export class WebsocketClient extends Service implements IWebsocket {
           if (message.cmd === MsgId.PONG) {
             clearTimeout(pingTimeout);
             this._ws?.removeEventListener('message', onMessage);
-            this.logger.i('连接活性检测成功', message.data.timestamp === pingMessage.data.timestamp);
-            resolve();
+            if (message.data.timestamp === pingMessage.data.timestamp) {
+              this.logger.i(MESSAGES.WEBSOCKET.PING_CONNECTION_SUCCESS);
+              resolve();
+            }
           }
         } catch (error) {
           // 忽略解析错误，继续等待
@@ -1012,9 +1021,6 @@ export class WebsocketClient extends Service implements IWebsocket {
       };
 
       this._ws.addEventListener('message', onMessage);
-
-      // 如果 3 秒内没有收到 pong，认为连接无效
-      // 注意：在浏览器环境中，setTimeout 返回 number，没有 unref 方法
     });
   }
 
@@ -1023,7 +1029,7 @@ export class WebsocketClient extends Service implements IWebsocket {
    */
   private async reconnectIfNeeded(): Promise<void> {
     if (!this._url) {
-      this.logger.w('无法重连：目标地址未设置');
+      this.logger.e(MESSAGES.WEBSOCKET.ERROR_CODE_18);
       return;
     }
 
@@ -1033,17 +1039,14 @@ export class WebsocketClient extends Service implements IWebsocket {
     }
 
     try {
-      this.logger.i('尝试重新连接 WebSocket...');
+      this.logger.d(MESSAGES.WEBSOCKET.ERROR_CODE_19);
       await this.internalConnect();
-
       // 重连成功，恢复心跳
       this.startHeartbeat();
-
-      this.logger.i('WebSocket 重连成功');
+      this.logger.d(MESSAGES.WEBSOCKET.ERROR_CODE_20);
     } catch (error) {
-      this.logger.ef('WebSocket 重连失败:', error);
-
-      // 如果重连失败，启动重连机制
+      this.logger.e(MESSAGES.WEBSOCKET.ERROR_CODE_21, error);
+      // 如果重连失败，启动自动重连机制
       if (this._options?.autoReconnect) {
         this.scheduleReconnect();
       }
@@ -1063,7 +1066,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       await this.pingConnection();
       return true;
     } catch (error) {
-      this.logger.w('连接检测失败:', error);
+      this.logger.w(MESSAGES.WEBSOCKET.ERROR_CODE_22, error);
       return false;
     }
   }

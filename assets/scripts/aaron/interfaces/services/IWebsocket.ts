@@ -163,6 +163,10 @@ export interface WSOptions {
   heartbeatInterval?: number;
   /** 心跳超时（毫秒），默认 5000 */
   heartbeatTimeout?: number;
+  /** 驻留后台时长（毫秒），超过此时间限制则允许发送 Ping 帧检测连接状态，默认 5000 */
+  timeToPing?: number;
+  /** Pong 帧超时（毫秒），超过此时间则认定连接无效，默认 3000 */
+  timeToPong?: number;
   /** 连接超时（毫秒），默认 10000 */
   connectTimeout?: number;
   /** 是否启用消息压缩 */

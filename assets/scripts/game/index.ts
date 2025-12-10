@@ -2,6 +2,7 @@ import { BUILD, DEV, EDITOR } from 'cc/env';
 
 import * as fk from '../aaron';
 import { UserInfoController } from './controller/UserInfoController';
+import { HeartBeatReq, HeartBeatResp, MsgId, PingReq, PongResp } from './data/proto/game';
 import { ResPath } from './data/ResPath';
 import { ITblDialogue, ITblRole, TableDialogue, TableRole } from './data/table';
 
@@ -53,11 +54,11 @@ async function main() {
   fk.aaron.logger.d('🔍 查询表格 Dialogue id=30003:\n  ', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
   fk.aaron.logger.d(
     '🔍 查询表格 Dialogue id=30005 的 text 字段:\n  ',
-    fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text'),
+    fk.aaron.tableQuery.field<ITblDialogue>(TableDialogue.token, 30005, 'text')
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role id=1005 的字段 name, gender:\n  ',
-    fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender']),
+    fk.aaron.tableQuery.fields<ITblRole>(TableRole.token, 1005, ['name', 'gender'])
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role 使用字段过滤 gender=2, direction5=true:\n  ',
@@ -66,7 +67,7 @@ async function main() {
       matchType: 'every',
       amountType: 'many',
       cache: true,
-    }),
+    })
   );
   fk.aaron.logger.d(
     '🔍 查询表格 Role 使用过滤器 filter:\n  ',
@@ -75,7 +76,7 @@ async function main() {
         role.gender === 1 && role.direction5 === false && role.damage > 30 && role.param.name == '攻击',
       matchType: 'every',
       amountType: 'many',
-    }),
+    })
   );
   console.timeEnd('🕒 查询表格');
 
@@ -92,6 +93,13 @@ async function main() {
 
   // 弹窗
   fk.aaron.gui.open(UserInfoController.Config);
+
+  // 初始化
+  fk.PBParser.register(MsgId.HEART_BEAT, HeartBeatReq, HeartBeatResp);
+  fk.PBParser.register(MsgId.PING, PingReq, undefined);
+  fk.PBParser.register(MsgId.PONG, undefined, PongResp);
+  fk.aaron.wsc.initialize();
+  fk.aaron.wsc.connect('ws://127.0.0.1:8080', { parser: fk.PBParser });
 }
 
 /**
