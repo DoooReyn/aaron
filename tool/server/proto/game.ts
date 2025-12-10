@@ -11,24 +11,24 @@ export const protobufPackage = "proto.game";
 
 /** 消息号 */
 export enum MsgId {
-  /** HeartBeat - 心跳 */
-  HeartBeat = 0,
-  Ping = 1,
-  Pong = 2,
+  /** HEART_BEAT - 心跳 */
+  HEART_BEAT = 0,
+  PING = 1,
+  PONG = 2,
   UNRECOGNIZED = -1,
 }
 
 export function msgIdFromJSON(object: any): MsgId {
   switch (object) {
     case 0:
-    case "HeartBeat":
-      return MsgId.HeartBeat;
+    case "HEART_BEAT":
+      return MsgId.HEART_BEAT;
     case 1:
-    case "Ping":
-      return MsgId.Ping;
+    case "PING":
+      return MsgId.PING;
     case 2:
-    case "Pong":
-      return MsgId.Pong;
+    case "PONG":
+      return MsgId.PONG;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -38,12 +38,12 @@ export function msgIdFromJSON(object: any): MsgId {
 
 export function msgIdToJSON(object: MsgId): string {
   switch (object) {
-    case MsgId.HeartBeat:
-      return "HeartBeat";
-    case MsgId.Ping:
-      return "Ping";
-    case MsgId.Pong:
-      return "Pong";
+    case MsgId.HEART_BEAT:
+      return "HEART_BEAT";
+    case MsgId.PING:
+      return "PING";
+    case MsgId.PONG:
+      return "PONG";
     case MsgId.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -101,14 +101,16 @@ export interface HeartBeatResp {
 
 /** Ping */
 export interface PingReq {
+  timestamp: number;
 }
 
 /** Pong */
 export interface PongResp {
+  timestamp: number;
 }
 
 function createBaseRespCode(): RespCode {
-  return { errCode: 0, msg: "" };
+  return { errCode: 0, msg: undefined };
 }
 
 export const RespCode: MessageFns<RespCode> = {
@@ -116,7 +118,7 @@ export const RespCode: MessageFns<RespCode> = {
     if (message.errCode !== 0) {
       writer.uint32(8).int32(message.errCode);
     }
-    if (message.msg !== undefined && message.msg !== "") {
+    if (message.msg !== undefined) {
       writer.uint32(18).string(message.msg);
     }
     return writer;
@@ -157,7 +159,7 @@ export const RespCode: MessageFns<RespCode> = {
   fromJSON(object: any): RespCode {
     return {
       errCode: isSet(object.errCode) ? errCodeFromJSON(object.errCode) : 0,
-      msg: isSet(object.msg) ? globalThis.String(object.msg) : "",
+      msg: isSet(object.msg) ? globalThis.String(object.msg) : undefined,
     };
   },
 
@@ -166,7 +168,7 @@ export const RespCode: MessageFns<RespCode> = {
     if (message.errCode !== 0) {
       obj.errCode = errCodeToJSON(message.errCode);
     }
-    if (message.msg !== undefined && message.msg !== "") {
+    if (message.msg !== undefined) {
       obj.msg = message.msg;
     }
     return obj;
@@ -178,7 +180,7 @@ export const RespCode: MessageFns<RespCode> = {
   fromPartial<I extends Exact<DeepPartial<RespCode>, I>>(object: I): RespCode {
     const message = createBaseRespCode();
     message.errCode = object.errCode ?? 0;
-    message.msg = object.msg ?? "";
+    message.msg = object.msg ?? undefined;
     return message;
   },
 };
@@ -287,11 +289,14 @@ export const HeartBeatResp: MessageFns<HeartBeatResp> = {
 };
 
 function createBasePingReq(): PingReq {
-  return {};
+  return { timestamp: 0 };
 }
 
 export const PingReq: MessageFns<PingReq> = {
-  encode(_: PingReq, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: PingReq, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== 0) {
+      writer.uint32(8).int64(message.timestamp);
+    }
     return writer;
   },
 
@@ -302,6 +307,14 @@ export const PingReq: MessageFns<PingReq> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.timestamp = longToNumber(reader.int64());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -311,30 +324,37 @@ export const PingReq: MessageFns<PingReq> = {
     return message;
   },
 
-  fromJSON(_: any): PingReq {
-    return {};
+  fromJSON(object: any): PingReq {
+    return { timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0 };
   },
 
-  toJSON(_: PingReq): unknown {
+  toJSON(message: PingReq): unknown {
     const obj: any = {};
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<PingReq>, I>>(base?: I): PingReq {
     return PingReq.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PingReq>, I>>(_: I): PingReq {
+  fromPartial<I extends Exact<DeepPartial<PingReq>, I>>(object: I): PingReq {
     const message = createBasePingReq();
+    message.timestamp = object.timestamp ?? 0;
     return message;
   },
 };
 
 function createBasePongResp(): PongResp {
-  return {};
+  return { timestamp: 0 };
 }
 
 export const PongResp: MessageFns<PongResp> = {
-  encode(_: PongResp, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: PongResp, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== 0) {
+      writer.uint32(8).int64(message.timestamp);
+    }
     return writer;
   },
 
@@ -345,6 +365,14 @@ export const PongResp: MessageFns<PongResp> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.timestamp = longToNumber(reader.int64());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -354,20 +382,24 @@ export const PongResp: MessageFns<PongResp> = {
     return message;
   },
 
-  fromJSON(_: any): PongResp {
-    return {};
+  fromJSON(object: any): PongResp {
+    return { timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0 };
   },
 
-  toJSON(_: PongResp): unknown {
+  toJSON(message: PongResp): unknown {
     const obj: any = {};
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<PongResp>, I>>(base?: I): PongResp {
     return PongResp.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PongResp>, I>>(_: I): PongResp {
+  fromPartial<I extends Exact<DeepPartial<PongResp>, I>>(object: I): PongResp {
     const message = createBasePongResp();
+    message.timestamp = object.timestamp ?? 0;
     return message;
   },
 };
@@ -383,6 +415,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

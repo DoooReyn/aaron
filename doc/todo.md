@@ -1,6 +1,6 @@
 - Network
-  - HTTP
   - WebSocket
+    - Ping/Pong
 - Gui
   - Toast
   - Drawer

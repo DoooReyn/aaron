@@ -1,4 +1,4 @@
-import { HeartBeatReq, HeartBeatResp, MessageFns, MsgId } from '../../game/data/proto/game';
+import { HeartBeatReq, HeartBeatResp, MessageFns, MsgId, PingReq, PongResp } from '../../game/data/proto/game';
 import { Service } from '../core';
 import {
   IEventBus,
@@ -14,7 +14,7 @@ import {
   WSRequestTask,
   WSResponse,
   WSResponseInterceptor,
-  WSState,
+  WSState
 } from '../interfaces';
 import { EVENTS, MESSAGES, SERVICES } from '../macro';
 import { literal } from '../utils';
@@ -101,7 +101,7 @@ export class PBParser {
  * WebSocket 客户端实现
  */
 export class WebsocketClient extends Service implements IWebsocket {
-  readonly token: string = 'WebsocketClient';
+  readonly token: string = MESSAGES.WEBSOCKET.CATEGORY;
 
   /** WebSocket 实例 */
   private _ws: WebSocket | null = null;
@@ -194,12 +194,12 @@ export class WebsocketClient extends Service implements IWebsocket {
     this._url = url;
     this._options = {
       maxConcurrency: 10,
-      autoReconnect: true,
       maxReconnectAttempts: 5,
       reconnectDelay: 1000,
       heartbeatInterval: 30000,
       heartbeatTimeout: 5000,
       connectTimeout: 10000,
+      autoReconnect: true,
       retainPendingRequests: true,
       autoRetryPendingRequests: true,
       enableCompression: false,
@@ -207,9 +207,11 @@ export class WebsocketClient extends Service implements IWebsocket {
       url,
     };
 
-    if (this._options.parser) {
+    if (!this._options.parser) {
       this._options.parser = PBParser;
-      PBParser.register(MsgId.HeartBeat, HeartBeatReq, HeartBeatResp);
+      PBParser.register(MsgId.HEART_BEAT, HeartBeatReq, HeartBeatResp);
+      PBParser.register(MsgId.PING, PingReq, PongResp);
+      PBParser.register(MsgId.PONG, undefined, PongResp);
     }
 
     await this.internalConnect();
@@ -293,9 +295,11 @@ export class WebsocketClient extends Service implements IWebsocket {
 
     try {
       message.id = this.nextReqId();
-      const data = this._options?.parser?.encode(message) || JSON.stringify(message);
+      const data = this._options?.parser?.encode(message);
       this._ws!.send(data);
-      this.logger.df(MESSAGES.WEBSOCKET.SEND_ONE_WAY, message.cmd);
+      if (message.cmd !== MsgId.HEART_BEAT) {
+        this.logger.df(MESSAGES.WEBSOCKET.SEND_ONE_WAY, message.cmd);
+      }
     } catch (error) {
       throw new WSError(WSErrorCodes.NETWORK_ERROR, MESSAGES.WEBSOCKET.ERROR_CODE_5, error);
     }
@@ -455,7 +459,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       const message = { ...config.message, id: task.id, timestamp: Date.now() };
 
       // 发送消息
-      const data = this._options?.parser?.encode(message) || JSON.stringify(message);
+      const data = this._options?.parser?.encode(message);
       this._ws!.send(data);
 
       this.logger.df(MESSAGES.WEBSOCKET.SEND_MESSAGE, task.id);
@@ -689,17 +693,8 @@ export class WebsocketClient extends Service implements IWebsocket {
    */
   private async handleMessage(event: MessageEvent): Promise<void> {
     try {
-      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE);
-
       // 解析消息
-      let message: WSMessage;
-      if (this._options?.parser) {
-        message = this._options.parser.decode(event.data);
-      } else {
-        message = JSON.parse(event.data);
-      }
-
-      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE, message.cmd);
+      const message: WSMessage = this._options.parser.decode(event.data);
 
       // 处理心跳响应
       if (message.cmd === 0) {
@@ -708,6 +703,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       }
 
       // 处理普通消息响应
+      this.logger.df(MESSAGES.WEBSOCKET.RECEIVE_MESSAGE, message.cmd);
       if (message.id) {
         const task = this._pendingRequests.get(message.id);
         if (task && task.resolve) {
@@ -832,7 +828,7 @@ export class WebsocketClient extends Service implements IWebsocket {
           this.logger.ef(MESSAGES.WEBSOCKET.RECONNECT_FAILED, this._options?.maxReconnectAttempts || 5);
         }
       }
-    }, this._options?.reconnectDelay || 1000);
+    }, this._options?.reconnectDelay);
   }
 
   /**
@@ -988,28 +984,26 @@ export class WebsocketClient extends Service implements IWebsocket {
 
       // 创建一个特殊的 ping 消息
       const pingMessage: WSMessage = {
-        cmd: MsgId.Ping,
-        data: {},
+        id: this.nextReqId(),
+        cmd: MsgId.PING,
+        data: {
+          timestamp: Date.now(),
+        },
       };
 
-      const data = this._options?.parser?.encode?.(pingMessage) || JSON.stringify(pingMessage);
+      const data = this._options?.parser?.encode?.(pingMessage);
 
       this._ws.send(data);
 
       // 监听 pong 响应
       const onMessage = (event: MessageEvent) => {
         try {
-          let message: WSMessage;
-          if (this._options?.parser) {
-            message = this._options.parser.decode(event.data);
-          } else {
-            message = JSON.parse(event.data);
-          }
+          const message: WSMessage = this._options.parser.decode(event.data);
 
-          if (message.cmd === 0 && message.data.timestamp === pingMessage.data.timestamp) {
+          if (message.cmd === MsgId.PONG) {
             clearTimeout(pingTimeout);
             this._ws?.removeEventListener('message', onMessage);
-            this.logger.i('连接活性检测成功');
+            this.logger.i('连接活性检测成功', message.data.timestamp === pingMessage.data.timestamp);
             resolve();
           }
         } catch (error) {
