@@ -15,7 +15,7 @@ declare global {
  * 用于适配不同设备的安全区域，避免UI被刘海、胶囊遮挡
  */
 @ccclass('SafeArea')
-@menu('Aaron/UI/SafeArea')
+@menu('Aaron/Gui/SafeArea')
 export class SafeArea extends Widget {
   @property({
     displayName: '顶部安全区域适配',

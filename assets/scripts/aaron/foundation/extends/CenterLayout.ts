@@ -21,7 +21,7 @@ export enum CenterHorizontalDirection {
  * @extends Layout
  */
 @ccclass('CenterLayout')
-@menu('Aaron/UI/CenterLayout')
+@menu('Aaron/Gui/CenterLayout')
 @disallowMultiple()
 export class CenterLayout extends Layout {
   /**
