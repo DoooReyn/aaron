@@ -1,7 +1,7 @@
-import { WebSocketServerImpl } from 'server';
+import { ProtocolHandler } from 'handlers';
 import { WebSocket } from 'ws';
 
-import { MsgId } from './proto/game';
+import { ErrCode, HeartBeatResp, MsgId, PingReq, PongResp } from './proto/game';
 
 /**
  * 基础消息接口
@@ -22,23 +22,48 @@ export class WebSocketSession {
   public lastPingTime: number = 0;
   public lastPongTime: number = 0;
 
-  constructor(private server: WebSocketServerImpl, socket: WebSocket, id: string) {
+  constructor(private protocolHandler: ProtocolHandler, socket: WebSocket, id: string) {
     this.socket = socket;
     this.socket.binaryType = 'arraybuffer';
     this.id = id;
   }
 
-  send<T>(message: BaseMessage<T>, protocol?: string): void {
-    protocol ??= this.server.defaultProtocol;
-    const handler = this.server.getProtocolHandler(protocol);
+  handle<T>(message: BaseMessage<T>): boolean {
+    let handled = true;
 
-    if (!handler) {
-      console.error(`协议 ${protocol} 未注册`);
-      return;
+    switch (message.cmd) {
+      case MsgId.HEART_BEAT:
+        this.send<HeartBeatResp>({
+          cmd: MsgId.HEART_BEAT,
+          data: {
+            respCode: {
+              errCode: ErrCode.SUCCESS,
+            },
+          },
+          id: message.id,
+          timestamp: Date.now(),
+        });
+        break;
+      case MsgId.PING:
+        this.send<PongResp>({
+          cmd: MsgId.PONG,
+          id: message.id,
+          data: {
+            timestamp: (message.data as PingReq).timestamp,
+          },
+        });
+        break;
+      default:
+        handled = false;
+        break;
     }
 
+    return handled;
+  }
+
+  send<T>(message: BaseMessage<T>): void {
     try {
-      const encoded = handler.encode(message);
+      const encoded = this.protocolHandler.encode(message);
       this.socket.send(encoded);
       console.log('发送消息成功', message);
     } catch (error) {

@@ -1,7 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws';
 
 import { ProtocolHandler } from './handlers';
-import { ErrCode, HeartBeatReq, HeartBeatResp, MessageFns, MsgId, PingReq, PongResp } from './proto/game';
+import { HeartBeatReq, HeartBeatResp, MessageFns, MsgId, PingReq, PongResp } from './proto/game';
 import { BaseMessage, WebSocketSession } from './session';
 
 /**
@@ -31,9 +31,9 @@ export class WebSocketServerImpl {
       },
     });
 
-    this.setupWebSocketServer();
     this.registerDefaultProtocolHandlers();
     this.registerProtocolCmd();
+    this.setupWebSocketServer();
   }
 
   /**
@@ -41,8 +41,9 @@ export class WebSocketServerImpl {
    */
   private setupWebSocketServer(): void {
     this.wss.on('connection', (ws: WebSocket, req) => {
+      const handler = this.getProtocolHandler(this.defaultProtocol)!;
       const clientId = this.generateClientId();
-      const client = new WebSocketSession(this, ws, clientId);
+      const client = new WebSocketSession(handler, ws, clientId);
 
       console.log(`客户端连接: ${clientId} (${req.socket.remoteAddress})`);
       this.clients.set(clientId, client);
@@ -164,30 +165,8 @@ export class WebSocketServerImpl {
         console.log(`收到请求 ${message.id} from ${client.id}`, message);
       }
 
-      // 处理心跳
-      if (message.cmd === MsgId.HEART_BEAT) {
-        client.send<HeartBeatResp>({
-          cmd: MsgId.HEART_BEAT,
-          data: {
-            respCode: {
-              errCode: ErrCode.SUCCESS,
-            },
-          },
-          id: message.id,
-          timestamp: Date.now(),
-        });
-        return;
-      } else if (message.cmd === MsgId.PING) {
-        const msg = message.data as PingReq;
-        client.send<PongResp>({
-          cmd: MsgId.PONG,
-          id: message.id,
-          data: {
-            timestamp: msg.timestamp,
-          },
-        });
-        return;
-      }
+      // 处理消息
+      if (client.handle(message)) return;
 
       // 调用协议处理器
       if (handler.handleRequest) {
@@ -309,22 +288,10 @@ export class WebSocketServerImpl {
         client: WebSocketSession,
         message: BaseMessage<unknown>
       ): Promise<BaseMessage<unknown> | void> => {
-        switch (message.cmd) {
-          default:
-            console.warn(`未处理的消息类型: ${message.cmd}`);
-            return {
-              cmd: message.cmd,
-              data: { error: '未知消息类型' },
-              id: message.id,
-              timestamp: Date.now(),
-            };
-        }
+        console.warn(`未处理的消息类型: ${message.cmd}`);
       },
       handleBroadcast: (message: BaseMessage<unknown>): BaseMessage<unknown> | null => {
-        switch (message.cmd) {
-          default:
-            break;
-        }
+        console.warn(`未处理的广播消息类型: ${message.cmd}`);
         return null;
       },
     });
@@ -380,24 +347,10 @@ export class WebSocketServerImpl {
         client: WebSocketSession,
         message: BaseMessage<unknown>
       ): Promise<BaseMessage<unknown> | void> => {
-        switch (message.cmd) {
-          case MsgId.PING:
-            break;
-          default:
-            console.warn(`未处理的消息类型: ${message.cmd}`);
-            return {
-              cmd: message.cmd,
-              data: { error: '未知消息类型' },
-              id: message.id,
-              timestamp: Date.now(),
-            };
-        }
+        console.warn(`未处理的消息类型: ${message.cmd}`);
       },
       handleBroadcast: (message: BaseMessage<unknown>): BaseMessage<unknown> | null => {
-        switch (message.cmd) {
-          default:
-            break;
-        }
+        console.warn(`未处理的广播消息类型: ${message.cmd}`);
         return null;
       },
     });
