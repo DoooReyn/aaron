@@ -2,6 +2,17 @@ import { ILogger, LogLevel } from '../interfaces';
 import { literal } from '../utils';
 
 /**
+ * 日志分级处理句柄
+ */
+const LoggerHandlers: Record<LogLevel, (...args: any[]) => void> = {
+  [LogLevel.DEBUG]: console.debug.bind(console, '『D』'),
+  [LogLevel.INFO]: console.info.bind(console, '『I』'),
+  [LogLevel.WARN]: console.warn.bind(console, '『W』'),
+  [LogLevel.ERROR]: console.error.bind(console, '『E』'),
+  [LogLevel.NONE]: function (..._: any[]) {},
+};
+
+/**
  * 日志
  *
  * 提供统一的日志记录功能，支持不同级别的日志输出
@@ -31,91 +42,65 @@ export class Logger implements ILogger {
     this._level = level;
   }
 
+  private log(level: LogLevel, fmt: boolean, message: string, ...args: any[]): void {
+    if (this._level <= level) {
+      LoggerHandlers[this._level](this.token, ...(fmt ? [literal.fmt(message, ...args)] : [message, ...args]));
+    }
+  }
+
   /**
    * 记录调试级别日志
    * @param message 日志消息
    * @param args 额外参数
    */
-  d(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.DEBUG) {
-      console.debug('『D』', this.token, message, ...args);
-    }
-  }
+  d = this.log.bind(this, LogLevel.DEBUG, false);
 
   /**
    * 记录调试级别日志（格式化）
    * @param message 日志消息
    * @param args 额外参数
    */
-  df(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.DEBUG) {
-      console.debug('『D』', this.token, literal.fmt(message, ...args));
-    }
-  }
+  df = this.log.bind(this, LogLevel.DEBUG, true);
 
   /**
    * 记录信息级别日志
    * @param message 日志消息
    * @param args 额外参数
    */
-  i(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.INFO) {
-      console.info('『I』', this.token, message, ...args);
-    }
-  }
+  i = this.log.bind(this, LogLevel.INFO, false);
 
   /**
    * 记录信息级别日志（格式化）
    * @param message 日志消息
    * @param args 额外参数
    */
-  if(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.INFO) {
-      console.info('『I』', this.token, literal.fmt(message, ...args));
-    }
-  }
+  if = this.log.bind(this, LogLevel.INFO, true);
 
   /**
    * 记录警告级别日志
    * @param message 日志消息
    * @param args 额外参数
    */
-  w(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.WARN) {
-      console.warn('『W』', this.token, message, ...args);
-    }
-  }
+  w = this.log.bind(this, LogLevel.WARN, false);
 
   /**
    * 记录警告级别日志（格式化）
    * @param message 日志消息
    * @param args 额外参数
    */
-  wf(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.WARN) {
-      console.warn('『W』', this.token, literal.fmt(message, ...args));
-    }
-  }
+  wf = this.log.bind(this, LogLevel.WARN, true);
 
   /**
    * 记录错误级别日志
    * @param message 日志消息
    * @param args 额外参数
    */
-  e(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.ERROR) {
-      console.error('『E』', this.token, message, ...args);
-    }
-  }
+  e = this.log.bind(this, LogLevel.ERROR, false);
 
   /**
    * 记录错误级别日志（格式化）
    * @param message 日志消息
    * @param args 额外参数
    */
-  ef(message: string, ...args: any[]): void {
-    if (this._level <= LogLevel.ERROR) {
-      console.error('『E』', this.token, literal.fmt(message, ...args));
-    }
-  }
+  ef = this.log.bind(this, LogLevel.ERROR, true);
 }

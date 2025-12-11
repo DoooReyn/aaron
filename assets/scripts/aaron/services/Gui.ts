@@ -81,7 +81,7 @@ export class Gui extends Service implements IGui {
     const gui = new Node('gui');
     this.createLayer(gui);
     root.addChild(gui);
-    
+
     // 创建并添加 GUI 分层
     this.screen = new GuiScreen('screen');
     this.page = new GuiPage('page');
@@ -128,7 +128,7 @@ export class Gui extends Service implements IGui {
   fetchConfig(keyOrClass: string | Constructor<IGuiController>): GuiConfig | undefined {
     // 参数验证
     if (keyOrClass === null || keyOrClass === undefined) {
-      this.logView('warn', MESSAGES.GUI.FETCH_CONFIG_INVALID);
+      this.logger.w(MESSAGES.GUI.FETCH_CONFIG_INVALID);
       return undefined;
     } else if (be.isString(keyOrClass)) {
       return this._registry.get(keyOrClass as string);
@@ -140,7 +140,7 @@ export class Gui extends Service implements IGui {
       }
       return undefined;
     } else {
-      this.logView('warn', MESSAGES.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
+      this.logger.wf(MESSAGES.GUI.FETCH_CONFIG_TYPE_UNSUPPORTED, typeof keyOrClass);
     }
   }
 
@@ -167,7 +167,7 @@ export class Gui extends Service implements IGui {
     // 如果未找到,则加载视图的预制体资源
     const prefab = await this._resLoader.load(Prefab, config);
     if (!prefab) {
-      this.logView('error', MESSAGES.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
+      this.logger.ef(MESSAGES.GUI.CREATE_PREFAB_INVALID, config.token, config.path);
       return undefined;
     }
 
@@ -281,7 +281,7 @@ export class Gui extends Service implements IGui {
   async playEnter(config: GuiConfig, node: Node) {
     if (config.enterTweenLib) {
       const [lib, args] = config.enterTweenLib;
-      this.logView('debug', MESSAGES.GUI.ANIMATION_ENTER, config.token, lib);
+      this.logger.df(MESSAGES.GUI.ANIMATION_ENTER, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -289,7 +289,7 @@ export class Gui extends Service implements IGui {
   async playExit(config: GuiConfig, node: Node) {
     if (config.exitTweenLib) {
       const [lib, args] = config.exitTweenLib;
-      this.logView('debug', MESSAGES.GUI.ANIMATION_EXIT, config.token, lib);
+      this.logger.df(MESSAGES.GUI.ANIMATION_EXIT, config.token, lib);
       await aaron.tweener.play(node, lib, args ?? { duration: 0.3 });
     }
   }
@@ -401,30 +401,6 @@ export class Gui extends Service implements IGui {
   }
 
   /**
-   * 统一的视图日志记录
-   * @param level 日志级别
-   * @param message 日志消息
-   * @param args 参数
-   */
-  private logView(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
-    const fullMessage = MESSAGES.GUI.CATEGORY + message;
-    switch (level) {
-      case 'debug':
-        this.logger.df(fullMessage, ...args);
-        break;
-      case 'info':
-        this.logger.if(fullMessage, ...args);
-        break;
-      case 'warn':
-        this.logger.wf(fullMessage, ...args);
-        break;
-      case 'error':
-        this.logger.ef(fullMessage, ...args);
-        break;
-    }
-  }
-
-  /**
    * 验证父节点有效性
    * @param parent 父节点
    * @param token 视图标识
@@ -432,7 +408,7 @@ export class Gui extends Service implements IGui {
    */
   private validateParentNode(parent: Node, token: string): boolean {
     if (!parent || !parent.isValid) {
-      this.logView('error', MESSAGES.GUI.CREATE_PARENT_INVALID, token);
+      this.logger.ef(MESSAGES.GUI.CREATE_PARENT_INVALID, token);
       return false;
     }
     return true;
@@ -445,7 +421,7 @@ export class Gui extends Service implements IGui {
    */
   private validateConfig(config: GuiConfig): boolean {
     if (!config || !config.token || !config.controller) {
-      this.logView('error', MESSAGES.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
+      this.logger.ef(MESSAGES.GUI.CREATE_CONFIG_INVALID, config?.token || 'unknown');
       return false;
     }
     return true;
@@ -458,7 +434,7 @@ export class Gui extends Service implements IGui {
    */
   private logViewOperation(
     operation: 'cached' | 'created' | 'closed' | 'registered' | 'unregistered',
-    token: string,
+    token: string
   ): void {
     const messages = {
       cached: MESSAGES.GUI.INSTANCE_FROM_CACHE,
@@ -467,7 +443,7 @@ export class Gui extends Service implements IGui {
       registered: MESSAGES.GUI.REGISTERED,
       unregistered: MESSAGES.GUI.UNREGISTERED,
     };
-    this.logView('debug', messages[operation], token);
+    this.logger.df(messages[operation], token);
   }
 
   /**
@@ -481,7 +457,10 @@ export class Gui extends Service implements IGui {
       replaced: MESSAGES.GUI.REGISTER_REPLACED,
       new: MESSAGES.GUI.REGISTERED,
     };
-    const level = type === 'duplicate' ? 'warn' : 'debug';
-    this.logView(level, messages[type], token);
+    if (type === 'duplicate') {
+      this.logger.wf(messages[type], token);
+    } else {
+      this.logger.df(messages[type], token);
+    }
   }
 }
