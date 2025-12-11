@@ -44,13 +44,13 @@ async function main() {
   fk.aaron.globalAdapter.set('fk', fk);
 
   // 解析表格
-  console.time('🕒 解析表格');
+  console.time('📰 解析表格');
   fk.aaron.tableQuery.registerBatch(TableDialogue, TableRole);
   await Promise.all([fk.ReferTable.Load(ResPath.Tbl.Dialogue), fk.ReferTable.Load(ResPath.Tbl.Role)]);
-  console.timeEnd('🕒 解析表格');
+  console.timeEnd('📰 解析表格');
 
   // 查询表格
-  console.time('🕒 查询表格');
+  console.time('📰 查询表格');
   fk.aaron.logger.d('🔍 查询表格 Dialogue id=30003:\n  ', fk.aaron.tableQuery.one(TableDialogue.token, 30003));
   fk.aaron.logger.d(
     '🔍 查询表格 Dialogue id=30005 的 text 字段:\n  ',
@@ -78,7 +78,7 @@ async function main() {
       amountType: 'many',
     })
   );
-  console.timeEnd('🕒 查询表格');
+  console.timeEnd('📰 查询表格');
 
   // 播放背景音乐
   fk.aaron.audioPlayer.music.play(ResPath.Audio.Msc1, {
@@ -99,7 +99,7 @@ async function main() {
   fk.PBParser.register(MsgId.PING, PingReq, undefined);
   fk.PBParser.register(MsgId.PONG, undefined, PongResp);
   fk.aaron.wsc.initialize();
-  fk.aaron.wsc.connect('ws://127.0.0.1:8080', { parser: fk.PBParser });
+  fk.aaron.wsc.connect('ws://127.0.0.1:8080', { reconnectDelay: 5000, parser: fk.PBParser });
 }
 
 /**

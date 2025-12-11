@@ -3,6 +3,7 @@ import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 import { Service } from '../core';
 import {
   IAppLauncher,
+  IAscendingId,
   IEventBus,
   IWebsocket,
   WSError,
@@ -183,9 +184,6 @@ export class WebsocketClient extends Service implements IWebsocket {
   /** 进入后台前的连接状态 */
   private _connectionStateBeforeBackground: boolean = false;
 
-  /** 请求 id */
-  private _reqId: number = 0;
-
   /** 获取当前连接状态 */
   get state(): WSState {
     return this._state;
@@ -284,7 +282,7 @@ export class WebsocketClient extends Service implements IWebsocket {
     }
 
     // 检查并发限制
-    if (this._activeRequests >= (this._options?.maxConcurrency || 16)) {
+    if (this._activeRequests >= this._options?.maxConcurrency) {
       this._requestQueue.push(task);
       this.logger.wf(MESSAGES.WEBSOCKET.CONCURRENCY_LIMIT, this._activeRequests, this._options?.maxConcurrency);
       return new Promise((_, reject) => {
@@ -312,7 +310,7 @@ export class WebsocketClient extends Service implements IWebsocket {
     }
 
     try {
-      message.id = this.nextReqId();
+      message.id = this._ids.next(SERVICES.WEBSOCKET_CLIENT);
       const data = this._options?.parser?.encode(message);
       this._ws!.send(data);
       if (message.cmd !== MsgId.HEART_BEAT) {
@@ -438,19 +436,10 @@ export class WebsocketClient extends Service implements IWebsocket {
   }
 
   /**
-   * 请求编号自增长
-   * @returns 当前请求编号
-   */
-  private nextReqId() {
-    this._reqId = (this._reqId < 5000 ? this._reqId : 0) + 1;
-    return this._reqId;
-  }
-
-  /**
    * 创建请求任务
    */
   private createRequestTask(config: WSRequestConfig): WSRequestTask {
-    const id = this.nextReqId();
+    const id = this._ids.next(SERVICES.WEBSOCKET_CLIENT);
     const task: WSRequestTask = {
       id,
       config,
@@ -508,7 +497,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       }
 
       // 检查是否需要重试
-      if (task.retryCount < (config.retryCount || 3)) {
+      if (task.retryCount < config.retryCount) {
         return this.retryRequest<T>(task, config);
       }
 
@@ -558,10 +547,10 @@ export class WebsocketClient extends Service implements IWebsocket {
    */
   private async retryRequest<T>(task: WSRequestTask, config: WSRequestConfig): Promise<WSResponse<T>> {
     task.retryCount++;
-    this.logger.wf(MESSAGES.HTTP.RETRYING, task.retryCount, config.retryCount || 3, task.id);
+    this.logger.wf(MESSAGES.HTTP.RETRYING, task.retryCount, config.retryCount, task.id);
 
     // 等待重试延迟
-    await new Promise((resolve) => setTimeout(resolve, config.retryDelay || 1000));
+    await new Promise((resolve) => setTimeout(resolve, config.retryDelay));
 
     return this.executeRequest<T>(task, config);
   }
@@ -597,7 +586,7 @@ export class WebsocketClient extends Service implements IWebsocket {
           this._state = WSState.CLOSED;
           this._ws = null;
           reject(new WSError(WSErrorCodes.CONNECT_TIMEOUT, MESSAGES.WEBSOCKET.ERROR_CODE_8));
-        }, this._options?.connectTimeout || 10000);
+        }, this._options?.connectTimeout);
 
         this._ws.onopen = (event) => {
           clearTimeout(connectTimeout);
@@ -659,14 +648,15 @@ export class WebsocketClient extends Service implements IWebsocket {
       // 如果不保留未发送的请求，清空队列并拒绝所有请求
       this.rejectQueuedRequests(new WSError(WSErrorCodes.CONNECTION_CLOSED, MESSAGES.WEBSOCKET.ERROR_CODE_15));
     } else {
-      this.logger.df(MESSAGES.WEBSOCKET.RETAIN_PENDING_REQUESTS, this._requestQueue.length);
+      this._requestQueue.length > 0 &&
+        this.logger.df(MESSAGES.WEBSOCKET.RETAIN_PENDING_REQUESTS, this._requestQueue.length);
     }
 
     // 检查是否需要自动重连
     if (
       this._options?.autoReconnect &&
       event.code !== 1000 &&
-      this._reconnectAttempts < (this._options.maxReconnectAttempts || 5)
+      this._reconnectAttempts < this._options.maxReconnectAttempts
     ) {
       this.scheduleReconnect();
     }
@@ -826,13 +816,13 @@ export class WebsocketClient extends Service implements IWebsocket {
     this.logger.wf(
       MESSAGES.WEBSOCKET.RECONNECTING,
       this._reconnectAttempts,
-      this._options?.maxReconnectAttempts || 5,
+      this._options?.maxReconnectAttempts,
       this._url
     );
 
     this.emit('reconnecting', {
       attempt: this._reconnectAttempts,
-      maxAttempts: this._options?.maxReconnectAttempts || 5,
+      maxAttempts: this._options?.maxReconnectAttempts,
     });
 
     this._reconnectTimer = setTimeout(async () => {
@@ -841,9 +831,9 @@ export class WebsocketClient extends Service implements IWebsocket {
         this.logger.if(MESSAGES.WEBSOCKET.RECONNECTED, this._reconnectAttempts);
         this.emit('reconnected', { attempt: this._reconnectAttempts });
       } catch (error) {
-        this.logger.ef(MESSAGES.WEBSOCKET.CONNECTION_FAILED, error);
-        if (this._reconnectAttempts >= (this._options?.maxReconnectAttempts || 5)) {
-          this.logger.ef(MESSAGES.WEBSOCKET.RECONNECT_FAILED, this._options?.maxReconnectAttempts || 5);
+        this.logger.ef(MESSAGES.WEBSOCKET.CONNECTION_FAILED, this._url);
+        if (this._reconnectAttempts >= this._options?.maxReconnectAttempts) {
+          this.logger.ef(MESSAGES.WEBSOCKET.RECONNECT_FAILED, this._options?.maxReconnectAttempts);
         }
       }
     }, this._options?.reconnectDelay);
@@ -863,7 +853,7 @@ export class WebsocketClient extends Service implements IWebsocket {
    * 处理请求队列
    */
   private processQueue(): void {
-    if (this._requestQueue.length > 0 && this._activeRequests < (this._options?.maxConcurrency || 10)) {
+    if (this._requestQueue.length > 0 && this._activeRequests < this._options?.maxConcurrency) {
       const task = this._requestQueue.shift()!;
       this.executeRequest(task, task.config).catch(() => {
         // 错误已在 _executeRequest 中处理
@@ -902,10 +892,14 @@ export class WebsocketClient extends Service implements IWebsocket {
     return new WSError(WSErrorCodes.UNKNOWN_ERROR, String(error), error);
   }
 
+  private _ids: IAscendingId;
+
   /**
    * 初始化服务
    */
   initialize(): void {
+    this._ids = this.resolve<IAscendingId>(SERVICES.ASCENDING_ID);
+    this._ids.create(SERVICES.WEBSOCKET_CLIENT, 0, 5000);
     // 监听应用生命周期事件
     this.setupLifecycleListeners();
   }
@@ -992,7 +986,7 @@ export class WebsocketClient extends Service implements IWebsocket {
 
       // 创建一个特殊的 ping 消息
       const pingMessage: WSMessage = {
-        id: this.nextReqId(),
+        id: this._ids.next(SERVICES.WEBSOCKET_CLIENT),
         cmd: MsgId.PING,
         data: {
           timestamp: Date.now(),

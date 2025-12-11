@@ -43,8 +43,8 @@ export const MESSAGES = {
     APP_ARGS: '应用参数',
   },
   ASCENDING_ID: {
-    CATEGORY: '🆔 编号:',
-    CREATED: '第一次创建 {0} -> {1}',
+    CATEGORY: '🔢 编号:',
+    CREATED: '第一次创建 {0} -> {1} ⋘ {2}',
   },
   ASTC: {
     CATEGORY: '🧩 ASTC:',
