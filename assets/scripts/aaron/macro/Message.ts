@@ -17,7 +17,7 @@
  */
 export const MESSAGES = {
   SERVICE: {
-    CATEGORY: '🛎️ 服务容器:',
+    CATEGORY: '🏭',
     FACTORY_EXISTED: '工厂方法 {0} 已存在，将被覆盖',
     FACTORY_REGISTERED: '注册工厂方法 {0}',
     INSTANCE_EXISTED: '实例对象 {0} 已存在，将被覆盖',
@@ -26,7 +26,7 @@ export const MESSAGES = {
     CREATE_INSTANCE: '创建实例对象 {0}',
   },
   APP_LAUNCHER: {
-    CATEGORY: '🚀 启动器:',
+    CATEGORY: '🚀',
     INVALID_ROOT: '根节点未正确配置',
     INVALID_2D_CAMERA: '2D相机节点未正确配置',
     CAMERA_NEEDED: '2D相机节点下必须挂载 Camera',
@@ -39,15 +39,15 @@ export const MESSAGES = {
     OUT_OF_MEMORY: '内存不足',
   },
   ARG_PARSER: {
-    CATEGORY: '🔓 参数解析器:',
+    CATEGORY: '🍾',
     APP_ARGS: '应用参数',
   },
   ASCENDING_ID: {
-    CATEGORY: '🔢 编号:',
+    CATEGORY: '🔢',
     CREATED: '第一次创建 {0} -> {1} ⋘ {2}',
   },
   ASTC: {
-    CATEGORY: '🧩 ASTC:',
+    CATEGORY: '🐇',
     DOWNLOAD_OK: '下载成功',
     DOWNLOAD_BAD: '下载失败',
     PARSE_OK: '解析成功',
@@ -56,25 +56,25 @@ export const MESSAGES = {
     CREATE_BAD: '创建失败',
   },
   AUDIO_PLAYER: {
-    CATEGORY: '🔊 音频:',
+    CATEGORY: '🎶',
     MUSIC_PLAYING: '🎵 音乐正在播放中 {0}',
   },
   CATCHER: {
-    CATEGORY: '🪰 异常捕获:',
+    CATEGORY: '🎾',
     ASYNC_ERROR: '异步错误',
     SYNC_ERROR: '同步错误',
   },
   EVENT_BUS: {
-    CATEGORY: '🚌 事件总线:',
+    CATEGORY: '🚌',
   },
   GLOBAL_ADAPTER: {
-    CATEGORY: '⚽ 全局对象:',
+    CATEGORY: '⚽',
     REPLACE: '替换属性 {0}，请注意影响范围',
     ADD: '添加属性 {0}',
     DELETE: '删除属性 {0}',
   },
   GUI: {
-    CATEGORY: '📷 视图:',
+    CATEGORY: '🐝',
     REGISTERED: '{0} 已经注册',
     REGISTER_DUPLICATE: '{0} 重复注册, 已跳过',
     REGISTER_REPLACED: '{0} 已经注册, 已替换',
@@ -103,7 +103,7 @@ export const MESSAGES = {
     PARSE_BIND_2: '解析绑定配置，索引组件未找到， key={0}, path={1}',
   },
   HTTP: {
-    CATEGORY: '🏄 Http:',
+    CATEGORY: '🐧',
     QUEUED: '请求进入队列: {0}',
     RETRYING: '请求重试 ({0}/{1}): {2}',
     NETWORK_ERROR: '网络错误',
@@ -114,7 +114,7 @@ export const MESSAGES = {
     CONCURRENCY_LIMIT_EXCEEDED: '请求队列已满',
   },
   LOCALIZATION: {
-    CATEGORY: '🌏 国际化:',
+    CATEGORY: '🌏',
     ID_NOT_FOUND: '未找到文本编号 {0}',
     ID_NOT_FOUND_IN_DICT: '在字典 {0} 中未找到文本编号 {1}',
     USE_CACHE: '使用本地缓存的语言 {0}',
@@ -125,7 +125,7 @@ export const MESSAGES = {
     DEL_DICT: '删除语言包 {1}',
   },
   NODE_POOL: {
-    CATEGORY: '🫙 节点池：',
+    CATEGORY: '🐟',
     REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
     REGISTER_BAD_DISMATCHED: '注册失败，目标实例不符合条件 {0}',
     QUERY_BAD_NOT_FOUND: '查询失败，目标不存在 {0}',
@@ -133,22 +133,22 @@ export const MESSAGES = {
     RECYCLE_OK: '回收节点到池子 {0}',
   },
   OBJECT_POOL: {
-    CATEGORY: '🍺 对象池:',
+    CATEGORY: '🐡',
     REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
     UN_REGISTER_OK: '注销成功 {0}',
     NOT_REGISTERED: '目标未注册 {0}',
     RECYCLE_OK: '回收对象到池子 {0}',
   },
   PLATFORM: {
-    CATEGORY: '💻 平台:',
+    CATEGORY: '💻',
   },
   PROFILER: {
-    CATEGORY: '📊 性能分析器:',
+    CATEGORY: '📊',
     TEXTURE_DETAILS: '纹理日志',
     MEMORY_OCCUPY: '占用内存 {0}M',
   },
   RED_DOT: {
-    CATEGORY: '🔴 红点:',
+    CATEGORY: '🔖',
     REGISTER_BAD_EXISTED: '注册失败，目标已存在 {0}',
     REGISTER_OK: '注册成功 {0}',
     UPDATE_BAD_NOT_REGISTERED: '更新失败，目标未注册 {0}',
@@ -162,7 +162,7 @@ export const MESSAGES = {
     PERSIST_BAD: '目标持久化失败 {0}:{1}',
   },
   RES_CACHE: {
-    CATEGORY: '🗄️资源缓存:',
+    CATEGORY: '🐷',
     CACHE_BAD: '资源无效，无法缓存 {0}',
     CACHE_OK: '资源 {0}，预设 {1}s 后过期',
     ACQUIRE_BAD_NOT_CACHED: '资源未缓存 {0}',
@@ -177,7 +177,7 @@ export const MESSAGES = {
     CLEAN_SOURCE: '清理来自 {0} 的资源 {1} 个',
   },
   RES_LOADER: {
-    CATEGORY: '🏃‍♂️‍➡️ 资源加载:',
+    CATEGORY: '🐶',
     UNLOAD: '卸载资源包 {0}',
     PRELOAD_BAD: '预加载失败 {0}',
     PRELOAD_DONE: '预加载完成 {0}/{1}',
@@ -192,29 +192,29 @@ export const MESSAGES = {
     LOAD_BAD_5: '不支持的远程资源类型 {0}',
   },
   RICH_TEXT_ATLAS: {
-    CATEGORY: '📔 富文本图集:',
+    CATEGORY: '🦋',
     EXISTED: '{0} 已配置为 {1}，请注意合理分配图集标识和等级',
     ADD: '添加 {0} => {1}',
     CLICK_LINK: '点击到链接: {0}',
   },
   SENSITIVES: {
-    CATEGORY: '🔞 敏感词:',
+    CATEGORY: '🈲',
   },
   STORE: {
-    CATEGORY: '💾 持久化:',
+    CATEGORY: '🦉',
   },
   TABLE_QUERY: {
-    CATEGORY: '📰 表格:',
+    CATEGORY: '🔍',
     PARSE_BAD: '解析失败，目标未注册 {0}',
     PARSE_OK: '解析成功 {0}',
     QUERY_BAD_NOT_REGISTERED: '查询失败，目标未注册 {0}',
     QUERY_BAD_NO_DATA: '查询失败，目标无数据 {0}',
   },
   TIMER: {
-    CATEGORY: '🕰️ 计时器:',
+    CATEGORY: '🦄',
   },
   TWEENER: {
-    CATEGORY: '🖼️ 缓动:',
+    CATEGORY: '🐲',
     REGISTER_REPLACE: '注册成功，使用最新版本 {0}',
     REGISTER_NEW: '注册成功 {0}',
     NOT_REGISTERED: '目标未注册 {0}',
@@ -229,10 +229,10 @@ export const MESSAGES = {
     IS_PLAYING_REPLACE: '正在播放中，应用替换策略 {0}',
   },
   TRIGGER: {
-    RUNTIME_ERROR: '❌ 触发器: 运行时错误 => {0}',
+    RUNTIME_ERROR: '触发器运行时错误 => {0}',
   },
   WEBSOCKET: {
-    CATEGORY: '🛜 Websocket:',
+    CATEGORY: '🦚',
     CONNECTING: '正在连接 {0}',
     CONNECTED: '连接成功 {0}',
     DISCONNECTED: '连接已断开',
@@ -260,6 +260,8 @@ export const MESSAGES = {
     RETAIN_PENDING_REQUESTS: '保留 {0} 个未发送的请求，等待重连后重发',
     PROTOCOL_NOT_FOUND: '协议未注册 {0}',
     PROTOCOL_RESP_UNEXPECTED: '协议解码器未注册或该请求不需要响应但被意外响应了 {0}',
+    RESEND_RETAIN_PENDING_REQUESTS: '重发 {0} 个保留的请求',
+    RESEND_FAIL: '重发请求失败',
     ERROR_CODE_1: '连接正在进行中',
     ERROR_CODE_2: '请求拦截器执行失败',
     ERROR_CODE_3: '请求已取消',

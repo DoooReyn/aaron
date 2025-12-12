@@ -294,35 +294,38 @@ export class Gui extends Service implements IGui {
     }
   }
 
-  async open(config: GuiConfig, params?: any) {
-    switch (config.interface) {
-      case 'Alert':
-        await this.alert.open(config, params);
-        break;
-      case 'Popup':
-        await this.popup.open(config, params);
-        break;
-      case 'Page':
-        await this.page.open(config, params);
-        break;
-      case 'Screen':
-        await this.screen.open(config, params);
-        break;
-      case 'Overlay':
-        // throw new Error('Overlay not implemented');
-        switch (config.overlay) {
-          case 'Drawer':
-            break;
-          case 'Guide':
-            break;
-          case 'Toast':
-            break;
-          case 'Marquee':
-            break;
-          case 'Top':
-            break;
-        }
-        break;
+  async open(config: GuiConfig | string, params?: any) {
+    config = this.inspect(config);
+    if (config) {
+      switch (config.interface) {
+        case 'Alert':
+          await this.alert.open(config, params);
+          break;
+        case 'Popup':
+          await this.popup.open(config, params);
+          break;
+        case 'Page':
+          await this.page.open(config, params);
+          break;
+        case 'Screen':
+          await this.screen.open(config, params);
+          break;
+        case 'Overlay':
+          // throw new Error('Overlay not implemented');
+          switch (config.overlay) {
+            case 'Drawer':
+              break;
+            case 'Guide':
+              break;
+            case 'Toast':
+              break;
+            case 'Marquee':
+              break;
+            case 'Top':
+              break;
+          }
+          break;
+      }
     }
   }
 

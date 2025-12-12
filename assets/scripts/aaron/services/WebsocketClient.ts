@@ -20,7 +20,7 @@ import {
   WSState
 } from '../interfaces';
 import { EVENTS, MESSAGES, SERVICES } from '../macro';
-import { literal } from '../utils';
+import { literal, might } from '../utils';
 
 /** 消息调制解调器 */
 interface MessageFns<T> {
@@ -230,7 +230,7 @@ export class WebsocketClient extends Service implements IWebsocket {
       url,
     };
 
-    await this.internalConnect();
+    await might.logAsync(this.internalConnect(), this.logger);
   }
 
   /**
@@ -594,7 +594,7 @@ export class WebsocketClient extends Service implements IWebsocket {
           this._reconnectAttempts = 0;
           this.startHeartbeat();
           this.emit('open', event);
-          this.logger.i(MESSAGES.WEBSOCKET.CONNECTED, this._url);
+          this.logger.if(MESSAGES.WEBSOCKET.CONNECTED, this._url);
 
           // 重发保留的请求
           this.retryQueuedRequests();
@@ -684,13 +684,13 @@ export class WebsocketClient extends Service implements IWebsocket {
     }
 
     const pendingTasks = this._requestQueue.splice(0);
-    this.logger.i(`重发 ${pendingTasks.length} 个保留的请求`);
+    this.logger.if(MESSAGES.WEBSOCKET.RESEND_RETAIN_PENDING_REQUESTS, pendingTasks.length);
 
     // 异步执行重发，避免阻塞连接流程
     setTimeout(() => {
       for (const task of pendingTasks) {
         this.executeRequest(task, task.config).catch((error) => {
-          this.logger.ef(`重发请求 ${task.id} 失败:`, error);
+          this.logger.e(MESSAGES.WEBSOCKET.RESEND_FAIL, task.id, error);
         });
       }
     }, 100); // 延迟 100ms 执行，确保连接稳定

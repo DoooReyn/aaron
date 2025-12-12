@@ -48,7 +48,7 @@ export class Aaron {
   }
 
   /** 日志容器 */
-  public readonly logger: Logger = new Logger('👑 Aaron:');
+  public readonly logger: Logger = new Logger('🐉');
 
   /**
    * 服务注册回调

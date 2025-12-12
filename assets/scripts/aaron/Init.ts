@@ -66,8 +66,8 @@ import {
  * @param args 启动参数
  */
 export async function init(args: IPartialLaunchOptions): Promise<void> {
-  aaron.logger.i(`🚀 初始化 ${FRAMEWORK.name} v${VERSION}`);
-  aaron.logger.i(`📋 架构模式: ${FRAMEWORK.architecture}`);
+  aaron.logger.i(`初始化 ${FRAMEWORK.name} v${VERSION}`);
+  aaron.logger.i(`架构模式: ${FRAMEWORK.architecture}`);
 
   // ------------------------------ 注册服务 ------------------------------//
 
@@ -194,9 +194,9 @@ export async function init(args: IPartialLaunchOptions): Promise<void> {
     this
   );
 
-  aaron.logger.i('✅ Aaron Framework 初始化完成');
-  aaron.logger.i(`🚀 版本: ${VERSION}`);
-  aaron.logger.i(`📋 架构: ${FRAMEWORK.architecture}`);
+  aaron.logger.i('Aaron Framework 初始化完成');
+  aaron.logger.i(`版本: ${VERSION}`);
+  aaron.logger.i(`架构: ${FRAMEWORK.architecture}`);
 
   return Promise.resolve();
 }

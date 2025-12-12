@@ -115,7 +115,7 @@ export class ResCache extends Service implements IResCache {
       }
 
       if (entry.refCount <= 0) {
-        entry.asset.destroy();
+        entry.asset.decRef();
         this._container.delete(key);
         this.logger.df(MESSAGES.RES_CACHE.DELETE, key);
         return true;
@@ -203,7 +203,7 @@ export class ResCache extends Service implements IResCache {
   clear(): void {
     for (const [_, entry] of this._container) {
       if (entry.asset.isValid && entry.refCount <= 0) {
-        entry.asset.destroy();
+        entry.asset.decRef();
       }
     }
 
@@ -279,7 +279,9 @@ export class ResCache extends Service implements IResCache {
     for (const [key, entry] of this._container) {
       if (entry.source === source) {
         if (entry.asset.isValid && entry.refCount <= 0) {
-          entry.asset.destroy();
+          for (let i = 0; i < entry.refCount; i++) {
+            entry.asset.decRef(true);
+          }
         }
         this._container.delete(key);
         count++;

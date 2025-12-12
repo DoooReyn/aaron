@@ -186,27 +186,27 @@ export type GuiBindingResult<S extends GuiBindingEntry> =
   S extends GuiComponentBindingSpec<infer C>
     ? C | null
     : S extends GuiComponentsBindingSpec<infer C>
-      ? C[]
-      : S extends GuiNodeBindingSpec
-        ? Node | null
-        : S extends GuiNodesBindingSpec
-          ? Node[]
-          : // 元组形式：[path] / [path, 'node']
-            S extends [string] | [string, 'node']
-            ? Node | null
-            : S extends [string, 'nodes']
-              ? Node[]
-              : // 元组形式：[path, 'component', Ctor]
-                S extends [string, 'component', infer Ctor]
-                ? Ctor extends new (...args: any[]) => infer I
-                  ? I | null
-                  : unknown
-                : // 元组形式：[path, 'components', Ctor]
-                  S extends [string, 'components', infer Ctor]
-                  ? Ctor extends new (...args: any[]) => infer I
-                    ? I[]
-                    : unknown
-                  : unknown;
+    ? C[]
+    : S extends GuiNodeBindingSpec
+    ? Node | null
+    : S extends GuiNodesBindingSpec
+    ? Node[]
+    : // 元组形式：[path] / [path, 'node']
+    S extends [string] | [string, 'node']
+    ? Node | null
+    : S extends [string, 'nodes']
+    ? Node[]
+    : // 元组形式：[path, 'component', Ctor]
+    S extends [string, 'component', infer Ctor]
+    ? Ctor extends new (...args: any[]) => infer I
+      ? I | null
+      : unknown
+    : // 元组形式：[path, 'components', Ctor]
+    S extends [string, 'components', infer Ctor]
+    ? Ctor extends new (...args: any[]) => infer I
+      ? I[]
+      : unknown
+    : unknown;
 
 /** 根据绑定表推导最终引用字典类型 */
 export type GuiBindingRefs<M extends GuiBindingMap> = {
@@ -559,7 +559,7 @@ export interface IGui extends IService {
    * @param config 视图配置
    * @param params 视图入参
    */
-  open(config: GuiConfig, params?: any): Promise<void>;
+  open(config: GuiConfig | string, params?: any): Promise<void>;
   /** 关闭指定视图 */
   close(token: string): Promise<void>;
   /** 聚焦顶层视图 */
