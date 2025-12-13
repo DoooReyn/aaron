@@ -5,6 +5,7 @@ import { UserInfoController } from './controller/UserInfoController';
 import { HeartBeatReq, HeartBeatResp, MsgId, PingReq, PongResp } from './data/proto/game';
 import { ResPath } from './data/ResPath';
 import { ITblDialogue, ITblRole, TableDialogue, TableRole } from './data/table';
+import { HttpAppender } from './proxy/HttpAppender';
 
 /** 当前环境 */
 const env = BUILD ? 'prod' : DEV ? 'dev' : 'debug';
@@ -42,6 +43,9 @@ async function main() {
 
   // 挂载全局变量 fk
   fk.aaron.globalAdapter.set('fk', fk);
+
+  // 添加远程日志输出器
+  fk.Logger.addAppender(HttpAppender);
 
   // 解析表格
   console.time('📰 解析表格');

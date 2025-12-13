@@ -5,18 +5,18 @@ import { literal } from '../utils';
 /**
  * 日志分级标识
  */
-const LoggerFlags: Record<keyof typeof LogLevel, string> = {
+export const LoggerFlags: Record<keyof typeof LogLevel, string> = {
   DEBUG: '🐤',
   INFO: '🐓',
   WARN: '🦩',
   ERROR: '🐦',
   NONE: '🦢',
-};
+} as const;
 
 /**
  * 上下文
  */
-interface LoggerContext {
+export interface LoggerContext {
   level: keyof typeof LogLevel;
   token: string;
   content: any[];
@@ -44,9 +44,6 @@ class ConsoleAppender extends LoggerAppender {
     }
   }
 }
-
-/**
- */
 
 /**
  * 日志
