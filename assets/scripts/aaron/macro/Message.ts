@@ -158,7 +158,7 @@ export const MESSAGES = {
     EXECUTE_BAD_IN_STATE_CHANGED: '目标状态变化回调执行失败',
     RESTORE_OK: '目标持久化恢复成功 {0}',
     RESTORE_BAD: '目标持久化恢复失败 {0}:{1}',
-    PERSIST_OK: '目标持久化失败 {0}',
+    PERSIST_OK: '目标持久化成功 {0}',
     PERSIST_BAD: '目标持久化失败 {0}:{1}',
   },
   RES_CACHE: {
